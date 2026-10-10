@@ -476,14 +476,20 @@ addEventListener('DOMContentLoaded', () => {
     place(chip, true);
     // Finish every scroll reveal first, so a reveal firing mid-filter cannot cancel the layout animation.
     if (revealers) { revealers.forEach(t => t.kill()); revealers = null; gsap.killTweensOf(cards); gsap.set(cards, { autoAlpha: 1, y: 0 }); }
+    const grid = document.querySelector('.grid');
     const state = (!reduce && window.Flip) ? Flip.getState(cards) : null;
+    const h0 = grid.offsetHeight;
     cards.forEach(c => c.classList.toggle('out', f !== 'all' && c.dataset.group !== f));
     if (state) {
+      // Flip lifts the cards out of flow while they move; hold the grid's height and ease it to the new one,
+      // so the sections below never jump.
+      const h1 = grid.offsetHeight;
+      gsap.fromTo(grid, { height: h0 }, { height: h1, duration: 0.8, ease: 'expo.inOut' });
       Flip.from(state, {
-        duration: 0.8, ease: 'expo.inOut', absolute: true, scale: false, nested: true,
+        duration: 0.8, ease: 'expo.inOut', absolute: true, scale: false,
         onEnter: els => gsap.fromTo(els, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: 'expo.out', delay: 0.15 }),
         onLeave: els => gsap.to(els, { autoAlpha: 0, y: 20, duration: 0.35, ease: 'power2.in' }),
-        onComplete: () => ScrollTrigger.refresh(),
+        onComplete: () => { gsap.set(grid, { clearProps: 'height' }); ScrollTrigger.refresh(); },
       });
     } else {
       cards.forEach(c => { if (!c.classList.contains('out')) gsap.set(c, { autoAlpha: 1, y: 0 }); });
