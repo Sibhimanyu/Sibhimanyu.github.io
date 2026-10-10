@@ -14,58 +14,107 @@
 <meta name="twitter:card" content="summary" />
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Person", "@id": "https://sibhimanyu.github.io/#me", "name": "Sibhimanyu", "url": "https://sibhimanyu.github.io/", "sameAs": ["https://github.com/Sibhimanyu"]}, {"@type": "ItemList", "name": "Projects by Sibhimanyu", "itemListElement": [{"@type": "ListItem", "position": 1, "url": "https://sibhimanyu.github.io/rasanai/", "name": "RasanAI"}, {"@type": "ListItem", "position": 2, "url": "https://sibhimanyu.github.io/flotilla/", "name": "Flotilla"}, {"@type": "ListItem", "position": 3, "url": "https://sibhimanyu.github.io/heresay/", "name": "Heresay"}, {"@type": "ListItem", "position": 4, "url": "https://sibhimanyu.github.io/greenroom/", "name": "Greenroom"}, {"@type": "ListItem", "position": 5, "url": "https://sibhimanyu.github.io/imago/", "name": "Imago"}]}]}</script>
 <style>
-  :root { --ink:#15151a; --muted:#5d5f6b; --line:#e4e3de; --bg:#f7f6f2; --card:#fff; --acc:#1b1f5e; }
+  :root { --ink:#15151a; --muted:#5d5f6b; --line:#e4e3de; --bg:#f7f6f2; --card:#fff; --acc:#1b1f5e; color-scheme:light; }
   * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
-  main { max-width:880px; margin:0 auto; padding:clamp(48px,9vw,112px) 24px 80px; }
-  h1 { font-size:clamp(2.2rem,5vw,3.4rem); line-height:1.02; letter-spacing:-.03em; margin:0 0 14px; }
-  .lede { color:var(--muted); font-size:1.12rem; margin:0 0 48px; max-width:36rem; }
-  .lede a { color:var(--acc); }
-  ul { list-style:none; padding:0; margin:0; display:grid; gap:14px; }
-  .p { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px 24px; }
-  .t { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; text-decoration:none; color:inherit; }
-  h2 { font-size:1.35rem; letter-spacing:-.02em; margin:0; }
-  .t span { font-size:.85rem; color:var(--muted); }
-  .t:hover h2 { color:var(--acc); }
-  .p p { margin:8px 0 12px; color:#33343c; }
-  .l { display:flex; gap:18px; font-size:.92rem; }
-  .l a { color:var(--acc); font-weight:600; text-underline-offset:3px; }
-  footer { margin-top:48px; color:var(--muted); font-size:.9rem; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing:antialiased; }
+  main { max-width:1080px; margin:0 auto; padding:clamp(48px,8vw,96px) 24px 64px; }
+  header { display:flex; justify-content:space-between; align-items:flex-end; gap:24px; flex-wrap:wrap; margin-bottom:clamp(36px,5vw,56px); }
+  h1 { font-size:clamp(2.4rem,6vw,4rem); line-height:1; letter-spacing:-.04em; margin:0 0 14px; }
+  .lede { color:var(--muted); font-size:1.15rem; margin:0; max-width:32rem; }
+  .gh { display:inline-flex; align-items:center; gap:8px; padding:10px 16px; border:1px solid var(--line); border-radius:999px; background:var(--card); color:var(--ink); font-weight:600; font-size:.95rem; text-decoration:none; transition:border-color .15s, transform .15s; }
+  .gh:hover { border-color:var(--ink); transform:translateY(-1px); }
+  .gh svg { width:18px; height:18px; }
+  ul { list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+  .p { display:flex; flex-direction:column; background:var(--card); border:1px solid var(--line); border-radius:18px; overflow:hidden; position:relative; transition:transform .2s ease, box-shadow .2s ease, border-color .2s; }
+  .p:hover { transform:translateY(-3px); box-shadow:0 14px 36px -18px rgba(21,21,26,.28); border-color:#d6d5cf; }
+  .shot { display:block; aspect-ratio:2/1; overflow:hidden; border-bottom:1px solid var(--line); background:#efeee9; }
+  .shot img { width:100%; height:100%; object-fit:cover; object-position:top; display:block; transition:transform .5s ease; }
+  .p:hover .shot img { transform:scale(1.03); }
+  .body { padding:20px 22px 22px; display:flex; flex-direction:column; flex:1; }
+  .head { display:flex; gap:12px; align-items:center; }
+  .mark { width:40px; height:40px; border-radius:10px; flex:none; }
+  h2 { font-size:1.3rem; line-height:1.2; letter-spacing:-.02em; margin:0; }
+  .t { color:inherit; text-decoration:none; }
+  .t::after { content:""; position:absolute; inset:0; z-index:0; }
+  .tag { font-size:.85rem; color:var(--muted); }
+  .p p { margin:14px 0 18px; color:#33343c; flex:1; }
+  .l { display:flex; gap:20px; font-size:.92rem; align-items:center; position:relative; z-index:1; }
+  .l a { color:var(--muted); font-weight:600; text-decoration:none; }
+  .l a:hover { color:var(--ink); text-decoration:underline; text-underline-offset:3px; }
+  .l .go { color:var(--acc); }
+  .l .go span { display:inline-block; transition:transform .15s; }
+  .p:hover .go span { transform:translateX(3px); }
+  .lead { grid-column:1/-1; flex-direction:row; }
+  .lead .shot { flex:0 0 56%; align-self:center; border-bottom:0; border-right:1px solid var(--line); }
+  .lead .body { padding:32px 32px 30px; justify-content:center; }
+  .lead h2 { font-size:1.75rem; }
+  .lead .mark { width:48px; height:48px; border-radius:12px; }
+  a:focus-visible, .p:has(.t:focus-visible) { outline:2px solid var(--acc); outline-offset:3px; }
+  .t:focus-visible { outline:none; }
+  footer { margin-top:56px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:.9rem; display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; }
   footer a { color:inherit; }
+  @media (max-width:760px) {
+    ul { grid-template-columns:1fr; }
+    .lead { flex-direction:column; }
+    .lead .shot { flex:none; border-right:0; border-bottom:1px solid var(--line); }
+    .lead .body { padding:20px 22px 22px; }
+    .lead h2 { font-size:1.3rem; }
+  }
+  @media (prefers-reduced-motion:reduce) { * { transition:none !important; } }
 </style>
 </head>
 <body>
 <main>
-  <h1>Sibhimanyu</h1>
-  <p class="lede">Open-source tools for making with AI agents. Everything is on <a href="https://github.com/Sibhimanyu">GitHub</a>.</p>
+  <header>
+    <div>
+      <h1>Sibhimanyu</h1>
+      <p class="lede">Open-source tools for making with AI agents.</p>
+    </div>
+    <a class="gh" href="https://github.com/Sibhimanyu"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>All projects on GitHub</a>
+  </header>
   <ul>
-    <li class="p">
-      <a class="t" href="https://sibhimanyu.github.io/rasanai/"><h2>RasanAI</h2><span>Claude Code skill · AI video</span></a>
-      <p>AI video director for Claude Code. Pick one of three complete films and Claude designs, animates and renders it: launch films, explainers, reels from your footage, motion graphics. Built on HyperFrames.</p>
-      <div class="l"><a href="https://sibhimanyu.github.io/rasanai/">Website</a><a href="https://github.com/Sibhimanyu/rasanai">GitHub</a></div>
+    <li class="p lead">
+      <a class="shot" href="https://sibhimanyu.github.io/rasanai/" tabindex="-1" aria-hidden="true"><img src="assets/rasanai-shot.jpg" alt="" width="1920" height="960" fetchpriority="high" /></a>
+      <div class="body">
+        <div class="head"><img class="mark" src="assets/rasanai-mark.svg" alt="" width="40" height="40" /><div><h2><a class="t" href="https://sibhimanyu.github.io/rasanai/">RasanAI</a></h2><span class="tag">Claude Code skill · AI video</span></div></div>
+        <p>AI video director for Claude Code. Pick one of three complete films and Claude designs, animates and renders it: launch films, explainers, reels from your footage, motion graphics. Built on HyperFrames.</p>
+        <div class="l"><a class="go" href="https://sibhimanyu.github.io/rasanai/">Visit site <span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/rasanai">GitHub</a></div>
+      </div>
     </li>
     <li class="p">
-      <a class="t" href="https://sibhimanyu.github.io/flotilla/"><h2>Flotilla</h2><span>Multiplayer agentic app builder</span></a>
-      <p>Several AI coding agents build one app together without stepping on each other. Each teammate runs their own agent; Flotilla hands out tasks, enforces who may touch which files, and shows one live board.</p>
-      <div class="l"><a href="https://sibhimanyu.github.io/flotilla/">Website</a><a href="https://github.com/Sibhimanyu/multiplayer-agentic-builder">GitHub</a></div>
+      <a class="shot" href="https://sibhimanyu.github.io/flotilla/" tabindex="-1" aria-hidden="true"><img src="assets/flotilla-shot.jpg" alt="" width="1920" height="960" loading="lazy" /></a>
+      <div class="body">
+        <div class="head"><img class="mark" src="assets/flotilla-mark.svg" alt="" width="40" height="40" /><div><h2><a class="t" href="https://sibhimanyu.github.io/flotilla/">Flotilla</a></h2><span class="tag">Multiplayer agentic app builder</span></div></div>
+        <p>Several AI coding agents build one app together without stepping on each other. Each teammate runs their own agent; Flotilla hands out tasks, enforces who may touch which files, and shows one live board.</p>
+        <div class="l"><a class="go" href="https://sibhimanyu.github.io/flotilla/">Visit site <span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/multiplayer-agentic-builder">GitHub</a></div>
+      </div>
     </li>
     <li class="p">
-      <a class="t" href="https://sibhimanyu.github.io/heresay/"><h2>Heresay</h2><span>Feedback that reaches your coding agent</span></a>
-      <p>In-app feedback and bug reports for web, iOS and macOS apps. Your team accepts each report; accepted ones go to your coding agent (Claude Code, Cursor, Codex) over MCP. Self-hosted on Firebase.</p>
-      <div class="l"><a href="https://sibhimanyu.github.io/heresay/">Website</a><a href="https://github.com/Sibhimanyu/heresay">GitHub</a></div>
+      <a class="shot" href="https://sibhimanyu.github.io/heresay/" tabindex="-1" aria-hidden="true"><img src="assets/heresay-shot.jpg" alt="" width="1920" height="960" loading="lazy" /></a>
+      <div class="body">
+        <div class="head"><img class="mark" src="assets/heresay-mark.svg" alt="" width="40" height="40" /><div><h2><a class="t" href="https://sibhimanyu.github.io/heresay/">Heresay</a></h2><span class="tag">Feedback that reaches your coding agent</span></div></div>
+        <p>In-app feedback and bug reports for web, iOS and macOS apps. Your team accepts each report; accepted ones go to your coding agent (Claude Code, Cursor, Codex) over MCP. Self-hosted on Firebase.</p>
+        <div class="l"><a class="go" href="https://sibhimanyu.github.io/heresay/">Visit site <span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/heresay">GitHub</a></div>
+      </div>
     </li>
     <li class="p">
-      <a class="t" href="https://sibhimanyu.github.io/greenroom/"><h2>Greenroom</h2><span>macOS · one-click classroom</span></a>
-      <p>A macOS app that sets up a whole morning class in one click: OBS virtual camera, Zoom and a tiled layout. Built for a reading class at Zoho Schools.</p>
-      <div class="l"><a href="https://sibhimanyu.github.io/greenroom/">Website</a><a href="https://github.com/Sibhimanyu/greenroom">GitHub</a></div>
+      <a class="shot" href="https://sibhimanyu.github.io/greenroom/" tabindex="-1" aria-hidden="true"><img src="assets/greenroom-shot.jpg" alt="" width="1920" height="960" loading="lazy" /></a>
+      <div class="body">
+        <div class="head"><img class="mark" src="assets/greenroom-mark.png" alt="" width="40" height="40" /><div><h2><a class="t" href="https://sibhimanyu.github.io/greenroom/">Greenroom</a></h2><span class="tag">macOS · one-click classroom</span></div></div>
+        <p>A macOS app that sets up a whole morning class in one click: OBS virtual camera, Zoom and a tiled layout. Built for a reading class at Zoho Schools.</p>
+        <div class="l"><a class="go" href="https://sibhimanyu.github.io/greenroom/">Visit site <span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/greenroom">GitHub</a></div>
+      </div>
     </li>
     <li class="p">
-      <a class="t" href="https://sibhimanyu.github.io/imago/"><h2>Imago</h2><span>API responses as interfaces</span></a>
-      <p>APIs become interfaces. Paste an API URL or a curl command, and Imago reads the JSON's shape and draws a live interface for it. Browser-only, no build step.</p>
-      <div class="l"><a href="https://sibhimanyu.github.io/imago/">Website</a><a href="https://github.com/Sibhimanyu/imago">GitHub</a></div>
+      <a class="shot" href="https://imago.onslate.in/" tabindex="-1" aria-hidden="true"><img src="assets/imago-shot.jpg" alt="" width="1920" height="960" loading="lazy" /></a>
+      <div class="body">
+        <div class="head"><img class="mark" src="assets/imago-mark.svg" alt="" width="40" height="40" /><div><h2><a class="t" href="https://imago.onslate.in/">Imago</a></h2><span class="tag">API responses as interfaces</span></div></div>
+        <p>APIs become interfaces. Paste an API URL or a curl command, and Imago reads the JSON's shape and draws a live interface for it. Browser-only, no build step.</p>
+        <div class="l"><a class="go" href="https://imago.onslate.in/">Visit site <span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/imago">GitHub</a></div>
+      </div>
     </li>
   </ul>
-  <footer>Looking for Rasa Director? It is now <a href="https://sibhimanyu.github.io/rasanai/">RasanAI</a>.</footer>
+  <footer><span>Looking for Rasa Director? It is now <a href="https://sibhimanyu.github.io/rasanai/">RasanAI</a>.</span><a href="https://github.com/Sibhimanyu">github.com/Sibhimanyu</a></footer>
 </main>
 </body>
 </html>

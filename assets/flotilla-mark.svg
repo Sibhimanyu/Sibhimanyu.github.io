@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Flotilla</title>
+  <desc id="desc">The Flotilla fleet favicon.</desc>
+  <rect width="64" height="64" rx="14" fill="#0F766E"/>
+  <g transform="translate(6 11) scale(.1)"><g fill="#FFFFFF" transform="rotate(-7 260 210)">
+    <path transform="translate(0 -12)" d="M184 39C245 46 346 75 429 112C442 118 444 128 430 135C376 164 311 185 249 199C235 202 231 193 239 181C259 151 266 121 256 94C246 68 220 50 184 39Z"/>
+    <path transform="translate(-4 6)" d="M86 143C132 151 198 173 239 193C250 198 250 207 239 213C192 238 139 261 54 281C41 284 37 275 46 264C75 235 98 211 101 188C103 170 98 155 86 143Z"/>
+    <path transform="translate(0 12)" d="M190 245C233 253 290 274 326 293C337 299 337 307 326 313C287 336 243 353 176 369C163 372 159 363 168 352C192 326 210 304 212 284C213 268 207 254 190 245Z"/>
+  </g></g>
+</svg>
