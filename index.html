@@ -4,12 +4,12 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Sibhimanyu: projects</title>
-<meta name="description" content="Projects by Sibhimanyu: RasanAI, Flotilla, Heresay, Squeak, Imago, Greenroom, Abhishri Academy and SNOF. Tools for working with AI agents, and apps that run a classroom, a school and a farm." />
+<meta name="description" content="Projects Sibhimanyu has worked on: RasanAI, Flotilla, Heresay, Squeak, Imago, Greenroom, Abhishri Academy and SNOF. Tools for AI agents, and apps for a classroom, a school and a farm." />
 <meta name="author" content="Sibhimanyu" />
 <link rel="canonical" href="https://sibhimanyu.github.io/" />
 <meta property="og:type" content="profile" />
 <meta property="og:title" content="Sibhimanyu: projects" />
-<meta property="og:description" content="Projects by Sibhimanyu: RasanAI, Flotilla, Heresay, Squeak, Imago, Greenroom, Abhishri Academy and SNOF. Tools for working with AI agents, and apps that run a classroom, a school and a farm." />
+<meta property="og:description" content="Projects Sibhimanyu has worked on: RasanAI, Flotilla, Heresay, Squeak, Imago, Greenroom, Abhishri Academy and SNOF. Tools for AI agents, and apps for a classroom, a school and a farm." />
 <meta property="og:url" content="https://sibhimanyu.github.io/" />
 <meta property="og:image" content="https://sibhimanyu.github.io/og.png" />
 <meta property="og:image:width" content="1200" />
@@ -22,124 +22,175 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" />
-<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Person", "@id": "https://sibhimanyu.github.io/#me", "name": "Sibhimanyu", "url": "https://sibhimanyu.github.io/", "sameAs": ["https://github.com/Sibhimanyu"]}, {"@type": "ItemList", "name": "Projects by Sibhimanyu", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "RasanAI", "url": "https://sibhimanyu.github.io/rasanai/"}, {"@type": "ListItem", "position": 2, "name": "Flotilla", "url": "https://sibhimanyu.github.io/flotilla/"}, {"@type": "ListItem", "position": 3, "name": "Heresay", "url": "https://sibhimanyu.github.io/heresay/"}, {"@type": "ListItem", "position": 4, "name": "Squeak", "url": "https://sibhimanyu.github.io/squeak/"}, {"@type": "ListItem", "position": 5, "name": "Imago", "url": "https://imago.onslate.in/"}, {"@type": "ListItem", "position": 6, "name": "Greenroom", "url": "https://sibhimanyu.github.io/greenroom/"}, {"@type": "ListItem", "position": 7, "name": "Abhishri Academy", "url": "https://abhishri-academy.web.app/public-calendar"}, {"@type": "ListItem", "position": 8, "name": "SNOF", "url": "https://snof-live.web.app/"}]}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Person", "@id": "https://sibhimanyu.github.io/#me", "name": "Sibhimanyu", "url": "https://sibhimanyu.github.io/", "sameAs": ["https://github.com/Sibhimanyu"]}, {"@type": "ItemList", "name": "Projects Sibhimanyu has worked on", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "RasanAI", "url": "https://sibhimanyu.github.io/rasanai/"}, {"@type": "ListItem", "position": 2, "name": "Flotilla", "url": "https://sibhimanyu.github.io/flotilla/"}, {"@type": "ListItem", "position": 3, "name": "Heresay", "url": "https://sibhimanyu.github.io/heresay/"}, {"@type": "ListItem", "position": 4, "name": "Squeak", "url": "https://sibhimanyu.github.io/squeak/"}, {"@type": "ListItem", "position": 5, "name": "Imago", "url": "https://imago.onslate.in/"}, {"@type": "ListItem", "position": 6, "name": "Greenroom", "url": "https://sibhimanyu.github.io/greenroom/"}, {"@type": "ListItem", "position": 7, "name": "Abhishri Academy", "url": "https://abhishri-academy.web.app/public-calendar"}, {"@type": "ListItem", "position": 8, "name": "SNOF", "url": "https://snof-live.web.app/"}]}]}</script>
 <script>
   // Motion is an enhancement: content is visible without JS, with reduced motion, or if GSAP never arrives.
   (function () {
     var r = document.documentElement;
     r.classList.remove('no-js'); r.classList.add('js');
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) r.classList.add('rm');
+    // Only Chromium applies SVG filters inside backdrop-filter; elsewhere glass falls back to blur.
+    var ua = navigator.userAgentData; if (ua && ua.brands && ua.brands.some(function (b) { return /Chromium/.test(b.brand); })) r.classList.add('refract');
     setTimeout(function () { if (!window.gsap) r.classList.remove('js'); }, 3000);
   })();
 </script>
 <style>
   :root {
     --ink:#15151a; --ink-2:#33343c; --muted:#5d5f6b; --line:#e4e3de; --bg:#f7f6f2; --card:#fff; --acc:#1b1f5e;
-    --max:1200px; --pad:clamp(20px,4vw,40px); --nav:64px;
-    --ease-out:cubic-bezier(.16,1,.3,1);
+    --max:1200px; --pad:clamp(20px,4vw,40px); --nav:64px; --ease-out:cubic-bezier(.16,1,.3,1);
     color-scheme:light;
   }
   * { box-sizing:border-box; }
   ::selection { background:var(--acc); color:var(--bg); }
-  html { scroll-padding-top:calc(var(--nav) + 16px); }
+  html { scroll-padding-top:96px; }
   @media (prefers-reduced-motion:no-preference) { html { scroll-behavior:smooth; } }
   body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 "Schibsted Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing:antialiased; overflow-x:clip; }
   img { display:block; max-width:100%; }
   a { color:inherit; }
+  button { font:inherit; color:inherit; background:none; border:0; padding:0; cursor:pointer; }
   a:focus-visible, button:focus-visible { outline:2px solid var(--acc); outline-offset:3px; border-radius:6px; }
   .wrap { max-width:var(--max); margin:0 auto; padding:0 var(--pad); }
   .vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
   .skip { position:absolute; left:12px; top:-60px; z-index:100; background:var(--ink); color:var(--bg); padding:10px 16px; border-radius:8px; text-decoration:none; }
   .skip:focus { top:12px; }
+  .no-js .js-only { display:none !important; }
 
   /* Progress + nav */
   .progress { position:fixed; inset:0 0 auto 0; height:2px; background:var(--acc); transform-origin:0 50%; transform:scaleX(0); z-index:60; pointer-events:none; }
   .no-js .progress, .rm .progress { display:none; }
-  .nav { position:sticky; top:0; z-index:50; background:var(--bg); transition:box-shadow .3s ease-out; }
-  .nav.scrolled { box-shadow:0 1px 0 var(--line); }
-  .nav-in { height:var(--nav); display:flex; align-items:center; justify-content:space-between; gap:16px; }
+  /* Liquid glass: tint + blur + saturation, a lit top-left rim, a soft lower rim, and a sheen.
+     Chromium also refracts what is behind it through an SVG displacement map (.refract). */
+  .glass { position:relative; isolation:isolate; background:rgba(255,255,255,var(--tint,.22));
+    -webkit-backdrop-filter:blur(var(--blur,12px)) saturate(1.9) brightness(1.04); backdrop-filter:blur(var(--blur,12px)) saturate(1.9) brightness(1.04);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.42), inset 1.5px 1.5px 1px -1px rgba(255,255,255,.95), inset -1px -1.5px 1px -1px rgba(255,255,255,.55),
+      0 10px 30px -12px rgba(15,15,35,.28), 0 1px 2px rgba(15,15,35,.08); }
+  .glass::before { content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:-1;
+    background:linear-gradient(140deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,.08) 32%, rgba(255,255,255,0) 55%, rgba(255,255,255,.14) 100%); }
+  .refract .glass { -webkit-backdrop-filter:url(#lg) blur(var(--blur,12px)) saturate(1.9) brightness(1.04); backdrop-filter:url(#lg) blur(var(--blur,12px)) saturate(1.9) brightness(1.04); }
+  .glass.thick { --tint:.66; --blur:22px; }
+  .glass.clear { --tint:.14; --blur:8px; }
+  @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) { .glass { background:rgba(255,255,255,.9); } }
+  @media (prefers-reduced-transparency:reduce) { .glass, .refract .glass { background:rgba(250,250,247,.97); -webkit-backdrop-filter:none; backdrop-filter:none; } }
+
+  .nav { position:sticky; top:12px; z-index:50; margin-top:12px; pointer-events:none; }
+  .nav-in { pointer-events:auto; height:56px; max-width:calc(var(--max) - 2 * var(--pad) + 24px); margin:0 auto; padding:0 8px 0 14px; border-radius:999px; display:flex; align-items:center; justify-content:space-between; gap:16px; --tint:.5; transition:box-shadow .3s ease-out; }
+  .nav.scrolled .nav-in { --tint:.38; }
+  @media (max-width:600px) { .nav-in { margin:0 12px; } }
+  @media (max-width:400px) { .nav-links a { padding:0 10px; } }
+  @media (max-width:379px) { .nav-links .opt { display:none; } }
   .brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.05rem; letter-spacing:-.01em; text-decoration:none; min-height:44px; }
   .brand img { width:28px; height:28px; border-radius:7px; }
   .nav-links { display:flex; gap:4px; }
   .nav-links a { display:inline-flex; align-items:center; min-height:44px; padding:0 14px; border-radius:999px; color:var(--muted); font-weight:500; text-decoration:none; transition:color .2s ease-out, background-color .2s ease-out; }
   .nav-links a:hover { color:var(--ink); }
-  .nav-links a.on { color:var(--ink); background:#ebeae4; }
-  @media (max-width:600px) { .nav-links .opt { display:none; } .nav-links a { padding:0 12px; } }
+  .nav-links a.on { color:var(--ink); background:rgba(255,255,255,.7); box-shadow:inset 0 0 0 1px rgba(255,255,255,.9), 0 2px 8px -4px rgba(15,15,35,.25); }
 
   /* Hero */
-  .hero { min-height:calc(100svh - var(--nav)); display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); align-items:center; gap:clamp(40px,6vw,96px); padding-block:clamp(40px,8vh,96px); }
-  .hl { font-size:clamp(2.2rem,4.5vw,4.6rem); line-height:1.02; letter-spacing:-.035em; font-weight:700; margin:0; }
+  .hero { padding-block:clamp(36px,7vh,88px) clamp(48px,7vw,96px); }
+  .hero-top { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:end; gap:24px clamp(32px,5vw,72px); margin-bottom:clamp(32px,4.5vw,56px); }
+  .hl { font-size:clamp(2.2rem,5.2vw,4.7rem); line-height:1.02; letter-spacing:-.035em; font-weight:700; margin:0; }
   .line { display:block; overflow:hidden; padding-bottom:.08em; margin-bottom:-.08em; }
-  .line-i { display:inline-block; white-space:nowrap; }
-  .no-js .line-i, .rm .line-i { white-space:normal; }
+  .line-i { display:inline-block; }
   .accent { color:var(--acc); }
   .rotator { display:none; }
   .js:not(.rm) .rotator { display:inline-grid; vertical-align:bottom; overflow:hidden; padding-bottom:.08em; margin-bottom:-.08em; }
   .js:not(.rm) .rot-static { display:none; }
   .rw { grid-area:1/1; justify-self:start; white-space:nowrap; }
   .js:not(.rm) .rw + .rw { visibility:hidden; }
-  .hero-sub { font-size:clamp(1.05rem,1.35vw,1.22rem); color:var(--muted); max-width:33rem; margin:28px 0 34px; text-wrap:pretty; }
+  .hero-side { max-width:22rem; }
+  .hero-sub { font-size:1.08rem; color:var(--muted); margin:0 0 22px; text-wrap:pretty; }
   .hero-cta { display:flex; gap:12px; flex-wrap:wrap; }
   .btn { display:inline-flex; align-items:center; gap:10px; min-height:48px; padding:0 22px; border-radius:999px; background:var(--ink); color:var(--bg); font-weight:600; text-decoration:none; transition:background-color .2s ease-out, box-shadow .2s ease-out; }
   .btn:hover { background:var(--acc); }
-  .btn.ghost { background:transparent; color:var(--ink); box-shadow:inset 0 0 0 1px #d4d3cc; }
-  .btn.ghost:hover { box-shadow:inset 0 0 0 1px var(--ink); }
+  .btn.glass { color:var(--ink); --tint:.5; background:rgba(255,255,255,var(--tint)); }
+  .btn.glass:hover { --tint:.75; }
   .btn svg { width:18px; height:18px; }
   .btn .arr { display:inline-block; transition:transform .25s var(--ease-out); }
   .btn:hover .arr { transform:translateY(3px); }
-
-  .marks { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:clamp(14px,2vw,28px) clamp(10px,1.6vw,22px); justify-items:center; }
-  .mk { display:flex; flex-direction:column; align-items:center; gap:10px; text-decoration:none; color:var(--muted); font-size:.8rem; font-weight:500; text-align:center; min-width:44px; }
-  .mk:nth-child(even) { margin-top:clamp(20px,3vw,44px); }
-  .mk-in, .mk-img { will-change:transform; }
-  .mk-img { width:clamp(62px,7vw,100px); aspect-ratio:1; border-radius:24%; background:#fff; overflow:hidden; display:grid; place-items:center; box-shadow:0 1px 0 rgba(21,21,26,.04), 0 14px 28px -16px rgba(21,21,26,.4); transition:box-shadow .3s ease-out; }
-  .mk-img img { width:100%; height:100%; object-fit:cover; }
-  .mk-img.pad img { object-fit:contain; padding:14%; }
-  .mk-img.wide img { object-fit:contain; padding:8%; }
-  .mk:hover { color:var(--ink); }
-  .mk:hover .mk-img { box-shadow:0 1px 0 rgba(21,21,26,.04), 0 22px 36px -16px rgba(21,21,26,.5); }
-  .mk-l { display:block; line-height:1.25; }
-
   .js:not(.rm) [data-intro] { visibility:hidden; }
+  @media (max-width:860px) { .hero-top { grid-template-columns:minmax(0,1fr); } .hero-side { max-width:34rem; } }
 
-  @media (max-width:900px) {
-    .hero { grid-template-columns:minmax(0,1fr); min-height:auto; padding-block:40px 24px; gap:48px; }
-    .marks { max-width:520px; }
-    .hl { font-size:clamp(2.2rem,7.2vw,4rem); }
-  }
-
-  /* Sections */
-  .sec { padding-top:clamp(72px,11vw,148px); }
-  .sec-head { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:clamp(32px,5vw,56px); flex-wrap:wrap; }
-  .sh { font-size:clamp(1.9rem,3.6vw,3rem); line-height:1.06; letter-spacing:-.03em; font-weight:700; margin:0; max-width:16ch; text-wrap:balance; }
-  .sec-note { color:var(--muted); margin:0; max-width:24rem; }
-  .w { display:inline-block; overflow:hidden; vertical-align:top; padding-bottom:.1em; margin-bottom:-.1em; }
-  .wi { display:inline-block; }
-
-  /* Browser frame */
-  .frame { background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; box-shadow:0 1px 0 rgba(21,21,26,.03), 0 28px 56px -36px rgba(21,21,26,.45); transition:border-color .3s ease-out, box-shadow .3s ease-out; transform-origin:50% 50%; }
+  /* Browser frame (project cards) */
+  .frame { background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; box-shadow:0 1px 0 rgba(21,21,26,.03), 0 28px 56px -36px rgba(21,21,26,.45); transition:border-color .3s ease-out, box-shadow .3s ease-out; }
   .bar { display:flex; align-items:center; gap:6px; height:30px; padding:0 12px; border-bottom:1px solid var(--line); background:#fbfaf7; }
   .bar i { width:9px; height:9px; border-radius:50%; background:#dcdbd4; flex:none; }
   .url { margin-left:10px; font:500 .72rem/1 ui-monospace, "SF Mono", Menlo, monospace; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .view { position:relative; aspect-ratio:16/10; overflow:hidden; container-type:size; background:#efeee9; }
   .view img { position:absolute; left:0; top:0; width:100%; height:auto; }
   .view img.fit { height:100%; object-fit:cover; object-position:top; }
-  .view.tile { display:grid; place-items:center; background:var(--tile, #f4ecd2); }
-  .view.tile img { position:static; width:34%; height:auto; }
+
+  /* Carousel: the stage is the screenshot; caption and controls float over it as glass */
+  .car { position:relative; }
+  .stage { position:relative; aspect-ratio:16/8.4; border-radius:24px; overflow:hidden; background:#e9e8e2; box-shadow:0 1px 0 rgba(21,21,26,.04), 0 40px 80px -48px rgba(21,21,26,.55); touch-action:pan-y; }
+  .slide { position:absolute; inset:0; overflow:hidden; visibility:hidden; }
+  .slide.on { visibility:visible; }
+  .slide img { position:absolute; left:0; top:0; width:100%; height:auto; will-change:transform; }
+  .slide img.fit { height:100%; object-fit:cover; object-position:top; }
+  .slide::after { content:""; position:absolute; inset:auto 0 0 0; height:46%; background:linear-gradient(to top, rgba(15,15,30,.16), rgba(15,15,30,0)); pointer-events:none; }
+
+  .cap { position:absolute; left:clamp(12px,2vw,24px); bottom:clamp(12px,2vw,24px); z-index:5; width:min(420px, calc(100% - 24px)); border-radius:20px; padding:18px 20px; }
+  .cap-in { display:flex; flex-direction:column; gap:8px; }
+  .cap-head { display:flex; gap:12px; align-items:center; }
+  .cap-head img { width:42px; height:42px; border-radius:11px; flex:none; }
+  .cap-head img.wide { width:auto; height:28px; border-radius:0; }
+  .cap h3 { font-size:1.35rem; line-height:1.15; letter-spacing:-.02em; font-weight:600; margin:0; }
+  .cap .tag { display:block; font-size:.85rem; color:#4c4e59; }
+  .cap p { margin:0; color:var(--ink-2); font-size:.96rem; text-wrap:pretty; }
+  .cap .go { display:inline-flex; align-items:center; min-height:44px; margin:-6px 0 -10px; color:var(--acc); font-weight:600; text-decoration:none; width:max-content; }
+  .cap .go span { margin-left:.35em; transition:transform .25s var(--ease-out); }
+  .cap .go:hover span { transform:translateX(4px); }
+
+  .ctrl { position:absolute; right:clamp(12px,2vw,24px); bottom:clamp(12px,2vw,24px); z-index:5; display:flex; align-items:center; gap:2px; padding:4px; border-radius:999px; }
+  .ctrl > button { width:44px; height:44px; border-radius:50%; display:grid; place-items:center; transition:background-color .2s ease-out; }
+  .ctrl > button:hover { background:rgba(255,255,255,.55); }
+  .ctrl svg { width:16px; height:16px; }
+  .idx { list-style:none; margin:0 6px; padding:0; display:flex; gap:4px; }
+  .seg { position:relative; width:26px; height:44px; display:block; }
+  .seg::before, .seg-bar { content:""; position:absolute; left:3px; right:3px; top:50%; height:4px; margin-top:-2px; border-radius:3px; }
+  .seg::before { background:rgba(21,21,26,.18); transition:background-color .2s ease-out; }
+  .seg:hover::before { background:rgba(21,21,26,.35); }
+  .seg-bar { background:var(--ink); transform-origin:0 50%; transform:scaleX(0); }
+  .seg-name { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+  @media (max-width:760px) {
+    .stage { aspect-ratio:4/3.4; border-radius:18px; }
+    .cap { position:static; width:auto; margin-top:14px; padding:0; border-radius:0; background:none; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; }
+    .cap::before { display:none; }
+    .ctrl { position:static; width:max-content; max-width:100%; margin:14px auto 0; }
+    .seg { width:20px; }
+    .idx { margin:0 2px; gap:2px; }
+  }
+  @media (max-width:400px) {
+    .ctrl .prev, .ctrl .next { display:none; }
+    .seg { width:24px; }
+  }
+
+  /* Projects */
+  .sec { padding-top:clamp(64px,9vw,120px); }
+  .sec-head { display:flex; align-items:flex-end; justify-content:space-between; gap:20px 32px; margin-bottom:clamp(32px,5vw,56px); flex-wrap:wrap; }
+  .sh { font-size:clamp(1.9rem,3.6vw,3rem); line-height:1.06; letter-spacing:-.03em; font-weight:700; margin:0; text-wrap:balance; }
+  .w { display:inline-block; overflow:hidden; vertical-align:top; padding-bottom:.1em; margin-bottom:-.1em; }
+  .wi { display:inline-block; }
+  .chips { display:flex; gap:0; padding:4px; border-radius:999px; --tint:.4; }
+  .chip { position:relative; z-index:1; min-height:44px; padding:0 18px; border-radius:999px; color:var(--muted); font-weight:500; transition:color .25s ease-out; }
+  .chip:hover { color:var(--ink); }
+  .chip[aria-pressed="true"] { color:var(--ink); font-weight:600; }
+  .thumb { position:absolute; z-index:0; top:4px; left:4px; height:calc(100% - 8px); width:0; border-radius:999px; background:rgba(255,255,255,.85);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.95), inset 0 -1px 1px rgba(21,21,26,.06), 0 6px 16px -8px rgba(15,15,35,.4); }
+  .chip span { margin-left:6px; opacity:.6; font-variant-numeric:tabular-nums; }
+
+  .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(48px,6vw,88px) clamp(24px,3.4vw,48px); }
+  .card { position:relative; display:flex; flex-direction:column; gap:22px; }
+  .card.out { display:none; }
+  .card:hover .frame { border-color:color-mix(in srgb, var(--c, var(--acc)) 35%, var(--line)); box-shadow:0 1px 0 rgba(21,21,26,.03), 0 36px 64px -36px color-mix(in srgb, var(--c, var(--acc)) 55%, transparent); }
   @media (hover:hover) and (prefers-reduced-motion:no-preference) {
     .grid .pan { transition:transform 1.2s cubic-bezier(.65,0,.35,1); }
     .grid .card:hover .pan { transform:translateY(calc(-100% + 100cqh)); transition:transform 7s cubic-bezier(.45,.05,.4,1); }
   }
-
-  /* Cards: no box; the frame is the object, text sits on the page */
-  .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(48px,6vw,88px) clamp(24px,3.4vw,48px); }
-  .grid.three { grid-template-columns:repeat(3,minmax(0,1fr)); }
-  .card { position:relative; display:flex; flex-direction:column; gap:22px; }
-  .card:hover .frame { border-color:color-mix(in srgb, var(--c, var(--acc)) 35%, var(--line)); box-shadow:0 1px 0 rgba(21,21,26,.03), 0 36px 64px -36px color-mix(in srgb, var(--c, var(--acc)) 55%, transparent); }
   .card-head { display:flex; gap:12px; align-items:center; }
   .cmark { width:40px; height:40px; border-radius:10px; flex:none; }
   .cmark.wide { width:auto; height:30px; border-radius:0; }
-  h3 { font-size:1.35rem; line-height:1.2; letter-spacing:-.015em; font-weight:600; margin:0; }
+  .card h3 { font-size:1.35rem; line-height:1.2; letter-spacing:-.015em; font-weight:600; margin:0; }
   .t { text-decoration:none; }
   .t::after { content:""; position:absolute; inset:0; z-index:1; }
   .tag { display:block; font-size:.88rem; color:var(--muted); }
@@ -150,139 +201,146 @@
   .links .go { color:var(--acc); }
   .links .go span { margin-left:.35em; display:inline-block; transition:transform .25s var(--ease-out); }
   .card:hover .go span { transform:translateX(4px); }
+  .pill { position:absolute; z-index:3; right:12px; bottom:12px; display:inline-flex; align-items:center; gap:6px; height:34px; padding:0 14px; border-radius:999px; font-size:.84rem; font-weight:600; color:var(--ink); --tint:.35; }
+  .pill.top { top:12px; bottom:auto; left:12px; right:auto; font-weight:500; }
+  @media (hover:hover) { .card .pill.visit { opacity:0; transform:translateY(8px); transition:opacity .35s ease-out, transform .45s var(--ease-out); } .card:hover .pill.visit { opacity:1; transform:none; } }
   .note { font-size:.8rem; color:var(--muted); background:#efeee8; border-radius:999px; padding:3px 11px; }
-  .three h3 { font-size:1.2rem; }
-
-  /* Feature */
-  .feature { display:grid; grid-template-columns:minmax(0,.82fr) minmax(0,1.38fr); gap:clamp(32px,5vw,72px); align-items:center; margin-bottom:clamp(72px,9vw,128px); }
-  .feature .card-copy { display:flex; flex-direction:column; gap:20px; }
-  .feature .cmark { width:56px; height:56px; border-radius:14px; }
-  .feature h3 { font-size:clamp(1.8rem,2.6vw,2.4rem); letter-spacing:-.025em; }
-  .feature p { font-size:1.08rem; }
-  .steps { list-style:none; margin:4px 0 0; padding:0; display:grid; gap:2px; counter-reset:s; }
-  .steps li { display:flex; gap:14px; align-items:baseline; padding:9px 0; border-top:1px solid var(--line); font-weight:600; counter-increment:s; }
-  .steps li::before { content:"0" counter(s); font:500 .78rem/1 ui-monospace, "SF Mono", Menlo, monospace; color:var(--muted); width:22px; }
-  .steps li span { font-weight:400; color:var(--muted); }
-  .feature .view { aspect-ratio:4/3; }
-  @media (max-width:960px) { .feature { grid-template-columns:minmax(0,1fr); } .feature .frame { order:-1; } }
-
-  @media (max-width:980px) { .grid.three { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-  @media (max-width:660px) { .grid, .grid.three { grid-template-columns:minmax(0,1fr); } }
+  @media (max-width:660px) { .grid { grid-template-columns:minmax(0,1fr); } }
 
   /* Closing */
-  .closing { padding-block:clamp(110px,15vw,200px) clamp(48px,6vw,72px); }
+  .closing { padding-block:clamp(100px,14vw,180px) clamp(48px,6vw,72px); }
   .closing h2 { font-size:clamp(2.3rem,5.4vw,4.6rem); line-height:1.02; letter-spacing:-.035em; font-weight:700; margin:0 0 36px; max-width:14ch; text-wrap:balance; }
-  footer { border-top:1px solid var(--line); padding-block:24px 40px; color:var(--muted); font-size:.9rem; display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  footer { border-top:1px solid var(--line); padding-block:24px 40px; color:var(--muted); font-size:.88rem; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px 32px; }
+  footer p { margin:0; max-width:52rem; text-wrap:pretty; }
+  @media (max-width:660px) { footer { grid-template-columns:minmax(0,1fr); } }
 
   @media (prefers-reduced-motion:reduce) { *, *::before, *::after { transition:none !important; animation:none !important; } }
 </style>
 </head>
 <body>
-<a class="skip" href="#work">Skip to projects</a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="lg" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.006 0.009" numOctaves="2" seed="11" result="noise" />
+    <feGaussianBlur in="noise" stdDeviation="2.5" result="soft" />
+    <feDisplacementMap in="SourceGraphic" in2="soft" scale="34" xChannelSelector="R" yChannelSelector="G" />
+  </filter>
+</svg>
+<a class="skip" href="#projects">Skip to projects</a>
 <div class="progress" aria-hidden="true"></div>
 <header class="nav">
-  <div class="wrap nav-in">
+  <div class="nav-in glass">
     <a class="brand" href="#top"><img src="favicon.svg" alt="" width="28" height="28" />Sibhimanyu</a>
     <nav class="nav-links" aria-label="Sections">
-      <a href="#agents">Agents</a>
-      <a href="#places">Places</a>
+      <a href="#projects">Projects</a>
       <a class="opt" href="https://github.com/Sibhimanyu">GitHub</a>
     </nav>
   </div>
 </header>
 <main id="top">
-  <section class="wrap hero">
-    <div>
+  <section class="wrap hero" aria-label="Introduction">
+    <div class="hero-top">
       <h1 class="hl">
-        <span class="line"><span class="line-i" data-intro>I build tools</span></span>
-        <span class="line"><span class="line-i" data-intro>for AI agents</span></span>
-        <span class="line"><span class="line-i" data-intro>and apps that run</span></span>
-        <span class="line"><span class="line-i accent" data-intro><span class="rot-static">a classroom, a school and a farm.</span><span class="rotator" aria-hidden="true"><span class="rw">a classroom.</span><span class="rw">a school.</span><span class="rw">a farm.</span></span></span></span>
+        <span class="line"><span class="line-i" data-intro>Tools for AI agents,</span></span>
+        <span class="line"><span class="line-i" data-intro>and apps for <span class="accent"><span class="rot-static">a classroom, a school and a farm.</span><span class="rotator" aria-hidden="true"><span class="rw">a classroom.</span><span class="rw">a school.</span><span class="rw">a farm.</span></span></span></span></span>
       </h1>
-      <p class="hero-sub" data-intro>Eight projects, from a Mac app that directs films to the live dashboard of a family farm.</p>
-      <div class="hero-cta" data-intro>
-        <a class="btn" href="#work">See the work <span class="arr" aria-hidden="true">↓</span></a>
-        <a class="btn ghost" href="https://github.com/Sibhimanyu"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
+      <div class="hero-side" data-intro>
+        <p class="hero-sub">Projects I've worked on, on my own and with others.</p>
+        <div class="hero-cta">
+          <a class="btn" href="#projects">All projects <span class="arr" aria-hidden="true">↓</span></a>
+          <a class="btn glass" href="https://github.com/Sibhimanyu"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
+        </div>
       </div>
     </div>
-    <nav class="marks" aria-label="Jump to a project">
-      <a class="mk" href="#p-rasanai" data-depth="1.0" data-intro><span class="mk-in"><span class="mk-img"><img src="assets/rasanai-mark.svg" alt="" width="100" height="100" /></span></span><span class="mk-l">RasanAI</span></a>
-      <a class="mk" href="#p-flotilla" data-depth="0.6" data-intro><span class="mk-in"><span class="mk-img"><img src="assets/flotilla-mark.svg" alt="" width="100" height="100" /></span></span><span class="mk-l">Flotilla</span></a>
-      <a class="mk" href="#p-heresay" data-depth="1.3" data-intro><span class="mk-in"><span class="mk-img pad"><img src="assets/heresay-mark.svg" alt="" width="100" height="100" /></span></span><span class="mk-l">Heresay</span></a>
-      <a class="mk" href="#p-squeak" data-depth="0.8" data-intro><span class="mk-in"><span class="mk-img"><img src="assets/squeak-mark.png" alt="" width="100" height="100" /></span></span><span class="mk-l">Squeak</span></a>
-      <a class="mk" href="#p-imago" data-depth="1.5" data-intro><span class="mk-in"><span class="mk-img"><img src="assets/imago-mark.svg" alt="" width="100" height="100" /></span></span><span class="mk-l">Imago</span></a>
-      <a class="mk" href="#p-greenroom" data-depth="0.7" data-intro><span class="mk-in"><span class="mk-img"><img src="assets/greenroom-mark.png" alt="" width="100" height="100" /></span></span><span class="mk-l">Greenroom</span></a>
-      <a class="mk" href="#p-abhishri" data-depth="1.2" data-intro><span class="mk-in"><span class="mk-img wide"><img src="assets/abhishri-mark.png" alt="" width="100" height="100" /></span></span><span class="mk-l">Abhishri Academy</span></a>
-      <a class="mk" href="#p-snof" data-depth="0.9" data-intro><span class="mk-in"><span class="mk-img pad"><img src="assets/snof-mark.png" alt="" width="100" height="100" /></span></span><span class="mk-l">SNOF</span></a>
-    </nav>
+
+    <div class="car" role="region" aria-roledescription="carousel" aria-label="Projects" data-intro>
+      <div class="stage">
+        <div class="slide on" role="group" aria-roledescription="slide" aria-label="1 of 8: RasanAI"><img class="pan" src="assets/rasanai-tall.jpg" alt="The RasanAI website" width="1280" height="2400" fetchpriority="high" /></div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="2 of 8: Flotilla"><img class="pan" src="assets/flotilla-tall.jpg" alt="The Flotilla website" width="1280" height="2400" loading="lazy" /></div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="3 of 8: Heresay"><img class="pan" src="assets/heresay-tall.jpg" alt="The Heresay website" width="1280" height="2400" loading="lazy" /></div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="4 of 8: Squeak"><img class="pan" src="assets/squeak-tall.jpg" alt="The Squeak website" width="1280" height="2400" loading="lazy" /></div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="5 of 8: Imago"><img class="pan" src="assets/imago-tall.jpg" alt="The Imago website" width="1280" height="2400" loading="lazy" /></div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="6 of 8: Greenroom"><img class="pan" src="assets/greenroom-tall.jpg" alt="The Greenroom website" width="1280" height="2400" loading="lazy" /></div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="7 of 8: Abhishri Academy"><img class="pan" src="assets/abhishri-tall.jpg" alt="The Abhishri Academy website" width="1280" height="2400" loading="lazy" /></div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="8 of 8: SNOF"><img class="fit" src="assets/snof-shot.jpg" alt="The SNOF website" width="1280" height="2400" loading="lazy" /></div>
+      </div>
+      <div class="ctrl glass js-only">
+        <button type="button" class="prev" aria-label="Previous project"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg></button>
+        <ol class="idx" aria-label="Choose a project">
+            <li><button type="button" class="seg" aria-current="true"><span class="seg-name">Show RasanAI</span><span class="seg-bar" aria-hidden="true"></span></button></li>
+            <li><button type="button" class="seg" aria-current="false"><span class="seg-name">Show Flotilla</span><span class="seg-bar" aria-hidden="true"></span></button></li>
+            <li><button type="button" class="seg" aria-current="false"><span class="seg-name">Show Heresay</span><span class="seg-bar" aria-hidden="true"></span></button></li>
+            <li><button type="button" class="seg" aria-current="false"><span class="seg-name">Show Squeak</span><span class="seg-bar" aria-hidden="true"></span></button></li>
+            <li><button type="button" class="seg" aria-current="false"><span class="seg-name">Show Imago</span><span class="seg-bar" aria-hidden="true"></span></button></li>
+            <li><button type="button" class="seg" aria-current="false"><span class="seg-name">Show Greenroom</span><span class="seg-bar" aria-hidden="true"></span></button></li>
+            <li><button type="button" class="seg" aria-current="false"><span class="seg-name">Show Abhishri Academy</span><span class="seg-bar" aria-hidden="true"></span></button></li>
+            <li><button type="button" class="seg" aria-current="false"><span class="seg-name">Show SNOF</span><span class="seg-bar" aria-hidden="true"></span></button></li>
+        </ol>
+        <button type="button" class="play" aria-label="Pause the carousel"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path class="ic-pause" d="M4 3h3v10H4zM9 3h3v10H9z"/><path class="ic-play" d="M4 2.5v11l9-5.5z" style="display:none"/></svg></button>
+        <button type="button" class="next" aria-label="Next project"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 3 5 5-5 5"/></svg></button>
+      </div>
+      <div class="cap glass thick" aria-live="off">
+        <div class="cap-in"><div class="cap-head"><img src="assets/rasanai-mark.svg" alt="" width="42" height="42" /><div><h3>RasanAI</h3><span class="tag">macOS · AI film</span></div></div><p>A Mac app that turns a sentence and your footage into a finished film. You make five calls; Claude directs the rest.</p><a class="go" href="https://sibhimanyu.github.io/rasanai/">Visit RasanAI<span aria-hidden="true">→</span></a></div>
+      </div>
+    </div>
   </section>
 
-  <div id="work"></div>
-  <section class="wrap sec" id="agents" data-nav aria-labelledby="h-agents">
+  <section class="wrap sec" id="projects" aria-labelledby="h-projects">
     <div class="sec-head">
-      <h2 class="sh" id="h-agents">Tools for AI and coding agents</h2>
-      <p class="sec-note">For people who build with Claude Code, Codex and Cursor.</p>
+      <h2 class="sh" id="h-projects">Projects</h2>
+      <div class="chips glass js-only" role="group" aria-label="Filter projects"><span class="thumb" aria-hidden="true"></span>
+        <button type="button" class="chip" data-f="all" aria-pressed="true">All<span>8</span></button>
+        <button type="button" class="chip" data-f="agents" aria-pressed="false">For AI agents<span>5</span></button>
+        <button type="button" class="chip" data-f="places" aria-pressed="false">For places<span>3</span></button>
+      </div>
     </div>
-    <article class="card feature" id="p-rasanai" style="--c:#1b1f5e">
-      <div class="card-copy">
+    <div class="grid">
+      <article class="card" id="p-rasanai" data-group="agents" style="--c:#1b1f5e">
+        <div class="frame" aria-hidden="true"><div class="bar"><i></i><i></i><i></i><span class="url">sibhimanyu.github.io/rasanai</span></div><div class="view"><img class="pan" src="assets/rasanai-tall.jpg" alt="" width="1280" height="2400" loading="lazy" /><span class="pill visit glass">Open RasanAI ↗</span></div></div>
         <div class="card-head"><img class="cmark" src="assets/rasanai-mark.svg" alt="" width="40" height="40" /><div><h3><a class="t" href="https://sibhimanyu.github.io/rasanai/">RasanAI</a></h3><span class="tag">macOS · AI film</span></div></div>
         <p>A Mac app that turns a sentence and your footage into a finished film. You make five calls; Claude directs the rest.</p>
-        <ol class="steps" aria-label="The five calls"><li>Brief <span>confirm the sentence</span></li><li>Story <span>pick one of three</span></li><li>Look <span>pick one of three</span></li><li>Animatic <span>watch the rhythm</span></li><li>Final <span>review and export</span></li></ol>
         <div class="links"><a class="go" href="https://sibhimanyu.github.io/rasanai/">Visit site<span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/rasanai">GitHub</a></div>
-      </div>
-      <div class="frame" aria-hidden="true"><div class="bar"><i></i><i></i><i></i><span class="url">sibhimanyu.github.io/rasanai</span></div><div class="view"><img class="pan" src="assets/rasanai-tall.jpg" alt="" width="1280" height="2400" fetchpriority="high" /></div></div>
-    </article>
-    <div class="grid">
-      <article class="card" id="p-flotilla" style="--c:#0f766e">
-        <div class="frame" aria-hidden="true"><div class="bar"><i></i><i></i><i></i><span class="url">sibhimanyu.github.io/flotilla</span></div><div class="view"><img class="pan" src="assets/flotilla-tall.jpg" alt="" width="1280" height="2400" loading="lazy" /></div></div>
+      </article>
+      <article class="card" id="p-flotilla" data-group="agents" style="--c:#0f766e">
+        <div class="frame" aria-hidden="true"><div class="bar"><i></i><i></i><i></i><span class="url">sibhimanyu.github.io/flotilla</span></div><div class="view"><img class="pan" src="assets/flotilla-tall.jpg" alt="" width="1280" height="2400" loading="lazy" /><span class="pill visit glass">Open Flotilla ↗</span></div></div>
         <div class="card-head"><img class="cmark" src="assets/flotilla-mark.svg" alt="" width="40" height="40" /><div><h3><a class="t" href="https://sibhimanyu.github.io/flotilla/">Flotilla</a></h3><span class="tag">Web · multiplayer coding agents</span></div></div>
         <p>Several AI coding agents build one app together, with tasks handed out, file ownership enforced and one live board.</p>
         <div class="links"><a class="go" href="https://sibhimanyu.github.io/flotilla/">Visit site<span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/multiplayer-agentic-builder">GitHub</a></div>
       </article>
-      <article class="card" id="p-heresay" style="--c:#0f766e">
-        <div class="frame" aria-hidden="true"><div class="bar"><i></i><i></i><i></i><span class="url">sibhimanyu.github.io/heresay</span></div><div class="view"><img class="pan" src="assets/heresay-tall.jpg" alt="" width="1280" height="2400" loading="lazy" /></div></div>
+      <article class="card" id="p-heresay" data-group="agents" style="--c:#0f766e">
+        <div class="frame" aria-hidden="true"><div class="bar"><i></i><i></i><i></i><span class="url">sibhimanyu.github.io/heresay</span></div><div class="view"><img class="pan" src="assets/heresay-tall.jpg" alt="" width="1280" height="2400" loading="lazy" /><span class="pill visit glass">Open Heresay ↗</span></div></div>
         <div class="card-head"><img class="cmark" src="assets/heresay-mark.svg" alt="" width="40" height="40" /><div><h3><a class="t" href="https://sibhimanyu.github.io/heresay/">Heresay</a></h3><span class="tag">Web, iOS, macOS · user feedback</span></div></div>
         <p>In-app bug reports that reach your coding agent once your team accepts them.</p>
         <div class="links"><a class="go" href="https://sibhimanyu.github.io/heresay/">Visit site<span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/heresay">GitHub</a></div>
       </article>
-      <article class="card" id="p-squeak" style="--c:#e0a800">
-        <div class="frame" aria-hidden="true"><div class="bar"><i></i><i></i><i></i><span class="url">sibhimanyu.github.io/squeak</span></div><div class="view"><img class="pan" src="assets/squeak-tall.jpg" alt="" width="1280" height="2400" loading="lazy" /></div></div>
+      <article class="card" id="p-squeak" data-group="agents" style="--c:#e0a800">
+        <div class="frame" aria-hidden="true"><div class="bar"><i></i><i></i><i></i><span class="url">sibhimanyu.github.io/squeak</span></div><div class="view"><img class="pan" src="assets/squeak-tall.jpg" alt="" width="1280" height="2400" loading="lazy" /><span class="pill top glass">Private for now</span><span class="pill visit glass">Open Squeak ↗</span></div></div>
         <div class="card-head"><img class="cmark" src="assets/squeak-mark.png" alt="" width="40" height="40" /><div><h3><a class="t" href="https://sibhimanyu.github.io/squeak/">Squeak</a></h3><span class="tag">macOS, iPhone · agent pager</span></div></div>
         <p>Watches every Claude Code and Codex session on your Mac and pages you when one needs you.</p>
-        <div class="links"><a class="go" href="https://sibhimanyu.github.io/squeak/">Visit site<span aria-hidden="true">→</span></a><span class="note">Private for now</span></div>
+        <div class="links"><a class="go" href="https://sibhimanyu.github.io/squeak/">Visit site<span aria-hidden="true">→</span></a></div>
       </article>
-      <article class="card" id="p-imago" style="--c:#1b1b19">
-        <div class="frame" aria-hidden="true"><div class="bar"><i></i><i></i><i></i><span class="url">imago.onslate.in</span></div><div class="view"><img class="pan" src="assets/imago-tall.jpg" alt="" width="1280" height="2400" loading="lazy" /></div></div>
+      <article class="card" id="p-imago" data-group="agents" style="--c:#1b1b19">
+        <div class="frame" aria-hidden="true"><div class="bar"><i></i><i></i><i></i><span class="url">imago.onslate.in</span></div><div class="view"><img class="pan" src="assets/imago-tall.jpg" alt="" width="1280" height="2400" loading="lazy" /><span class="pill visit glass">Open Imago ↗</span></div></div>
         <div class="card-head"><img class="cmark" src="assets/imago-mark.svg" alt="" width="40" height="40" /><div><h3><a class="t" href="https://imago.onslate.in/">Imago</a></h3><span class="tag">Web · API explorer</span></div></div>
         <p>Paste an API URL or a curl command and get a live interface drawn from the JSON's shape.</p>
         <div class="links"><a class="go" href="https://imago.onslate.in/">Visit site<span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/imago">GitHub</a></div>
       </article>
-    </div>
-  </section>
-
-  <section class="wrap sec" id="places" data-nav aria-labelledby="h-places">
-    <div class="sec-head">
-      <h2 class="sh" id="h-places">Apps for a classroom, a school and a farm</h2>
-      <p class="sec-note">Built for real places, and used there every day.</p>
-    </div>
-    <div class="grid three">
-      <article class="card" id="p-greenroom" style="--c:#1f5f2c">
-        <div class="frame" aria-hidden="true"><div class="bar"><i></i><i></i><i></i><span class="url">sibhimanyu.github.io/greenroom</span></div><div class="view"><img class="pan" src="assets/greenroom-tall.jpg" alt="" width="1280" height="2400" loading="lazy" /></div></div>
+      <article class="card" id="p-greenroom" data-group="places" style="--c:#1f5f2c">
+        <div class="frame" aria-hidden="true"><div class="bar"><i></i><i></i><i></i><span class="url">sibhimanyu.github.io/greenroom</span></div><div class="view"><img class="pan" src="assets/greenroom-tall.jpg" alt="" width="1280" height="2400" loading="lazy" /><span class="pill visit glass">Open Greenroom ↗</span></div></div>
         <div class="card-head"><img class="cmark" src="assets/greenroom-mark.png" alt="" width="40" height="40" /><div><h3><a class="t" href="https://sibhimanyu.github.io/greenroom/">Greenroom</a></h3><span class="tag">macOS · classroom setup</span></div></div>
         <p>Starts a whole morning class in one click: OBS virtual camera, Zoom and a tiled layout.</p>
         <div class="links"><a class="go" href="https://sibhimanyu.github.io/greenroom/">Visit site<span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/greenroom">GitHub</a></div>
       </article>
-      <article class="card" id="p-abhishri" style="--c:#ee5f5b">
-        <div class="frame" aria-hidden="true"><div class="bar"><i></i><i></i><i></i><span class="url">abhishri-academy.web.app/public-calendar</span></div><div class="view"><img class="pan" src="assets/abhishri-tall.jpg" alt="" width="1280" height="2400" loading="lazy" /></div></div>
+      <article class="card" id="p-abhishri" data-group="places" style="--c:#ee5f5b">
+        <div class="frame" aria-hidden="true"><div class="bar"><i></i><i></i><i></i><span class="url">abhishri-academy.web.app/public-calendar</span></div><div class="view"><img class="pan" src="assets/abhishri-tall.jpg" alt="" width="1280" height="2400" loading="lazy" /><span class="pill visit glass">Open Abhishri Academy ↗</span></div></div>
         <div class="card-head"><div><img class="cmark wide" src="assets/abhishri-mark.png" alt="" height="30" /><h3 class="vh"><a class="t" href="https://abhishri-academy.web.app/public-calendar">Abhishri Academy</a></h3><span class="tag">Web, iOS · school ERP</span></div></div>
         <p>Attendance, fees and receipts for staff, an iOS app, and a portal for parents.</p>
         <div class="links"><a class="go" href="https://abhishri-academy.web.app/public-calendar">See the calendar<span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/Abhishri-Engine">GitHub</a></div>
       </article>
-      <article class="card" id="p-snof" style="--c:#1e8a3c">
-        <div class="frame" aria-hidden="true"><div class="bar"><i></i><i></i><i></i><span class="url">snof-live.web.app</span></div><div class="view"><img class="fit" src="assets/snof-shot.jpg" alt="" width="1280" height="2400" loading="lazy" /></div></div>
+      <article class="card" id="p-snof" data-group="places" style="--c:#1e8a3c">
+        <div class="frame" aria-hidden="true"><div class="bar"><i></i><i></i><i></i><span class="url">snof-live.web.app</span></div><div class="view"><img class="fit" src="assets/snof-shot.jpg" alt="" width="1280" height="2400" loading="lazy" /><span class="pill top glass">Private repo</span><span class="pill visit glass">Open SNOF ↗</span></div></div>
         <div class="card-head"><img class="cmark" src="assets/snof-mark.png" alt="" width="40" height="40" /><div><h3><a class="t" href="https://snof-live.web.app/">SNOF</a></h3><span class="tag">Web · farm dashboard</span></div></div>
         <p>Every room, sensor and switch on the farm, live from Home Assistant.</p>
-        <div class="links"><a class="go" href="https://snof-live.web.app/">Visit site<span aria-hidden="true">→</span></a><span class="note">Private repo</span></div>
+        <div class="links"><a class="go" href="https://snof-live.web.app/">Visit site<span aria-hidden="true">→</span></a></div>
       </article>
     </div>
   </section>
@@ -293,40 +351,161 @@
   </section>
 </main>
 <div class="wrap">
-  <footer><span>© 2026 Sibhimanyu</span><span>Looking for Rasa Director? It is now <a href="https://sibhimanyu.github.io/rasanai/">RasanAI</a>.</span></footer>
+  <footer>
+    <p>Each project belongs to its respective owners and is licensed as stated on its own site or repository. Listing a project here does not claim sole authorship or ownership of it.</p>
+    <span>Looking for Rasa Director? It is now <a href="https://sibhimanyu.github.io/rasanai/">RasanAI</a>.</span>
+  </footer>
 </div>
 
+<script id="proj" type="application/json">[{"name": "RasanAI", "tag": "macOS \u00b7 AI film", "desc": "A Mac app that turns a sentence and your footage into a finished film. You make five calls; Claude directs the rest.", "site": "https://sibhimanyu.github.io/rasanai/", "mark": "rasanai-mark.svg", "wide": false, "host": "sibhimanyu.github.io/rasanai"}, {"name": "Flotilla", "tag": "Web \u00b7 multiplayer coding agents", "desc": "Several AI coding agents build one app together, with tasks handed out, file ownership enforced and one live board.", "site": "https://sibhimanyu.github.io/flotilla/", "mark": "flotilla-mark.svg", "wide": false, "host": "sibhimanyu.github.io/flotilla"}, {"name": "Heresay", "tag": "Web, iOS, macOS \u00b7 user feedback", "desc": "In-app bug reports that reach your coding agent once your team accepts them.", "site": "https://sibhimanyu.github.io/heresay/", "mark": "heresay-mark.svg", "wide": false, "host": "sibhimanyu.github.io/heresay"}, {"name": "Squeak", "tag": "macOS, iPhone \u00b7 agent pager", "desc": "Watches every Claude Code and Codex session on your Mac and pages you when one needs you.", "site": "https://sibhimanyu.github.io/squeak/", "mark": "squeak-mark.png", "wide": false, "host": "sibhimanyu.github.io/squeak"}, {"name": "Imago", "tag": "Web \u00b7 API explorer", "desc": "Paste an API URL or a curl command and get a live interface drawn from the JSON's shape.", "site": "https://imago.onslate.in/", "mark": "imago-mark.svg", "wide": false, "host": "imago.onslate.in"}, {"name": "Greenroom", "tag": "macOS \u00b7 classroom setup", "desc": "Starts a whole morning class in one click: OBS virtual camera, Zoom and a tiled layout.", "site": "https://sibhimanyu.github.io/greenroom/", "mark": "greenroom-mark.png", "wide": false, "host": "sibhimanyu.github.io/greenroom"}, {"name": "Abhishri Academy", "tag": "Web, iOS \u00b7 school ERP", "desc": "Attendance, fees and receipts for staff, an iOS app, and a portal for parents.", "site": "https://abhishri-academy.web.app/public-calendar", "mark": "abhishri-mark.png", "wide": true, "host": "abhishri-academy.web.app/public-calendar"}, {"name": "SNOF", "tag": "Web \u00b7 farm dashboard", "desc": "Every room, sensor and switch on the farm, live from Home Assistant.", "site": "https://snof-live.web.app/", "mark": "snof-mark.png", "wide": false, "host": "snof-live.web.app"}]</script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Flip.min.js" defer></script>
 <script defer>
 addEventListener('DOMContentLoaded', () => {
   const root = document.documentElement;
+  const reduce = root.classList.contains('rm');
   const nav = document.querySelector('.nav');
   const onScroll = () => nav.classList.toggle('scrolled', scrollY > 8);
   addEventListener('scroll', onScroll, { passive: true }); onScroll();
 
   if (!window.gsap || !window.ScrollTrigger) { root.classList.remove('js'); return; }
-  gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger, ...(window.Flip ? [Flip] : []));
+  const P = JSON.parse(document.getElementById('proj').textContent);
 
-  // Wayfinding: highlight the section you are in. Created after any pin so positions include its spacing.
-  const wayfind = () => document.querySelectorAll('[data-nav]').forEach(sec => {
-    const link = document.querySelector(`.nav-links a[href="#${sec.id}"]`);
-    ScrollTrigger.create({ trigger: sec, start: 'top 55%', end: 'bottom 25%', onToggle: s => link && link.classList.toggle('on', s.isActive) });
-  });
+  /* ---------- Carousel ---------- */
+  const car = document.querySelector('.car');
+  const slides = [...car.querySelectorAll('.slide')];
+  const segs = [...car.querySelectorAll('.seg')];
+  const bars = segs.map(s => s.querySelector('.seg-bar'));
+  const cap = car.querySelector('.cap');
+  const playBtn = car.querySelector('.play');
+  const DWELL = 6.5;
+  let idx = 0, playing = !reduce, held = false, offscreen = false, dwell = null, busy = null;
 
-  if (root.classList.contains('rm')) { wayfind(); return; }
+  const capHTML = p => `<div class="cap-in"><div class="cap-head">${p.wide
+      ? `<div><img class="wide" src="assets/${p.mark}" alt="" height="30" /><h3 class="vh">${p.name}</h3><span class="tag">${p.tag}</span></div>`
+      : `<img src="assets/${p.mark}" alt="" width="44" height="44" /><div><h3>${p.name}</h3><span class="tag">${p.tag}</span></div>`}</div>
+      <p>${p.desc}</p>${p.site ? `<a class="go" href="${p.site}">Visit ${p.name}<span aria-hidden="true">→</span></a>` : ''}</div>`;
+
+  const panOf = img => Math.max(0, img.offsetHeight - img.parentElement.offsetHeight);
+
+  function startDwell() {
+    if (dwell) dwell.kill();
+    bars.forEach((b, i) => gsap.set(b, { scaleX: i < idx ? 1 : 0 }));
+    const img = slides[idx].querySelector('img');
+    if (reduce) { gsap.set(bars[idx], { scaleX: 1 }); return; }
+    dwell = gsap.timeline({ onComplete: () => go(idx + 1, 1) })
+      .fromTo(bars[idx], { scaleX: 0 }, { scaleX: 1, duration: DWELL, ease: 'none' }, 0);
+    if (img.classList.contains('pan')) dwell.fromTo(img, { y: 0 }, { y: () => -panOf(img) * 0.55, duration: DWELL, ease: 'sine.inOut' }, 0);
+    sync();
+  }
+  function sync() {
+    if (!dwell) return;
+    (playing && !held && !offscreen && !document.hidden) ? dwell.play() : dwell.pause();
+  }
+  function go(n, dir) {
+    n = (n + slides.length) % slides.length;
+    if (n === idx) return;
+    const out = slides[idx], inn = slides[n], p = P[n];
+    if (dir === undefined) dir = n > idx ? 1 : -1;
+    if (busy) busy.progress(1);
+    idx = n;
+    segs.forEach((s, i) => s.setAttribute('aria-current', i === n ? 'true' : 'false'));
+    inn.classList.add('on'); inn.setAttribute('aria-hidden', 'false'); out.setAttribute('aria-hidden', 'true');
+    const inImg = inn.querySelector('img'), outImg = out.querySelector('img');
+    if (reduce) {
+      out.classList.remove('on'); cap.innerHTML = capHTML(p); gsap.set(inImg, { y: 0 }); startDwell(); return;
+    }
+    gsap.set(inn, { zIndex: 2 }); gsap.set(out, { zIndex: 1 });
+    busy = gsap.timeline({ defaults: { ease: 'expo.inOut' }, onComplete: () => { out.classList.remove('on'); gsap.set(outImg, { xPercent: 0 }); busy = null; } })
+      .fromTo(inn, { clipPath: dir > 0 ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0%)', duration: 1 }, 0)
+      .fromTo(inImg, { y: 0, xPercent: dir > 0 ? 12 : -12, scale: 1.06 }, { xPercent: 0, scale: 1, duration: 1.2, ease: 'expo.out' }, 0)
+      .to(outImg, { xPercent: dir > 0 ? -10 : 10, duration: 1 }, 0)
+      .to(cap.firstElementChild, { y: -14, autoAlpha: 0, duration: 0.35, ease: 'power2.in' }, 0)
+      .add(() => { cap.innerHTML = capHTML(p); }, 0.36)
+      .fromTo(() => cap.querySelectorAll('.cap-head, .cap p, .cap .go'), { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.8, ease: 'expo.out', stagger: 0.06 }, 0.38);
+    startDwell();
+  }
+  slides.forEach((s, i) => { s.setAttribute('aria-hidden', i === 0 ? 'false' : 'true'); });
+  segs.forEach((s, i) => s.addEventListener('click', () => go(i)));
+  car.querySelector('.prev').addEventListener('click', () => go(idx - 1, -1));
+  car.querySelector('.next').addEventListener('click', () => go(idx + 1, 1));
+  const setPlaying = v => {
+    playing = v;
+    playBtn.setAttribute('aria-label', v ? 'Pause the carousel' : 'Play the carousel');
+    playBtn.querySelector('.ic-pause').style.display = v ? '' : 'none';
+    playBtn.querySelector('.ic-play').style.display = v ? 'none' : '';
+    cap.setAttribute('aria-live', v ? 'off' : 'polite');
+    sync();
+  };
+  playBtn.addEventListener('click', () => setPlaying(!playing));
+  car.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { held = true; sync(); } });
+  car.addEventListener('pointerleave', () => { held = false; sync(); });
+  car.addEventListener('focusin', () => { held = true; sync(); });
+  car.addEventListener('focusout', e => { if (!car.contains(e.relatedTarget)) { held = false; sync(); } });
+  car.addEventListener('keydown', e => { if (e.key === 'ArrowRight') go(idx + 1, 1); if (e.key === 'ArrowLeft') go(idx - 1, -1); });
+  document.addEventListener('visibilitychange', sync);
+  new IntersectionObserver(([e]) => { offscreen = !e.isIntersecting; sync(); }, { threshold: 0.2 }).observe(car);
+  // Swipe on the stage.
+  const stage = car.querySelector('.stage');
+  let sx = null;
+  stage.addEventListener('pointerdown', e => { sx = e.clientX; });
+  stage.addEventListener('pointerup', e => { if (sx === null) return; const dx = e.clientX - sx; sx = null; if (Math.abs(dx) > 40) go(idx + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1); });
+  if (reduce) setPlaying(false);
+  segs[0].setAttribute('aria-current', 'true');
+
+  /* ---------- Filter ---------- */
+  const cards = [...document.querySelectorAll('.grid .card')];
+  let revealers = null;
+  const thumb = document.querySelector('.chips .thumb');
+  const place = (chip, animate) => {
+    const v = { x: chip.offsetLeft - 4, width: chip.offsetWidth };
+    if (!animate || reduce) return gsap.set(thumb, v);
+    gsap.timeline()
+      .to(thumb, { ...v, duration: 0.65, ease: 'expo.inOut' })
+      .to(thumb, { scaleY: 0.84, scaleX: 1.04, duration: 0.22, ease: 'power2.out', yoyo: true, repeat: 1 }, 0.05);
+  };
+  const placeActive = () => place(document.querySelector('.chip[aria-pressed="true"]'), false);
+  placeActive(); document.fonts && document.fonts.ready.then(placeActive); addEventListener('resize', placeActive);
+  document.querySelectorAll('.chip').forEach(chip => chip.addEventListener('click', () => {
+    const f = chip.dataset.f;
+    document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'));
+    place(chip, true);
+    // Finish every scroll reveal first, so a reveal firing mid-filter cannot cancel the layout animation.
+    if (revealers) { revealers.forEach(t => t.kill()); revealers = null; gsap.killTweensOf(cards); gsap.set(cards, { autoAlpha: 1, y: 0 }); }
+    const state = (!reduce && window.Flip) ? Flip.getState(cards) : null;
+    cards.forEach(c => c.classList.toggle('out', f !== 'all' && c.dataset.group !== f));
+    if (state) {
+      Flip.from(state, {
+        duration: 0.8, ease: 'expo.inOut', absolute: true, scale: false, nested: true,
+        onEnter: els => gsap.fromTo(els, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: 'expo.out', delay: 0.15 }),
+        onLeave: els => gsap.to(els, { autoAlpha: 0, y: 20, duration: 0.35, ease: 'power2.in' }),
+        onComplete: () => ScrollTrigger.refresh(),
+      });
+    } else {
+      cards.forEach(c => { if (!c.classList.contains('out')) gsap.set(c, { autoAlpha: 1, y: 0 }); });
+      ScrollTrigger.refresh();
+    }
+  }));
+
+  /* ---------- Wayfinding ---------- */
+  const projLink = document.querySelector('.nav-links a[href="#projects"]');
+  ScrollTrigger.create({ trigger: '#projects', start: 'top 55%', end: 'bottom 25%', onToggle: s => projLink.classList.toggle('on', s.isActive) });
+
+  if (reduce) { startDwell(); return; }
 
   gsap.to('.progress', { scaleX: 1, ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: 0.3 } });
 
-  // Hero entrance: lines rise out of their masks, then the eight marks assemble.
-  const intro = gsap.timeline({ defaults: { ease: 'expo.out' } });
-  intro
-    .fromTo('.hl .line-i', { yPercent: 115, autoAlpha: 1 }, { yPercent: 0, duration: 1.2, stagger: 0.09 })
-    .fromTo('.hero-sub, .hero-cta', { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 1, stagger: 0.08 }, '-=0.8')
-    .fromTo('.mk', { autoAlpha: 0, scale: 0.4, rotation: () => gsap.utils.random(-28, 28) },
-      { autoAlpha: 1, scale: 1, rotation: 0, duration: 1.3, stagger: { each: 0.07, from: 'center' } }, '-=1.15');
+  /* ---------- Hero entrance ---------- */
+  gsap.timeline({ defaults: { ease: 'expo.out' }, onComplete: startDwell })
+    .fromTo('.hl .line-i', { yPercent: 115, autoAlpha: 1 }, { yPercent: 0, duration: 1.2, stagger: 0.1 })
+    .fromTo('.hero-side', { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 1 }, '-=0.85')
+    .fromTo('.car', { y: 60, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 1.3 }, '-=0.9')
+    .fromTo('.stage .slide.on img', { scale: 1.08 }, { scale: 1, duration: 1.6 }, '<')
+    .fromTo('.idx li', { x: 16, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.8, stagger: 0.05 }, '<0.3');
 
-  // The last word cycles through the places.
+  // Last word cycles through the places.
   const rot = document.querySelector('.rotator');
   const words = [...rot.querySelectorAll('.rw')];
   let wi = 0;
@@ -337,93 +516,43 @@ addEventListener('DOMContentLoaded', () => {
   const cycle = () => {
     const cur = words[wi]; wi = (wi + 1) % words.length; const nxt = words[wi];
     gsap.timeline({ defaults: { duration: 0.8, ease: 'expo.inOut' } })
-      .to(cur, { yPercent: -115 })
-      .fromTo(nxt, { yPercent: 115 }, { yPercent: 0 }, 0)
-      .to(rot, { width: nxt.offsetWidth }, 0);
-    gsap.delayedCall(2.4, cycle);
+      .to(cur, { yPercent: -115 }).fromTo(nxt, { yPercent: 115 }, { yPercent: 0 }, 0).to(rot, { width: nxt.offsetWidth }, 0);
+    gsap.delayedCall(2.6, cycle);
   };
   gsap.delayedCall(3, cycle);
 
-  // Each mark floats on its own clock.
-  gsap.utils.toArray('.mk-img').forEach(el => {
-    gsap.to(el, { y: 'random(-7, 7)', rotation: 'random(-3, 3)', duration: 'random(2.6, 4)', ease: 'sine.inOut', repeat: -1, yoyo: true, delay: 1.4 });
-  });
-
-  // Marks drift apart at different depths as the hero scrolls away.
-  gsap.utils.toArray('.mk').forEach(el => {
-    gsap.to(el, { y: () => -(+el.dataset.depth) * 140, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true, invalidateOnRefresh: true } });
-  });
-
-  const mm = gsap.matchMedia();
-  const panDistance = img => () => -(img.offsetHeight - img.parentElement.offsetHeight);
-
-  // RasanAI: pinned. Scrolling grows the frame, walks through the site and its five calls.
-  mm.add('(min-width: 961px)', () => {
-    const f = document.querySelector('.feature');
-    const img = f.querySelector('.pan');
-    const steps = f.querySelectorAll('.steps li');
-    gsap.set(steps, { opacity: 0.3 });
-    const tl = gsap.timeline({ scrollTrigger: { trigger: f, start: 'center 52%', end: '+=1300', pin: true, scrub: 0.7, anticipatePin: 1, invalidateOnRefresh: true } });
-    tl.fromTo(f.querySelector('.frame'), { scale: 0.9, rotation: -1.5 }, { scale: 1, rotation: 0, duration: 0.25, ease: 'power2.out' })
-      .to(img, { y: panDistance(img), ease: 'none', duration: 1 }, 0.1);
-    steps.forEach((s, i) => tl.to(s, { opacity: 1, duration: 0.08 }, 0.15 + i * 0.19));
-  });
-  mm.add('(max-width: 960px)', () => {
-    const img = document.querySelector('.feature .pan');
-    gsap.to(img, { y: panDistance(img), ease: 'none', scrollTrigger: { trigger: img.parentElement, start: 'top 80%', end: 'bottom 20%', scrub: 0.5, invalidateOnRefresh: true } });
-  });
-
-  // Section headings: words rise in.
+  /* ---------- Scroll reveals ---------- */
   document.querySelectorAll('.sh, .sh-close').forEach(h => {
-    const words = h.textContent.trim().split(/\s+/);
-    h.setAttribute('aria-label', h.textContent.trim());
-    h.innerHTML = words.map(w => `<span class="w" aria-hidden="true"><span class="wi">${w}</span></span>`).join(' ');
+    const text = h.textContent.trim();
+    h.setAttribute('aria-label', text);
+    h.innerHTML = text.split(/\s+/).map(w => `<span class="w" aria-hidden="true"><span class="wi">${w}</span></span>`).join(' ');
     gsap.fromTo(h.querySelectorAll('.wi'), { yPercent: 115 }, { yPercent: 0, duration: 1.1, ease: 'expo.out', stagger: 0.06, scrollTrigger: { trigger: h, start: 'top 88%', once: true } });
   });
-  gsap.utils.toArray('.sec-note').forEach(n => gsap.fromTo(n, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 1, ease: 'expo.out', delay: 0.25, scrollTrigger: { trigger: n, start: 'top 90%', once: true } }));
+  gsap.fromTo('.chips .chip', { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: 'expo.out', stagger: 0.06, scrollTrigger: { trigger: '.chips', start: 'top 90%', once: true } });
+  gsap.set(cards, { autoAlpha: 0, y: 80 });
+  revealers = ScrollTrigger.batch(cards, { start: 'top 90%', once: true, onEnter: b => gsap.to(b, { autoAlpha: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.12, overwrite: true }) });
 
-  // Cards arrive in batches as they scroll into view.
-  gsap.set('.grid .card', { autoAlpha: 0, y: 80 });
-  ScrollTrigger.batch('.grid .card', {
-    start: 'top 90%', once: true,
-    onEnter: batch => gsap.to(batch, { autoAlpha: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.12, overwrite: true }),
-  });
-
-  // No hover on touch screens: the site inside each frame scrolls with the page instead.
+  const mm = gsap.matchMedia();
+  // Touch screens: the site inside each frame scrolls with the page.
   mm.add('(hover: none)', () => {
-    document.querySelectorAll('.grid .pan').forEach(img => {
-      gsap.to(img, { y: () => panDistance(img)() * 0.7, ease: 'none', scrollTrigger: { trigger: img.parentElement, start: 'top 85%', end: 'bottom 15%', scrub: 0.5, invalidateOnRefresh: true } });
-    });
+    cards.forEach(c => { const img = c.querySelector('.pan'); if (!img) return;
+      gsap.to(img, { y: () => -panOf(img) * 0.7, ease: 'none', scrollTrigger: { trigger: img.parentElement, start: 'top 85%', end: 'bottom 15%', scrub: 0.5, invalidateOnRefresh: true } }); });
   });
-
-  // Fine pointers: marks lean toward the cursor; frames tilt a little under it.
+  // Fine pointers: frames tilt a little under the cursor.
   mm.add('(pointer: fine)', () => {
-    const hero = document.querySelector('.hero');
-    const marks = gsap.utils.toArray('.mk-in').map(el => ({ d: +el.parentElement.dataset.depth, x: gsap.quickTo(el, 'x', { duration: 0.9, ease: 'power3' }), y: gsap.quickTo(el, 'y', { duration: 0.9, ease: 'power3' }) }));
-    const lean = e => {
-      const r = hero.getBoundingClientRect();
-      const dx = (e.clientX - r.left) / r.width - 0.5, dy = (e.clientY - r.top) / r.height - 0.5;
-      marks.forEach(m => { m.x(dx * m.d * 46); m.y(dy * m.d * 46); });
-    };
-    const settle = () => marks.forEach(m => { m.x(0); m.y(0); });
-    hero.addEventListener('pointermove', lean); hero.addEventListener('pointerleave', settle);
-
-    const cleanups = gsap.utils.toArray('.grid .card').map(card => {
-      const frame = card.querySelector('.frame');
-      gsap.set(frame, { transformPerspective: 1100 });
-      const rx = gsap.quickTo(frame, 'rotationX', { duration: 0.6, ease: 'power3' });
-      const ry = gsap.quickTo(frame, 'rotationY', { duration: 0.6, ease: 'power3' });
-      const move = e => { const r = frame.getBoundingClientRect(); ry(((e.clientX - r.left) / r.width - 0.5) * 6); rx(-((e.clientY - r.top) / r.height - 0.5) * 5); };
+    const offs = cards.map(el => {
+      const frame = el.querySelector('.frame'), host = el, k = 5;
+      gsap.set(frame, { transformPerspective: 1200 });
+      const rx = gsap.quickTo(frame, 'rotationX', { duration: 0.7, ease: 'power3' });
+      const ry = gsap.quickTo(frame, 'rotationY', { duration: 0.7, ease: 'power3' });
+      const move = e => { const r = frame.getBoundingClientRect(); ry(((e.clientX - r.left) / r.width - 0.5) * k * 1.2); rx(-((e.clientY - r.top) / r.height - 0.5) * k); };
       const leave = () => { rx(0); ry(0); };
-      card.addEventListener('pointermove', move); card.addEventListener('pointerleave', leave);
-      return () => { card.removeEventListener('pointermove', move); card.removeEventListener('pointerleave', leave); };
+      host.addEventListener('pointermove', move); host.addEventListener('pointerleave', leave);
+      return () => { host.removeEventListener('pointermove', move); host.removeEventListener('pointerleave', leave); };
     });
-    return () => { hero.removeEventListener('pointermove', lean); hero.removeEventListener('pointerleave', settle); cleanups.forEach(c => c()); };
+    return () => offs.forEach(f => f());
   });
 
-  wayfind();
-
-  // Lazy images change heights; re-measure once they land.
   let t; const refresh = () => { clearTimeout(t); t = setTimeout(() => ScrollTrigger.refresh(), 150); };
   document.querySelectorAll('img').forEach(img => { if (!img.complete) img.addEventListener('load', refresh, { once: true }); });
 });
