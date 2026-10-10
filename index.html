@@ -86,9 +86,9 @@
   .nav-links a.on { color:var(--ink); background:rgba(255,255,255,.7); box-shadow:inset 0 0 0 1px rgba(255,255,255,.9), 0 2px 8px -4px rgba(15,15,35,.25); }
 
   /* Hero */
-  .hero { padding-block:clamp(36px,7vh,88px) clamp(48px,7vw,96px); }
-  .hero-top { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:end; gap:24px clamp(32px,5vw,72px); margin-bottom:clamp(32px,4.5vw,56px); }
-  .hl { font-size:clamp(2.2rem,5.2vw,4.7rem); line-height:1.02; letter-spacing:-.035em; font-weight:700; margin:0; }
+  .hero { display:grid; grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr); align-items:center; gap:clamp(32px,4.5vw,72px); min-height:calc(100svh - 80px); padding-block:clamp(28px,5vh,64px) clamp(48px,7vw,88px); }
+  .hero-top { display:flex; flex-direction:column; gap:28px; }
+  .hl { font-size:clamp(2.2rem,4.1vw,4.2rem); line-height:1.02; letter-spacing:-.035em; font-weight:700; margin:0; }
   .line { display:block; overflow:hidden; padding-bottom:.08em; margin-bottom:-.08em; }
   .line-i { display:inline-block; }
   .accent { color:var(--acc); }
@@ -108,7 +108,7 @@
   .btn .arr { display:inline-block; transition:transform .25s var(--ease-out); }
   .btn:hover .arr { transform:translateY(3px); }
   .js:not(.rm) [data-intro] { visibility:hidden; }
-  @media (max-width:860px) { .hero-top { grid-template-columns:minmax(0,1fr); } .hero-side { max-width:34rem; } }
+  @media (max-width:960px) { .hero { grid-template-columns:minmax(0,1fr); min-height:0; } .hero-side { max-width:34rem; } }
 
   /* Browser frame (project cards) */
   .frame { background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; box-shadow:0 1px 0 rgba(21,21,26,.03), 0 28px 56px -36px rgba(21,21,26,.45); transition:border-color .3s ease-out, box-shadow .3s ease-out; }
@@ -121,14 +121,14 @@
 
   /* Carousel: the stage is the screenshot; caption and controls float over it as glass */
   .car { position:relative; }
-  .stage { position:relative; aspect-ratio:16/8.4; border-radius:24px; overflow:hidden; background:#e9e8e2; box-shadow:0 1px 0 rgba(21,21,26,.04), 0 40px 80px -48px rgba(21,21,26,.55); touch-action:pan-y; }
+  .stage { position:relative; aspect-ratio:10/9; border-radius:24px; overflow:hidden; background:#e9e8e2; box-shadow:0 1px 0 rgba(21,21,26,.04), 0 40px 80px -48px rgba(21,21,26,.55); touch-action:pan-y; }
   .slide { position:absolute; inset:0; overflow:hidden; visibility:hidden; }
   .slide.on { visibility:visible; }
   .slide img { position:absolute; left:0; top:0; width:100%; height:auto; will-change:transform; }
   .slide img.fit { height:100%; object-fit:cover; object-position:top; }
   .slide::after { content:""; position:absolute; inset:auto 0 0 0; height:46%; background:linear-gradient(to top, rgba(15,15,30,.16), rgba(15,15,30,0)); pointer-events:none; }
 
-  .cap { position:absolute; left:clamp(12px,2vw,24px); bottom:clamp(12px,2vw,24px); z-index:5; width:min(420px, calc(100% - 24px)); border-radius:20px; padding:18px 20px; }
+  .cap { position:absolute; left:clamp(12px,2vw,24px); bottom:clamp(12px,2vw,24px); z-index:5; width:min(360px, calc(100% - 24px)); border-radius:20px; padding:16px 18px; }
   .cap-in { display:flex; flex-direction:column; gap:8px; }
   .cap-head { display:flex; gap:12px; align-items:center; }
   .cap-head img { width:42px; height:42px; border-radius:11px; flex:none; }
@@ -140,7 +140,7 @@
   .cap .go span { margin-left:.35em; transition:transform .25s var(--ease-out); }
   .cap .go:hover span { transform:translateX(4px); }
 
-  .ctrl { position:absolute; right:clamp(12px,2vw,24px); bottom:clamp(12px,2vw,24px); z-index:5; display:flex; align-items:center; gap:2px; padding:4px; border-radius:999px; }
+  .ctrl { position:absolute; right:clamp(12px,2vw,24px); top:clamp(12px,2vw,24px); z-index:5; display:flex; align-items:center; gap:2px; padding:4px; border-radius:999px; }
   .ctrl > button { width:44px; height:44px; border-radius:50%; display:grid; place-items:center; transition:background-color .2s ease-out; }
   .ctrl > button:hover { background:rgba(255,255,255,.55); }
   .ctrl svg { width:16px; height:16px; }
@@ -152,6 +152,7 @@
   .seg-bar { background:var(--ink); transform-origin:0 50%; transform:scaleX(0); }
   .seg-name { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
+  @media (max-width:960px) and (min-width:761px) { .stage { aspect-ratio:16/9.5; } }
   @media (max-width:760px) {
     .stage { aspect-ratio:4/3.4; border-radius:18px; }
     .cap { position:static; width:auto; margin-top:14px; padding:0; border-radius:0; background:none; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; }
@@ -240,8 +241,9 @@
   <section class="wrap hero" aria-label="Introduction">
     <div class="hero-top">
       <h1 class="hl">
-        <span class="line"><span class="line-i" data-intro>Tools for AI agents,</span></span>
-        <span class="line"><span class="line-i" data-intro>and apps for <span class="accent"><span class="rot-static">a classroom, a school and a farm.</span><span class="rotator" aria-hidden="true"><span class="rw">a classroom.</span><span class="rw">a school.</span><span class="rw">a farm.</span></span></span></span></span>
+        <span class="line"><span class="line-i" data-intro>AI agent tools,</span></span>
+        <span class="line"><span class="line-i" data-intro>and apps for</span></span>
+        <span class="line"><span class="line-i" data-intro><span class="accent"><span class="rot-static">a classroom, a school and a farm.</span><span class="rotator" aria-hidden="true"><span class="rw">a classroom.</span><span class="rw">a school.</span><span class="rw">a farm.</span></span></span></span></span>
       </h1>
       <div class="hero-side" data-intro>
         <p class="hero-sub">Projects I've worked on, on my own and with others.</p>
@@ -289,8 +291,8 @@
       <h2 class="sh" id="h-projects">Projects</h2>
       <div class="chips glass js-only" role="group" aria-label="Filter projects"><span class="thumb" aria-hidden="true"></span>
         <button type="button" class="chip" data-f="all" aria-pressed="true">All<span>8</span></button>
-        <button type="button" class="chip" data-f="agents" aria-pressed="false">For AI agents<span>5</span></button>
-        <button type="button" class="chip" data-f="places" aria-pressed="false">For places<span>3</span></button>
+        <button type="button" class="chip" data-f="agents" aria-pressed="false">AI agents<span>5</span></button>
+        <button type="button" class="chip" data-f="places" aria-pressed="false">Schools &amp; farms<span>3</span></button>
       </div>
     </div>
     <div class="grid">
@@ -397,7 +399,7 @@ addEventListener('DOMContentLoaded', () => {
     if (reduce) { gsap.set(bars[idx], { scaleX: 1 }); return; }
     dwell = gsap.timeline({ onComplete: () => go(idx + 1, 1) })
       .fromTo(bars[idx], { scaleX: 0 }, { scaleX: 1, duration: DWELL, ease: 'none' }, 0);
-    if (img.classList.contains('pan')) dwell.fromTo(img, { y: 0 }, { y: () => -panOf(img) * 0.55, duration: DWELL, ease: 'sine.inOut' }, 0);
+    if (img.classList.contains('pan')) dwell.fromTo(img, { y: 0 }, { y: () => -Math.min(panOf(img), img.parentElement.offsetHeight * 0.25), duration: DWELL, ease: 'sine.inOut' }, 0);
     sync();
   }
   function sync() {
@@ -440,10 +442,11 @@ addEventListener('DOMContentLoaded', () => {
     sync();
   };
   playBtn.addEventListener('click', () => setPlaying(!playing));
-  car.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { held = true; sync(); } });
-  car.addEventListener('pointerleave', () => { held = false; sync(); });
-  car.addEventListener('focusin', () => { held = true; sync(); });
+  // Keeps changing on its own. Only keyboard focus holds it (so screen-reader and keyboard users are not
+  // moved on mid-read); mouse clicks and hovering do not. The pause button stops it for good.
+  car.addEventListener('focusin', e => { held = e.target.matches(':focus-visible'); sync(); });
   car.addEventListener('focusout', e => { if (!car.contains(e.relatedTarget)) { held = false; sync(); } });
+  car.addEventListener('pointerdown', () => { if (held) { held = false; sync(); } });
   car.addEventListener('keydown', e => { if (e.key === 'ArrowRight') go(idx + 1, 1); if (e.key === 'ArrowLeft') go(idx - 1, -1); });
   document.addEventListener('visibilitychange', sync);
   new IntersectionObserver(([e]) => { offscreen = !e.isIntersecting; sync(); }, { threshold: 0.2 }).observe(car);
