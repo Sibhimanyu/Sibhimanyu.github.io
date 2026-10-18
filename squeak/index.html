@@ -208,6 +208,7 @@
       <a href="#mac" class="hide-sm">The Mac app</a>
       <a href="#phone" class="hide-sm">iPhone</a>
       <a href="#careful">Careful by design</a>
+      <a href="#install">Download</a>
     </div>
   </div>
 </nav>
@@ -220,8 +221,9 @@
       <h1>A pager for your coding agents. With a&nbsp;<em>duck</em>.</h1>
       <p class="lede">Squeak watches every Claude Code and Codex session on your Mac, tells you which ones need you, and lets you answer from your Mac, your iPhone or Telegram.</p>
       <div class="ctas">
-        <a class="btn primary" href="#how">See how it works</a>
-        <span class="note">Private for now</span>
+        <a class="btn primary" href="https://github.com/Sibhimanyu/squeak/releases/download/v2.0.0/Squeak-2.0.0.dmg">Download for Mac</a>
+        <a class="btn secondary" href="#how">See how it works</a>
+        <span class="note">v2.0.0 · macOS 14+ · Apple silicon</span>
       </div>
       <div class="states" aria-label="The five states Squeak shows">
         <span class="st"><span class="dot pulse" style="--c:var(--needs);--p:1s"></span>needs you</span>
@@ -375,12 +377,39 @@
   </div>
 </section>
 
+<section id="install">
+  <div class="wrap">
+    <p class="kicker">Install</p>
+    <h2>Drag it to Applications.</h2>
+    <p class="sub">Squeak 2.0.0 for Mac, as a disk image. It is free and ad-hoc signed rather than notarized, so macOS asks once before the first launch.</p>
+    <div class="ctas"><a class="btn primary" href="https://github.com/Sibhimanyu/squeak/releases/download/v2.0.0/Squeak-2.0.0.dmg">Download Squeak-2.0.0.dmg</a><a class="btn secondary" href="https://github.com/Sibhimanyu/squeak/releases/latest">All releases</a></div>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <h3>Open the disk image</h3>
+        <p>Open <code>Squeak-2.0.0.dmg</code> from your Downloads and drag <strong>Squeak</strong> onto <strong>Applications</strong>.</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <h3>Open it the first time</h3>
+        <p>In Applications, right-click Squeak and choose <strong>Open</strong>, then Open again. If macOS still refuses, go to System Settings › Privacy &amp; Security and press <strong>Open Anyway</strong>.</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <h3>Find it in the menu bar</h3>
+        <p>Squeak lives in the menu bar. It lists your Conductor chats and their history on its own; answering them also needs the Squeak service running on the Mac.</p>
+      </div>
+    </div>
+    <p class="note" style="margin-top:22px">SHA-256: <code>d608584f64038601a47231a8f2c11175229bb7cf8a9d0eb75f03ed67a980d6c7</code><br />Check it with <code>shasum -a 256 ~/Downloads/Squeak-2.0.0.dmg</code></p>
+  </div>
+</section>
+
 <section class="closing">
   <div class="wrap">
     <img src="assets/duck-working.png" width="240" height="240" alt="" loading="lazy" />
     <h2>Quiet until it matters.</h2>
-    <p class="sub">Squeak is private for now. It runs on macOS, with an iPhone app alongside.</p>
-    <div class="ctas"><a class="btn secondary" href="https://sibhimanyu.github.io/">More projects</a></div>
+    <p class="sub">Squeak runs on macOS, with an iPhone app alongside.</p>
+    <div class="ctas"><a class="btn primary" href="https://github.com/Sibhimanyu/squeak/releases/download/v2.0.0/Squeak-2.0.0.dmg">Download for Mac</a><a class="btn secondary" href="https://sibhimanyu.github.io/">More projects</a></div>
   </div>
 </section>
 </main>
