@@ -6,94 +6,13 @@
     <description>Squeak for Mac updates</description>
     <language>en</language>
     <item>
-      <title>Squeak 2.1.1</title>
-      <pubDate>Mon, 19 Oct 2026 10:36:57 +0000</pubDate>
-      <sparkle:version>20101</sparkle:version>
-      <sparkle:shortVersionString>2.1.1</sparkle:shortVersionString>
+      <title>Squeak 2.1.2</title>
+      <pubDate>Mon, 19 Oct 2026 12:10:23 +0000</pubDate>
+      <sparkle:version>20102</sparkle:version>
+      <sparkle:shortVersionString>2.1.2</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.1</sparkle:releaseNotesLink>
-      <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.1.dmg" length="5374985" type="application/octet-stream" sparkle:edSignature="mhwVuK6/CNv2fSDTk6dnZm4ArMSGlacFb6FWJlsgGqp/uUmoMboRUtQyAdmqH4+nLVlHi1cVnGXcruYOoI77Dg==" />
-    </item>
-    <item>
-      <title>Squeak 2.1.0</title>
-      <pubDate>Mon, 19 Oct 2026 09:27:44 +0000</pubDate>
-      <sparkle:version>20100</sparkle:version>
-      <sparkle:shortVersionString>2.1.0</sparkle:shortVersionString>
-      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.0</sparkle:releaseNotesLink>
-      <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.0.dmg" length="4888675" type="application/octet-stream" sparkle:edSignature="F3i9oFaliCmaKhoX6CqAiP8+37bpW4ugbJ58xSBt4pwe6VuZsfHfWeBIDLsq3qk2JsUaprCrqzFq4DYOk7lTDg==" />
-    </item>
-    <item>
-      <title>Squeak 2.0.9</title>
-      <pubDate>Mon, 19 Oct 2026 07:16:10 +0000</pubDate>
-      <sparkle:version>20009</sparkle:version>
-      <sparkle:shortVersionString>2.0.9</sparkle:shortVersionString>
-      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.0.9</sparkle:releaseNotesLink>
-      <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.0.9.dmg" length="4731280" type="application/octet-stream" sparkle:edSignature="XonBBYVsD7Q1ltNWFlhF6rfMcBTQuWDb9d3KERm7MZ2PLEk7YvibGLOxzr2WiJgn5jBrgBvdsa3wgcK3TT9bBw==" />
-    </item>
-    <item>
-      <title>Squeak 2.0.8</title>
-      <pubDate>Mon, 19 Oct 2026 06:23:16 +0000</pubDate>
-      <sparkle:version>20008</sparkle:version>
-      <sparkle:shortVersionString>2.0.8</sparkle:shortVersionString>
-      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.0.8</sparkle:releaseNotesLink>
-      <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.0.8.dmg" length="4577930" type="application/octet-stream" sparkle:edSignature="A4UzxO4bNaS+3rQI9nukCtziK1l1UlGOBt8oz3UCNp/LjLj2HqwSmmgAimFn441Ifqm9j4M3GSsbgXFrBqDsCQ==" />
-    </item>
-    <item>
-      <title>Squeak 2.0.7</title>
-      <pubDate>Mon, 19 Oct 2026 05:53:51 +0000</pubDate>
-      <sparkle:version>20007</sparkle:version>
-      <sparkle:shortVersionString>2.0.7</sparkle:shortVersionString>
-      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.0.7</sparkle:releaseNotesLink>
-      <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.0.7.dmg" length="4576880" type="application/octet-stream" sparkle:edSignature="+PVaKnAA0NHl6Z795xJNaDE+3AbsnkL1GNUyH3tuFT00zU9UCWWgf3rUOZYuPjNgoNhpqruSGk23qaL5OtioDA==" />
-    </item>
-    <item>
-      <title>Squeak 2.0.6</title>
-      <pubDate>Mon, 19 Oct 2026 04:10:49 +0000</pubDate>
-      <sparkle:version>20006</sparkle:version>
-      <sparkle:shortVersionString>2.0.6</sparkle:shortVersionString>
-      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.0.6</sparkle:releaseNotesLink>
-      <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.0.6.dmg" length="4316510" type="application/octet-stream" sparkle:edSignature="t5rRYEKyctmO03zUcvoPN+DGmPTbnQJzI3ylg9jPSegNjg5R/mJkeSWfOtVVk8/Lr87PiRl/x+5q0PMGPsCmCg==" />
-    </item>
-    <item>
-      <title>Squeak 2.0.5</title>
-      <pubDate>Mon, 19 Oct 2026 03:53:09 +0000</pubDate>
-      <sparkle:version>20005</sparkle:version>
-      <sparkle:shortVersionString>2.0.5</sparkle:shortVersionString>
-      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.0.5</sparkle:releaseNotesLink>
-      <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.0.5.dmg" length="4483579" type="application/octet-stream" sparkle:edSignature="0cm9dfjD1IqmLDXPGm+Vaw61yaXHeQX44In8vkHoSiRtaZ04Sz/IVVEPTg2rP+q9OxLIMMQWGSG8BTfSX2SFBQ==" />
-    </item>
-    <item>
-      <title>Squeak 2.0.4</title>
-      <pubDate>Mon, 19 Oct 2026 03:19:58 +0000</pubDate>
-      <sparkle:version>20004</sparkle:version>
-      <sparkle:shortVersionString>2.0.4</sparkle:shortVersionString>
-      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.0.4</sparkle:releaseNotesLink>
-      <enclosure url="https://github.com/Sibhimanyu/squeak/releases/download/v2.0.4/Squeak-2.0.4.dmg" length="3117340" type="application/octet-stream" sparkle:edSignature="pzBtmxtwYKwnh7te0rlhmNUDDY/+TBETjZNRYDZ5ZGY63krLk9WxaN6jEoYF7JxaDAO+5QryMyAfCMkiIXRvAA==" />
-    </item>
-    <item>
-      <title>Squeak 2.0.3</title>
-      <pubDate>Mon, 19 Oct 2026 02:49:44 +0000</pubDate>
-      <sparkle:version>20003</sparkle:version>
-      <sparkle:shortVersionString>2.0.3</sparkle:shortVersionString>
-      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.0.3</sparkle:releaseNotesLink>
-      <enclosure url="https://github.com/Sibhimanyu/squeak/releases/download/v2.0.3/Squeak-2.0.3.dmg" length="3011041" type="application/octet-stream" sparkle:edSignature="nKGnm6AnKN8YESMHfcmvjNZar5sJiPURDtHkrl4CF3tpPhTfPl8umACR1+AdvC5xgbmDrwATrJkXw2ej2GS1Cw==" />
-    </item>
-    <item>
-      <title>Squeak 2.0.2</title>
-      <pubDate>Mon, 19 Oct 2026 02:33:34 +0000</pubDate>
-      <sparkle:version>20002</sparkle:version>
-      <sparkle:shortVersionString>2.0.2</sparkle:shortVersionString>
-      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.0.2</sparkle:releaseNotesLink>
-      <enclosure url="https://github.com/Sibhimanyu/squeak/releases/download/v2.0.2/Squeak-2.0.2.dmg" length="3008545" type="application/octet-stream" sparkle:edSignature="3sN0WU2SYWZ4uHjymUrR1odvZzWudcVJ/jgiQTJqijNGsEfcu7gtQyk4R8EzcZvbQwpfvZT5rEzPZ47e+H6hCA==" />
+      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.2</sparkle:releaseNotesLink>
+      <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.2.dmg" length="4893780" type="application/octet-stream" sparkle:edSignature="iROIFPb9qMDGXT+4BNnZcEDiDMD8/mWNws1PXnBjQYA43S+4TziBro8sL9/aR3E5be9jQCBVCmCRi5c2rqItDg==" />
     </item>
   </channel>
 </rss>
