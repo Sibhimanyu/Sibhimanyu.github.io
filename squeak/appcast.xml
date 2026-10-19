@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+  <channel>
+    <title>Squeak</title>
+    <link>https://sibhimanyu.github.io/squeak/</link>
+    <description>Squeak for Mac updates</description>
+    <language>en</language>
+    <item>
+      <title>Squeak 2.0.2</title>
+      <pubDate>Mon, 19 Oct 2026 02:33:34 +0000</pubDate>
+      <sparkle:version>20002</sparkle:version>
+      <sparkle:shortVersionString>2.0.2</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.0.2</sparkle:releaseNotesLink>
+      <enclosure url="https://github.com/Sibhimanyu/squeak/releases/download/v2.0.2/Squeak-2.0.2.dmg" length="3008545" type="application/octet-stream" sparkle:edSignature="3sN0WU2SYWZ4uHjymUrR1odvZzWudcVJ/jgiQTJqijNGsEfcu7gtQyk4R8EzcZvbQwpfvZT5rEzPZ47e+H6hCA==" />
+    </item>
+  </channel>
+</rss>
