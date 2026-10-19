@@ -12,7 +12,7 @@
       <sparkle:shortVersionString>2.0.5</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
       <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.0.5</sparkle:releaseNotesLink>
-      <enclosure url="https://github.com/Sibhimanyu/squeak/releases/download/v2.0.5/Squeak-2.0.5.dmg" length="4483579" type="application/octet-stream" sparkle:edSignature="0cm9dfjD1IqmLDXPGm+Vaw61yaXHeQX44In8vkHoSiRtaZ04Sz/IVVEPTg2rP+q9OxLIMMQWGSG8BTfSX2SFBQ==" />
+      <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.0.5.dmg" length="4483579" type="application/octet-stream" sparkle:edSignature="0cm9dfjD1IqmLDXPGm+Vaw61yaXHeQX44In8vkHoSiRtaZ04Sz/IVVEPTg2rP+q9OxLIMMQWGSG8BTfSX2SFBQ==" />
     </item>
     <item>
       <title>Squeak 2.0.4</title>
