@@ -6,6 +6,15 @@
     <description>Squeak for Mac updates</description>
     <language>en</language>
     <item>
+      <title>Squeak 2.1.28</title>
+      <pubDate>Sat, 24 Oct 2026 05:32:32 +0000</pubDate>
+      <sparkle:version>20128</sparkle:version>
+      <sparkle:shortVersionString>2.1.28</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.28</sparkle:releaseNotesLink>
+      <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.28.dmg" length="5642149" type="application/octet-stream" sparkle:edSignature="MN+ixyFPUFbgF8xXxKITtfwxcgRnqS6S+QFmBnHqBQ+ZzUBmM5F5bbVo8/qL2BB/SaVCblEolsoS4btf/o6XAw==" />
+    </item>
+    <item>
       <title>Squeak 2.1.27</title>
       <pubDate>Fri, 23 Oct 2026 17:26:27 +0000</pubDate>
       <sparkle:version>20127</sparkle:version>
