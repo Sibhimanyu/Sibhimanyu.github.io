@@ -4,20 +4,29 @@
    passes, friction, low restitution, walls and a static panel rectangle.
    Fixed timestep. The loop sleeps when everything has settled, pauses while the
    stage is off screen or the tab is hidden, and wakes on the pointer.
+   The ducks pour in one after another (each body is dormant until its turn),
+   scroll velocity from motion.js jostles them (window.SqueakDucks.nudge), the
+   pointer pushes them and a press makes them hop.
    Sprites are the existing duck files, taken from the static pile <img>s,
    which stay on the page as the no-script and reduced-motion fallback. */
 (function () {
   "use strict";
 
-  var stage = document.querySelector("[data-stage]");
-  var field = stage && stage.querySelector("[data-field]");
-  var canvas = field && field.querySelector("canvas");
   var root = document.documentElement;
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var api = (window.SqueakDucks = window.SqueakDucks || {});
+  api.nudge = api.nudge || function () {};
+
+  // One pile per stage. The hero's is [data-stage]; a smaller one elsewhere is
+  // [data-pond], with its own count and size from data-* attributes, held dormant
+  // until it is half on screen and then poured in.
+  function make(stage, opts) {
+  var field = stage.querySelector("[data-field]");
+  var canvas = field && field.querySelector("canvas");
   if (!canvas || reduce || !canvas.getContext) return fail();
 
   function fail() {
-    root.classList.remove("ducks-pending");
+    if (opts.hero) root.classList.remove("ducks-pending");
   }
 
   // Collider circles per sprite, in units of the sprite's width, from the
@@ -52,6 +61,10 @@
   var last = 0;
   var acc = 0;
   var frames = 0;
+  var clock = 0; // simulated seconds since the pour began
+  var lastNudge = 0;
+  var stacked = false; // the panel sits under the pile (narrow layouts), not beside it
+  var held = !!opts.pour; // dormant until released
   var pointer = { x: 0, y: 0, px: 0, py: 0, vx: 0, vy: 0, t: 0, inside: false };
 
   function seeded() {
@@ -82,12 +95,23 @@
       // a duck's bill and tail stick out past its circles, so the collider is a little larger than the panel
       panel = { x0: x0 - 20, y0: y0 - 4, x1: x0 + p.offsetWidth, y1: y0 + p.offsetHeight };
     }
+    stacked = !panel || panel.x0 < W * 0.3;
+  }
+
+  // Each sprite is rasterised once at its drawn size (SVG ducks are costly to
+  // redraw 60 times a second), then blitted.
+  function bake(b) {
+    var c = document.createElement("canvas");
+    c.width = Math.max(1, Math.ceil(b.w * dpr));
+    c.height = Math.max(1, Math.ceil(b.h * dpr));
+    c.getContext("2d").drawImage(b.img, 0, 0, c.width, c.height);
+    b.sprite = c;
   }
 
   function makeBody(img, index, count) {
     var kind = KINDS[img.getAttribute("data-duck")] || KINDS.brand;
     var small = W < 700;
-    var base = small ? 88 : Math.min(144, Math.max(100, W * 0.108));
+    var base = opts.size ? (window.innerWidth < 700 ? opts.sizeSmall || opts.size : opts.size) : small ? 88 : stacked ? Math.min(124, Math.max(92, W * 0.1)) : Math.min(112, Math.max(88, W * 0.08));
     var w = base * (0.8 + rand() * 0.35);
     var h = w * kind.ratio;
     var cs = kind.circles.map(function (c) {
@@ -113,17 +137,17 @@
     });
     // Drop in from above, spread across the free width, staggered in time.
     var free0 = 0;
-    var free1 = panel && W > 700 ? panel.x0 + (panel.x1 - panel.x0) * 0.3 : W * 0.94;
+    var free1 = panel && !stacked ? panel.x0 + (panel.x1 - panel.x0) * 0.3 : W * 0.94;
     var t = index / count;
-    return {
+    var body = {
       img: img,
       w: w,
       h: h,
       ox: cx,
       oy: cy,
       circles: cs,
-      x: /needs_you/.test(img.src) && panel ? panel.x0 + (panel.x1 - panel.x0) * 0.62 : free0 + w * 0.7 + rand() * Math.max(10, free1 - free0 - w * 1.4),
-      y: -w * (0.6 + t * 9) - rand() * 40,
+      x: opts.pour ? w * 0.6 + ((index * 0.618 + 0.1) % 1) * Math.max(10, W - w * 1.2) : /needs_you/.test(img.src) && panel ? panel.x0 + (panel.x1 - panel.x0) * 0.62 : free0 + w * 0.7 + rand() * Math.max(10, free1 - free0 - w * 1.4),
+      y: -w * 1.3 - rand() * 30,
       a: (rand() - 0.5) * 1.6,
       vx: (rand() - 0.5) * 120,
       vy: 0,
@@ -132,12 +156,16 @@
       invI: 1 / (inertia * 0.02),
       calm: 0,
       sleeping: false,
+      active: false,
+      spawn: 0.2 + index * (W < 700 ? 0.11 : 0.085) + rand() * 0.05, // seconds into the pour
     };
+    bake(body);
+    return body;
   }
 
   function build() {
     measure();
-    var limit = W < 700 ? 10 : 26;
+    var limit = opts.count ? (window.innerWidth < 700 ? opts.countSmall || opts.count : opts.count) : W < 700 ? 10 : stacked ? Math.min(26, Math.round(W / 55)) : 20;
     var list = sprites.slice(0, limit);
     // the needs-you duck drops last, onto the top edge of the panel, beside its own row
     if (perch) list.push(perch);
@@ -161,14 +189,17 @@
 
   function collide() {
     contacts.length = 0;
-    var n = bodies.length;
-    var wc = bodies.map(function (b) {
+    var live = bodies.filter(function (b) {
+      return b.active;
+    });
+    var n = live.length;
+    var wc = live.map(function (b) {
       return b.circles.map(function (c) {
         return worldCircle(b, c);
       });
     });
     for (var i = 0; i < n; i++) {
-      var a = bodies[i];
+      var a = live[i];
       for (var k = 0; k < wc[i].length; k++) {
         var c = wc[i][k];
         // walls: floor and both sides (no ceiling, ducks fall in from above)
@@ -196,7 +227,7 @@
         }
       }
       for (var j = i + 1; j < n; j++) {
-        var b = bodies[j];
+        var b = live[j];
         var ddx = a.x - b.x;
         var ddy = a.y - b.y;
         var reach = a.w + b.w;
@@ -316,8 +347,16 @@
 
   function step(dt) {
     var allCalm = true;
+    clock += dt;
     for (var i = 0; i < bodies.length; i++) {
       var b = bodies[i];
+      if (!b.active) {
+        if (clock >= b.spawn) b.active = true;
+        else {
+          allCalm = false;
+          continue;
+        }
+      }
       b.vy += G * dt;
       var damp = Math.exp(-0.35 * dt);
       b.vx *= damp;
@@ -332,6 +371,7 @@
     solve();
     for (var j = 0; j < bodies.length; j++) {
       var d = bodies[j];
+      if (!d.active) continue;
       var slow = Math.abs(d.vx) + Math.abs(d.vy) < CALM_SPEED && Math.abs(d.w2) < CALM_SPIN;
       d.calm = slow ? d.calm + dt : 0;
       if (d.calm > 0.4) {
@@ -359,6 +399,27 @@
     start();
   }
 
+  // Scroll velocity (px/s, signed) from motion.js: a gentle hop and a little spin,
+  // never more than one nudge per 90 ms, nothing while off screen.
+  function nudge(v) {
+    if (!bodies.length || !visible || document.hidden) return;
+    var s = Math.min(Math.abs(v || 0), 3000);
+    if (s < 250) return;
+    var now = performance.now();
+    if (now - lastNudge < 90) return;
+    lastNudge = now;
+    var k = (s - 250) / 2750;
+    bodies.forEach(function (b) {
+      if (!b.active) return;
+      var r = Math.random();
+      b.vy -= (120 + 380 * k) * (0.35 + r);
+      b.vx += (r - 0.5) * 220 * k;
+      b.w2 += (r - 0.5) * (3 + 8 * k);
+      b.calm = 0;
+    });
+    wake();
+  }
+
   function onMove(e) {
     var p = toField(e);
     var now = performance.now();
@@ -373,6 +434,7 @@
     var moved = false;
     for (var i = 0; i < bodies.length; i++) {
       var b = bodies[i];
+      if (!b.active) continue;
       var dx = b.x - p.x;
       var dy = b.y - p.y;
       var d = Math.hypot(dx, dy);
@@ -392,6 +454,7 @@
     var p = toField(e);
     for (var i = 0; i < bodies.length; i++) {
       var b = bodies[i];
+      if (!b.active) continue;
       var d = Math.hypot(b.x - p.x, b.y - p.y);
       if (d > RADIUS * 1.2) continue;
       var fall = 1 - d / (RADIUS * 1.2);
@@ -413,10 +476,11 @@
     ctx.clearRect(-PAD, 0, W + PAD * 2, CH);
     for (var i = 0; i < bodies.length; i++) {
       var b = bodies[i];
+      if (!b.active) continue;
       ctx.save();
       ctx.translate(b.x, b.y);
       ctx.rotate(b.a);
-      ctx.drawImage(b.img, -b.ox, -b.oy, b.w, b.h);
+      ctx.drawImage(b.sprite, -b.ox, -b.oy, b.w, b.h);
       ctx.restore();
     }
   }
@@ -445,7 +509,7 @@
   }
 
   function start() {
-    if (running || !visible || document.hidden || !bodies.length) return;
+    if (running || held || !visible || document.hidden || !bodies.length) return;
     running = true;
     last = performance.now();
     acc = 0;
@@ -460,8 +524,12 @@
   function init() {
     build();
     if (!bodies.length || W < 50) return fail();
-    root.classList.remove("ducks-pending");
-    root.classList.add("ducks-live");
+    if (opts.hero) {
+      root.classList.remove("ducks-pending");
+      root.classList.add("ducks-live");
+      api.nudge = nudge;
+    }
+    stage.classList.add("is-live");
     canvas.setAttribute("data-state", "running");
     draw();
     stage.addEventListener("pointermove", onMove, { passive: true });
@@ -473,10 +541,12 @@
     });
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (entries) {
-        visible = entries[entries.length - 1].isIntersecting;
+        var e = entries[entries.length - 1];
+        visible = e.isIntersecting;
+        if (held && e.intersectionRatio >= 0.35) held = false;
         if (!visible) pause();
         else if (!asleep) start();
-      }).observe(stage);
+      }, { threshold: [0, 0.35] }).observe(stage);
     }
     var width = field.getBoundingClientRect().width;
     var timer = 0;
@@ -488,6 +558,7 @@
         width = w;
         measure();
         bodies.forEach(function (b) {
+          if (!b.active) return;
           b.x = Math.max(b.w * 0.5, Math.min(b.x, W - b.w * 0.5));
           b.y = Math.min(b.y, H - b.w * 0.5);
         });
@@ -512,4 +583,18 @@
       img.addEventListener("error", fail, { once: true });
     });
   }
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-stage]"), function (el) {
+    make(el, { hero: true });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-pond]"), function (el) {
+    make(el, {
+      pour: true,
+      count: +el.getAttribute("data-count") || 8,
+      countSmall: +el.getAttribute("data-count-small") || 6,
+      size: +el.getAttribute("data-size") || 96,
+      sizeSmall: +el.getAttribute("data-size-small") || 76,
+    });
+  });
 })();
