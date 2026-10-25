@@ -70,25 +70,19 @@
   .hero h1 { font-size:clamp(3.4rem,15.2vw,14rem); font-weight:600; letter-spacing:-.045em; line-height:.9; margin-bottom:clamp(20px,4vh,40px); }
   .tagline { font-size:clamp(1.25rem,2.2vw,1.9rem); font-weight:500; letter-spacing:-.018em; line-height:1.25; max-width:24ch; text-wrap:balance; }
   .hint, .hud, .rail { display:none; }
-  .proj { display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1fr); gap:clamp(24px,5vw,88px); align-items:center; padding:clamp(40px,7vw,96px) var(--pad); border-top:1px solid var(--line); }
-  /* the plain page keeps the same idea: a borderless screenshot whose edges feather into the page, light at the top so the site's own header shows */
-  .shot { overflow:hidden; max-height:min(84vh,880px); -webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent),linear-gradient(180deg,transparent,#000 4%,#000 68%,transparent); -webkit-mask-composite:source-in; mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent),linear-gradient(180deg,transparent,#000 4%,#000 68%,transparent); mask-composite:intersect; }
-  .shot img { width:100%; height:auto; }
-  .shot.wide img { aspect-ratio:2/1; object-fit:cover; }
+  .proj { padding:clamp(48px,8vw,110px) var(--pad); border-top:1px solid var(--line); }
+  .shot { display:none; }
   .divider { padding:clamp(72px,12vw,170px) var(--pad); border-top:1px solid var(--line); }
   .divider p { font-size:clamp(2.2rem,8.4vw,8rem); font-weight:600; letter-spacing:-.045em; line-height:.98; max-width:15ch; }
 
-  .copy { position:relative; min-width:0; }
-  .pmark { width:40px; height:40px; border-radius:10px; margin-bottom:20px; }
-  .pmark.wide { width:auto; height:30px; border-radius:0; }
-  .pname { font-size:clamp(2.8rem,7.4vw,7rem); font-weight:800; text-transform:uppercase; letter-spacing:-.01em; line-height:.88; padding-bottom:.08em; }
-  .pname a { color:var(--fg); }
+  .eyebrow { font-size:.8rem; line-height:1.4; color:var(--dim); letter-spacing:.04em; margin-bottom:clamp(12px,1.6vw,20px); }
+  .eyebrow b { color:var(--ac); font-weight:500; }
+  .pname { font-size:clamp(3rem,12.4vw,15rem); font-weight:800; text-transform:uppercase; letter-spacing:-.01em; line-height:.9; padding-bottom:.06em; }
+  .pname a { color:var(--fg); text-decoration:none; }
   @supports ((-webkit-background-clip:text) or (background-clip:text)) { .pname a { background:var(--shot) center var(--fy,14%)/cover no-repeat, #E8E4DC; background-blend-mode:multiply; -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; } }
-  .t { text-decoration:none; }
-  .t:hover { text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:7px; }
-  .tag { margin-top:12px; font-size:.76rem; color:var(--dim); text-transform:uppercase; letter-spacing:.1em; }
-  .desc { margin-top:20px; font-size:clamp(1.02rem,1.3vw,1.2rem); max-width:34ch; text-wrap:pretty; color:rgba(242,240,235,.86); line-height:1.5; }
-  .links { margin-top:22px; }
+  .copy { position:relative; min-width:0; margin-top:clamp(16px,2.4vw,30px); }
+  .desc { font-size:clamp(1.15rem,1.7vw,1.35rem); max-width:46ch; text-wrap:pretty; color:rgba(242,240,235,.92); line-height:1.4; }
+  .links { margin-top:12px; }
   .lk { display:flex; flex-wrap:wrap; gap:4px 22px; align-items:center; }
   .links a, .index a.go { display:inline-flex; align-items:center; min-height:44px; font-weight:600; text-decoration:none; }
   .go span { margin-left:.4em; display:inline-block; transition:transform .25s var(--ease); }
@@ -99,8 +93,6 @@
 
   @media (max-width:760px) {
     .nav li:nth-child(1) a { padding:0 10px; }
-    .proj { grid-template-columns:minmax(0,1fr); }
-    .proj .shot { order:-1; max-height:62vh; }
   }
 
   /* Index */
@@ -162,19 +154,21 @@
   .gl .tagline { transform:none; }
   .gl #work { position:absolute; inset:0; }
   .gl #work > h2 { top:0; left:0; }
-  .gl .proj { position:absolute; inset:0; display:block; padding:0; border:0; visibility:hidden; }
+  .gl .proj { position:absolute; inset:0; display:block; padding:0; border:0; visibility:hidden; pointer-events:none; }
   .gl .shot, .gl .divider { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); border:0; }
-  .gl .copy { position:absolute; left:var(--pad); top:50%; transform:translateY(-52%); width:min(30vw,460px); isolation:isolate; }
-  .gl .copy::before { content:""; position:absolute; z-index:-1; inset:-70px -70px -70px calc(var(--pad) * -1 - 20px); background:radial-gradient(closest-side, rgba(10,10,10,.86), rgba(10,10,10,.6) 62%, rgba(10,10,10,0)); pointer-events:none; }
-  .gl .pname, .gl .tag, .gl .links { overflow:hidden; }
-  .gl .pname { padding:0 8px .12em 8px; margin:0 -8px; }
-  .gl .tag { padding-bottom:2px; }
-  .gl .pname a, .gl .tag span { display:block; }
-  .gl .links { padding:8px; margin:14px -8px -8px; }
+  /* the composition hangs off the letters' measured bounds (--bl/--bt/--bw/--bh from the mask layout, set in field.js) */
+  .gl .eyebrow { position:absolute; left:var(--bl); top:var(--ey); margin:0; overflow:hidden; padding-bottom:3px; white-space:nowrap; }
+  .gl .eyebrow span { display:block; }
+  .gl .pname { position:absolute; left:var(--bl); top:var(--bt); width:var(--bw); height:var(--bh); margin:0; padding:0; font-size:1rem; line-height:1; }
+  .gl .pname a { display:block; width:100%; height:100%; font-size:0; background:none; color:transparent; -webkit-text-fill-color:transparent; pointer-events:auto; border-radius:2px; }
+  .gl .pname a:focus-visible { outline:2px solid var(--ac); outline-offset:10px; }
+  .gl .copy { position:absolute; left:var(--bl); top:var(--ct); width:calc(100vw - var(--bl) * 2); margin:0; pointer-events:none; }
+  .gl .copy a, .gl .copy .note { pointer-events:auto; }
+  .gl .desc { margin:0; font-size:clamp(17px,1.5vw,22px); line-height:1.4; max-width:46ch; }
+  .gl .links { overflow:hidden; padding:4px 8px 4px 0; margin:8px 0 0; }
   .gl .desc { overflow:visible; }
   .ln { display:block; overflow:hidden; padding-bottom:.12em; margin-bottom:-.12em; }
   .ln > span { display:block; }
-  .gl .hud { display:flex; position:absolute; right:var(--pad); bottom:52px; gap:14px; align-items:center; white-space:nowrap; font-size:12.5px; line-height:1; opacity:0; }
   .hud b { color:var(--ac); font-weight:500; }
   .hud .of, .hud .ds { color:var(--dim); }
   .gl .rail { display:block; position:absolute; left:var(--pad); right:var(--pad); bottom:24px; height:1px; background:var(--line); }
@@ -183,26 +177,9 @@
   .gl .index { --dot:0; }
   .gl .idx-list li { background:linear-gradient(90deg, rgba(10,10,10,.5), rgba(10,10,10,.5)); }
 
-  /* THROUGH THE LETTERS: the name is drawn in the canvas; the copy is a quiet corner */
-  .gl .pname a { background:none; -webkit-text-fill-color:currentColor; color:var(--fg); }
-  .gl .copy { left:var(--pad); top:auto; bottom:84px; transform:none; width:min(25vw,340px); }
-  .gl .copy::before { inset:-50px -60px -40px calc(var(--pad) * -1 - 20px); background:radial-gradient(closest-side, rgba(10,10,10,.8), rgba(10,10,10,.5) 65%, rgba(10,10,10,0)); }
-  .gl .pmark { display:none; }
-  .gl .pname { font-size:1rem; font-weight:600; text-transform:none; letter-spacing:-.01em; line-height:1.2; margin-bottom:2px; }
-  .gl .pname a::after { content:" ↗"; color:var(--ac); }
-  .gl .tag { margin-top:4px; font-size:.7rem; }
-  .gl .desc { margin-top:12px; font-size:.95rem; line-height:1.45; max-width:32ch; }
-  .gl .links { margin-top:6px; }
   @media (max-width:760px) {
     .gl .tagline { left:20px; bottom:64px; font-size:18px; max-width:260px; }
     .gl .hint { display:none; }
-    .gl .copy { left:22px; right:22px; width:auto; top:var(--ct, auto); bottom:auto; transform:none; }
-    .gl .copy::before { inset:-30px -22px -30px -22px; }
-    .gl .pmark { display:none; }
-    .gl .desc { margin-top:8px; font-size:.95rem; max-width:none; }
-    .gl .links { margin-top:6px; }
-    .gl .hud { left:20px; right:auto; bottom:32px; font-size:11px; }
-    .gl .hud .ds { display:none; }
     .gl .rail { left:20px; right:20px; }
   }
   @media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto !important; } .tagline, .hint { animation:none !important; } }
@@ -232,10 +209,9 @@
     <section id="work" aria-labelledby="h-work">
       <h2 class="vh" id="h-work">Projects</h2>
       <article class="proj" id="p-rasanai" data-n="01" data-name="RasanAI" data-tag="macOS · AI film" data-kind="tall" data-src="assets/rasanai-tall.jpg" data-host="sibhimanyu.github.io/rasanai" style="--shot:url(assets/rasanai-tall.jpg);--fy:13%">
+        <p class="eyebrow mono"><span><b>01</b> — macOS · AI film</span></p>
+        <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/rasanai/">RasanAI</a></h3>
         <div class="copy rv">
-          <img class="pmark" src="assets/rasanai-mark.svg" alt="" width="40" height="40" loading="lazy">
-          <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/rasanai/">RasanAI</a></h3>
-          <p class="tag mono"><span>macOS · AI film</span></p>
           <p class="desc">A Mac app that turns a sentence and your footage into a finished film. You make five calls; Claude directs the rest.</p>
           <p class="links"><span class="lk"><a class="go" href="https://sibhimanyu.github.io/rasanai/">Visit site<span aria-hidden="true">→</span></a><a class="lnk" href="https://github.com/Sibhimanyu/rasanai">GitHub</a></span></p>
         </div>
@@ -244,10 +220,9 @@
         </figure>
       </article>
       <article class="proj" id="p-flotilla" data-n="02" data-name="Flotilla" data-tag="Web · multiplayer coding agents" data-kind="tall" data-src="assets/flotilla-tall.jpg" data-host="sibhimanyu.github.io/flotilla" style="--shot:url(assets/flotilla-tall.jpg);--fy:14%">
+        <p class="eyebrow mono"><span><b>02</b> — Web · multiplayer coding agents</span></p>
+        <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/flotilla/">Flotilla</a></h3>
         <div class="copy rv">
-          <img class="pmark" src="assets/flotilla-mark.svg" alt="" width="40" height="40" loading="lazy">
-          <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/flotilla/">Flotilla</a></h3>
-          <p class="tag mono"><span>Web · multiplayer coding agents</span></p>
           <p class="desc">Several AI coding agents build one app together, with tasks handed out, file ownership enforced and one live board.</p>
           <p class="links"><span class="lk"><a class="go" href="https://sibhimanyu.github.io/flotilla/">Visit site<span aria-hidden="true">→</span></a><a class="lnk" href="https://github.com/Sibhimanyu/multiplayer-agentic-builder">GitHub</a></span></p>
         </div>
@@ -256,10 +231,9 @@
         </figure>
       </article>
       <article class="proj" id="p-heresay" data-n="03" data-name="Heresay" data-tag="Web, iOS, macOS · user feedback" data-kind="tall" data-src="assets/heresay-tall.jpg" data-host="sibhimanyu.github.io/heresay" style="--shot:url(assets/heresay-tall.jpg);--fy:7%">
+        <p class="eyebrow mono"><span><b>03</b> — Web, iOS, macOS · user feedback</span></p>
+        <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/heresay/">Heresay</a></h3>
         <div class="copy rv">
-          <img class="pmark" src="assets/heresay-mark.svg" alt="" width="40" height="40" loading="lazy">
-          <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/heresay/">Heresay</a></h3>
-          <p class="tag mono"><span>Web, iOS, macOS · user feedback</span></p>
           <p class="desc">In-app bug reports that reach your coding agent once your team accepts them.</p>
           <p class="links"><span class="lk"><a class="go" href="https://sibhimanyu.github.io/heresay/">Visit site<span aria-hidden="true">→</span></a><a class="lnk" href="https://github.com/Sibhimanyu/heresay">GitHub</a></span></p>
         </div>
@@ -268,10 +242,9 @@
         </figure>
       </article>
       <article class="proj" id="p-squeak" data-n="04" data-name="Squeak" data-tag="macOS, iPhone · agent pager" data-kind="tall" data-src="assets/squeak-tall.jpg" data-host="sibhimanyu.github.io/squeak" style="--shot:url(assets/squeak-tall.jpg);--fy:53%">
+        <p class="eyebrow mono"><span><b>04</b> — macOS, iPhone · agent pager</span></p>
+        <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/squeak/">Squeak</a></h3>
         <div class="copy rv">
-          <img class="pmark" src="assets/squeak-mark.png" alt="" width="40" height="40" loading="lazy">
-          <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/squeak/">Squeak</a></h3>
-          <p class="tag mono"><span>macOS, iPhone · agent pager</span></p>
           <p class="desc">Watches every Claude Code and Codex session on your Mac and pages you when one needs you.</p>
           <p class="links"><span class="lk"><a class="go" href="https://sibhimanyu.github.io/squeak/">Visit site<span aria-hidden="true">→</span></a><span class="note mono">Private for now</span></span></p>
         </div>
@@ -280,10 +253,9 @@
         </figure>
       </article>
       <article class="proj" id="p-imago" data-n="05" data-name="Imago" data-tag="Web · API explorer" data-kind="tall" data-src="assets/imago-tall.jpg" data-host="imago.onslate.in" style="--shot:url(assets/imago-tall.jpg);--fy:40%">
+        <p class="eyebrow mono"><span><b>05</b> — Web · API explorer</span></p>
+        <h3 class="pname"><a class="t" href="https://imago.onslate.in/">Imago</a></h3>
         <div class="copy rv">
-          <img class="pmark" src="assets/imago-mark.svg" alt="" width="40" height="40" loading="lazy">
-          <h3 class="pname"><a class="t" href="https://imago.onslate.in/">Imago</a></h3>
-          <p class="tag mono"><span>Web · API explorer</span></p>
           <p class="desc">Paste an API URL or a curl command and get a live interface drawn from the JSON&#x27;s shape.</p>
           <p class="links"><span class="lk"><a class="go" href="https://imago.onslate.in/">Visit site<span aria-hidden="true">→</span></a><a class="lnk" href="https://github.com/Sibhimanyu/imago">GitHub</a></span></p>
         </div>
@@ -293,10 +265,9 @@
       </article>
       <div class="divider rv" id="divider"><p>a classroom, a school and a farm</p></div>
       <article class="proj" id="p-greenroom" data-n="06" data-name="Greenroom" data-tag="macOS · classroom setup" data-kind="tall" data-src="assets/greenroom-tall.jpg" data-host="sibhimanyu.github.io/greenroom" style="--shot:url(assets/greenroom-tall.jpg);--fy:26%">
+        <p class="eyebrow mono"><span><b>06</b> — macOS · classroom setup</span></p>
+        <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/greenroom/">Greenroom</a></h3>
         <div class="copy rv">
-          <img class="pmark" src="assets/greenroom-mark.png" alt="" width="40" height="40" loading="lazy">
-          <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/greenroom/">Greenroom</a></h3>
-          <p class="tag mono"><span>macOS · classroom setup</span></p>
           <p class="desc">Starts a whole morning class in one click: OBS virtual camera, Zoom and a tiled layout.</p>
           <p class="links"><span class="lk"><a class="go" href="https://sibhimanyu.github.io/greenroom/">Visit site<span aria-hidden="true">→</span></a><a class="lnk" href="https://github.com/Sibhimanyu/greenroom">GitHub</a></span></p>
         </div>
@@ -305,10 +276,9 @@
         </figure>
       </article>
       <article class="proj" id="p-abhishri" data-n="07" data-name="Abhishri Academy" data-tag="Web, iOS · school ERP" data-kind="tall" data-src="assets/abhishri-tall.jpg" data-host="abhishri-academy.web.app/public-calendar" style="--shot:url(assets/abhishri-tall.jpg);--fy:44%">
+        <p class="eyebrow mono"><span><b>07</b> — Web, iOS · school ERP</span></p>
+        <h3 class="pname"><a class="t" href="https://abhishri-academy.web.app/public-calendar">Abhishri Academy</a></h3>
         <div class="copy rv">
-          <img class="pmark wide" src="assets/abhishri-mark.png" alt="" height="30" loading="lazy">
-          <h3 class="pname"><a class="t" href="https://abhishri-academy.web.app/public-calendar">Abhishri Academy</a></h3>
-          <p class="tag mono"><span>Web, iOS · school ERP</span></p>
           <p class="desc">Attendance, fees and receipts for staff, an iOS app, and a portal for parents.</p>
           <p class="links"><span class="lk"><a class="go" href="https://abhishri-academy.web.app/public-calendar">See the calendar<span aria-hidden="true">→</span></a><a class="lnk" href="https://github.com/Sibhimanyu/Abhishri-Engine">GitHub</a></span></p>
         </div>
@@ -317,10 +287,9 @@
         </figure>
       </article>
       <article class="proj" id="p-snof" data-n="08" data-name="SNOF" data-tag="Web · farm dashboard" data-kind="wide" data-src="assets/snof-shot.jpg" data-host="snof-live.web.app" style="--shot:url(assets/snof-shot.jpg);--fy:47%">
+        <p class="eyebrow mono"><span><b>08</b> — Web · farm dashboard</span></p>
+        <h3 class="pname"><a class="t" href="https://snof-live.web.app/">SNOF</a></h3>
         <div class="copy rv">
-          <img class="pmark" src="assets/snof-mark.png" alt="" width="40" height="40" loading="lazy">
-          <h3 class="pname"><a class="t" href="https://snof-live.web.app/">SNOF</a></h3>
-          <p class="tag mono"><span>Web · farm dashboard</span></p>
           <p class="desc">Every room, sensor and switch on the farm, live from Home Assistant.</p>
           <p class="links"><span class="lk"><a class="go" href="https://snof-live.web.app/">Visit site<span aria-hidden="true">→</span></a><span class="note mono">Private repo</span></span></p>
         </div>

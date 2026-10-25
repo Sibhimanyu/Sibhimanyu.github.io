@@ -64,11 +64,11 @@ async function boot() {
     uniforms: {
       uF: { value: 0 }, uT: { value: 0 }, uVel: { value: 0 }, uDpr: { value: DPR }, uSize: { value: 2 }, uSc: { value: 1 },
       uPtr: { value: new THREE.Vector2(1e5, 1e5) }, uPtrK: { value: 0 },
-      uDots: { value: dotU }, uKA: { value: 0 }, uKB: { value: 0 }, uAlpha: { value: 0.42 }, uShow: { value: 0 }, uOp: { value: 0 }, uWin: { value: new THREE.Vector4() }
+      uDots: { value: dotU }, uKA: { value: 0 }, uKB: { value: 0 }, uAlpha: { value: 0.42 }, uShow: { value: 0 }
     },
     vertexShader: `
       attribute vec3 pA, pB, cA, cB; attribute vec4 r; attribute float gi;
-      uniform float uF, uT, uVel, uDpr, uSize, uSc, uPtrK, uKA, uKB, uAlpha, uShow, uOp; uniform vec4 uWin; uniform vec2 uPtr; uniform vec2 uDots[8];
+      uniform float uF, uT, uVel, uDpr, uSize, uSc, uPtrK, uKA, uKB, uAlpha, uShow; uniform vec2 uPtr; uniform vec2 uDots[8];
       varying vec3 vC; varying float vA;
       void main(){
         float t = smoothstep(0., 1., clamp((uF - r.x*0.34)/0.66, 0., 1.));
@@ -94,25 +94,12 @@ async function boot() {
         // scroll-velocity turbulence
         float v = clamp(abs(uVel), 0., 1.);
         pos.xy += vec2(sin(uT*3. + r.x*50. + pos.y*0.02), cos(uT*2.6 + r.y*50. + pos.x*0.02)) * v * (14. + 60.*r.z) * uSc;
-        // dust: one in eight lingers once the page is crisp, hanging faint along the open view's feathered edges
-        float dust = (1. - step(0.5, gi)) * step(r.z, 0.3);
-        if (dust > 0.5 && uOp > 0.) {
-          // a thin scatter along the whole perimeter of the open view (never clumped at the corners), a little outside the edge
-          float per = 2. * (uWin.z + uWin.w), u = fract(r.y * 7.13 + r.x) * per, off = (r.w - 0.35) * 26. * uSc;
-          vec2 hw = uWin.zw * 0.5, ed;
-          if (u < uWin.z) ed = vec2(u - hw.x, hw.y + off);
-          else if (u < uWin.z + uWin.w) ed = vec2(hw.x + off, hw.y - (u - uWin.z));
-          else if (u < 2. * uWin.z + uWin.w) ed = vec2(hw.x - (u - uWin.z - uWin.w), -hw.y - off);
-          else ed = vec2(-hw.x - off, -hw.y + (u - 2. * uWin.z - uWin.w));
-          ed += vec2(sin(uT*0.31 + r.y*40.), cos(uT*0.27 + r.x*40.)) * 6. * uSc;
-          pos.xy = mix(pos.xy, uWin.xy + ed, smoothstep(0.5, 1., uOp));
-        }
         // pointer repel
         vec2 dp = pos.xy - uPtr; float dl = length(dp) + 0.001;
         float f = exp(-dl*dl/(2.*85.*85.)) * uPtrK;
         pos.xy += dp/dl * f * (26. + 44.*r.z);
         pos.z += f*60.;
-        vC = col; vA = (0.8 + 0.2*r.z) * vis * mix(1., uAlpha, dr) * (1. - smoothstep(0.55, 1., uShow) * (1. - dust * 0.2));
+        vC = col; vA = (0.8 + 0.2*r.z) * vis * mix(1., uAlpha, dr) * (1. - smoothstep(0.55, 1., uShow));
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.);
         if (vis < 0.01) gl_Position = vec4(2., 2., 2., 1.);
         gl_PointSize = uSize * (0.75 + r.z*0.65 + m*0.3) * (1. - 0.2*dr) * uDpr;
@@ -127,46 +114,29 @@ async function boot() {
       }`
   });
   /* THROUGH THE LETTERS: a full-screen plane. The project's name, set huge, is a mask (uMask); the screenshot shows
-     only inside the type, dissolving in through a noise threshold. uO opens it: the letters scale up about their centre
-     until the whole window shows, a large borderless view whose edges feather into the page (light at the top so the
-     site's own header survives, deep at the bottom). uImg* is the whole screenshot's rectangle, uWin* the part of it
-     that shows; sliding the first under the second is the live scroll-through. */
+     only inside the type, dissolving in through a noise threshold. uImg* is the whole screenshot's rectangle: sliding it
+     up under the fixed letters is the scroll-through. There is no frame, window or full picture anywhere. */
   const planeMat = new THREE.ShaderMaterial({
     transparent: true, depthTest: false, depthWrite: false,
-    uniforms: { uTex: { value: null }, uMask: { value: null }, uShow: { value: 0 }, uO: { value: 0 }, uS: { value: 1 }, uE: { value: 0 }, uScr: { value: 0 },
-      uPx: { value: new THREE.Vector2(1, 1) }, uC: { value: new THREE.Vector2(.5, .5) },
-      uImgC: { value: new THREE.Vector2() }, uImgS: { value: new THREE.Vector2(1, 1) },
-      uWinC: { value: new THREE.Vector2() }, uWinS: { value: new THREE.Vector2(1, 1) } },
+    uniforms: { uTex: { value: null }, uMask: { value: null }, uShow: { value: 0 },
+      uPx: { value: new THREE.Vector2(1, 1) }, uImgC: { value: new THREE.Vector2() }, uImgS: { value: new THREE.Vector2(1, 1) } },
     vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
     fragmentShader: `
-      uniform sampler2D uTex, uMask; uniform float uShow, uO, uS, uE, uScr; uniform vec2 uPx, uC, uImgC, uImgS, uWinC, uWinS; varying vec2 vUv;
+      uniform sampler2D uTex, uMask; uniform float uShow; uniform vec2 uPx, uImgC, uImgS; varying vec2 vUv;
       float h(vec2 p){ p = fract(p*vec2(123.34, 456.21)); p += dot(p, p+45.32); return fract(p.x*p.y); }
       float vn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
         return mix(mix(h(i), h(i+vec2(1,0)), f.x), mix(h(i+vec2(0,1)), h(i+vec2(1,1)), f.x), f.y); }
       float fbm(vec2 p){ return vn(p)*0.55 + vn(p*2.1+7.3)*0.3 + vn(p*4.3+13.1)*0.15; }
-      // one side's feather: 0 at the very edge, 1 past width w, the ramp bent by noise so no edge is a straight line
-      float side(float d, float w, float nz){ float t = clamp(d / max(w, 0.5), 0., 1.); t = clamp(t + nz * 0.9 * sin(3.14159 * t), 0., 1.); return t*t*(3.-2.*t); }
       void main(){
         vec2 px = vUv * uPx;
-        float m = texture2D(uMask, (vUv - uC) / uS + uC).r;                       // the letters, scaled about their centre
-        float cover = max(m, smoothstep(0.6, 0.95, uO));                             // ...until the whole view is open
+        float m = texture2D(uMask, vUv).r;                                         // the letters
         vec2 q = (px - uImgC) / uImgS + 0.5;                                       // 0..1 across the screenshot, y up
         vec3 c = texture2D(uTex, q).rgb;
-        // light pages must not read as blank letters: pull whites toward #E8E4DC, fully in the letters, a little when open
         float lum = dot(c, vec3(0.2126, 0.7152, 0.0722));
-        c = mix(c, max(c, vec3(0.19, 0.188, 0.18)), 1. - uE);                         // a dark page must not vanish into the dark: lift the floor in the letters
-        c = mix(vec3(lum), c, 1. + 0.4 * (1. - uE));                                // a little colour back into the letters
-        c *= mix(vec3(1.), vec3(0.909, 0.894, 0.863), smoothstep(0.55, 0.95, lum) * mix(1., 0.45, uE));
-        // the window: noise-bent feather, light on top and sides, deep at the bottom
-        vec2 wp = px - uWinC + uWinS * 0.5;                                        // px inside the window, y up
-        float nz = fbm(px / 190. + 3.7) - 0.5;
-        float fw = uE * uE * uWinS.x;
-        float wt = fw * mix(0.05, 0.16, uScr), wb = uWinS.y * 0.2 * uE * uE, ws = fw * 0.2 * mix(1., 0.32, 1. - smoothstep(0.07 * uImgS.x, 0.15 * uImgS.x, (1. - q.y) * uImgS.y));   // softer sides beside the page's own header
-        float f = side(wp.x, ws, nz * 0.45) * side(uWinS.x - wp.x, ws, nz * 0.5) * side(uWinS.y - wp.y, wt, nz * 0.5) * side(wp.y, wb, nz * 0.7);
-        vec2 uvw = wp / uWinS - 0.5;
-        float rr = length(uvw * vec2(1.7, uvw.y < 0. ? 2. : 0.9));                 // rounded below, nearly square above (the header lives there)
-        f *= mix(1., 1. - smoothstep(0.9, 1.4, rr + nz * 0.3), uE);
-        f *= step(0., q.x) * step(q.x, 1.) * step(0., q.y) * step(q.y, 1.);
+        c = max(c, vec3(0.19, 0.188, 0.18));                                         // a dark page must not vanish into the dark
+        c = mix(vec3(lum), c, 1.4);                                                  // a little colour back into the letters
+        c *= mix(vec3(1.), vec3(0.909, 0.894, 0.863), smoothstep(0.55, 0.95, lum));  // light pages: whites toward #E8E4DC, never blank
+        float inside = step(0., q.x) * step(q.x, 1.) * step(0., q.y) * step(q.y, 1.);
         float n = clamp((fbm(px / 30.) - 0.2) / 0.6, 0., 1.);
         float x = mix(-0.08, 1.08, uShow) - n;                                     // >0 = revealed
         float a = smoothstep(0., 0.012, x);
@@ -174,8 +144,7 @@ async function boot() {
         c = mix(c, vec3(1., 0.302, 0.122), edge);                                   // accent glow where it breaks up
         a = max(a, edge * 0.95);
         if (uShow > 0.995) a = 1.;
-        c *= mix(1., mix(0.62, 1., f), uE);                                          // the page dims as it thins: no bright rim
-        gl_FragColor = vec4(c, a * cover * f);
+        gl_FragColor = vec4(c, a * m * inside);
       }`
   });
   const plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), planeMat);
@@ -287,14 +256,15 @@ async function boot() {
     return fy;
   }
 
-  /* a project's copy block at the phone's width, measured off-screen under the same rules the live page uses */
+  /* a project's copy block (sentence + links), measured off-screen under the same rules the live page uses */
   function copyHeight(el) {
-    const w = document.createElement('div'); w.className = 'gl'; w.style.cssText = 'position:fixed;left:0;top:0;width:' + W + 'px;visibility:hidden;pointer-events:none';
+    const w = document.createElement('div'); w.className = 'gl'; w.style.cssText = `position:fixed;left:0;top:0;width:${W}px;visibility:hidden;pointer-events:none;--bl:${Math.round(W * 0.035)}px`;
     const c = $('.copy', el).cloneNode(true); c.style.cssText = 'position:static;'; w.appendChild(c); document.body.appendChild(w);
     const h = c.offsetHeight; w.remove(); return h;
   }
 
-  /* the name set huge: a mask for the plane, and the particle target that forms it */
+  /* The name set huge: the mask for the plane and the particle target that forms it, one canvas for both. The eyebrow,
+     letters and sentence are one group laid out here and centred in the screen; their bounds go to the CSS. */
   async function sampleName(el, j) {
     const name = el.dataset.name, lines = nameLines(name), n = lines.length;
     const img = await loadImg(el.dataset.src);
@@ -306,29 +276,22 @@ async function boot() {
     x.font = font(100); x.letterSpacing = '-1px';
     const wMax = Math.max(...lines.map(l => x.measureText(l).width));
     const capR = x.measureText('H').actualBoundingBoxAscent / 100, gap = 0.13;
-    /* the name sits on one line (only a two-word name wraps), fitted to the width; on a phone that leaves a thin strip,
-       so the type is stretched taller (a tall condensed face) to give the picture room to show */
-    const sy = 1;
-    const aTop = mobile ? 92 : 96, aBot = mobile ? H * 0.52 : H - 262;
-    const fsW = 100 * W * (mobile ? 0.94 : 0.93) / wMax, fsH = (aBot - aTop) / ((n * capR + (n - 1) * gap) * sy);
+    const EY = 34, GAP = 26, lo = mobile ? 84 : 92, hi = H - 56;
+    const ch = copyHeight(el);
+    const fsW = 100 * W * (mobile ? 0.94 : 0.93) / wMax, fsH = (hi - lo - EY - GAP - ch) / (n * capR + (n - 1) * gap);
     const fs = Math.min(fsW, fsH);
     x.font = font(fs); x.letterSpacing = `${-fs * 0.01}px`; x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillStyle = '#fff';
-    let bh = (n * capR + (n - 1) * gap) * fs * sy, top = (aTop + aBot) / 2 - bh / 2, copyDy = 0;
-    if (mobile) {
-      /* name and copy are one group, centred in the screen; the copy sits just under the name and drops to the bottom when the view opens */
-      const ch = copyHeight(el), g = 26, lo = 80, hi = H - 76;
-      bh = (n * capR + (n - 1) * gap) * fs;
-      top = lo + Math.max(0, (hi - lo - (bh + g + ch)) / 2);
-      el.style.setProperty('--ct', Math.round(top + bh + g) + 'px');
-      copyDy = Math.max(0, (hi - ch) - (top + bh + g));
-    }
-    x.save(); x.translate(0, top); x.scale(1, sy);
-    lines.forEach((l, i) => x.fillText(l, W / 2, capR * fs + i * (capR + gap) * fs));
-    x.restore();
+    const bh = (n * capR + (n - 1) * gap) * fs;
+    const gtop = lo + Math.max(0, (hi - lo - (EY + bh + GAP + ch)) / 2), top = gtop + EY;
+    let l = 1e9, r = -1e9;
+    lines.forEach((ln, i) => {
+      x.fillText(ln, W / 2, top + capR * fs + i * (capR + gap) * fs);
+      const m = x.measureText(ln); l = Math.min(l, W / 2 - m.actualBoundingBoxLeft); r = Math.max(r, W / 2 + m.actualBoundingBoxRight);
+    });
     const mask = new THREE.CanvasTexture(c);
     mask.minFilter = THREE.LinearFilter; mask.magFilter = THREE.LinearFilter; mask.generateMipmaps = false;
     renderer.initTexture(mask);
-    // particle target: sample the letterforms
+    // particle target: sample the same letterforms
     const s1 = document.createElement('canvas'); s1.width = W; s1.height = H;
     const x1 = s1.getContext('2d', { willReadFrequently: true }); x1.drawImage(c, 0, 0, W, H);
     const d = x1.getImageData(0, 0, W, H).data, idx = [];
@@ -342,9 +305,15 @@ async function boot() {
       t.col[i * 3] = grey(242, g); t.col[i * 3 + 1] = grey(240, g); t.col[i * 3 + 2] = grey(235, g);
     }
     const wide = el.dataset.kind === 'wide', ar = img.naturalHeight / img.naturalWidth;
-    const bb = { cx: W / 2, cy: top + bh / 2, w: wMax * fs / 100, h: bh };
-    const frame = Object.assign({ zoom: 1.06, fx: 0.5, x0: 0, x1: 1 }, FRAME[el.id]);
-    planeInfo[j] = { tex: texFor(img), mask, ar, wide, bb, frame, copyDy, fy: frame.fy ?? focusFor(img, Math.min(0.9, bb.h / (bb.w * frame.zoom * ar)), wide) };
+    const bb = { cx: (l + r) / 2, cy: top + bh / 2, w: r - l, h: bh };
+    const frame = Object.assign({ zoom: 1.06, fx: 0.5 }, FRAME[el.id]);
+    const band = Math.min(0.9, bb.h / (bb.w * frame.zoom * ar));
+    const fy = frame.fy ?? focusFor(img, band, wide);
+    const fy1 = wide ? fy + 0.05 : Math.max(fy + 0.15, 0.7);          // the pan: from the focus down toward ~70% of a tall page; a wide shot barely moves
+    planeInfo[j] = { tex: texFor(img), mask, ar, wide, bb, frame, band, fy, fy1 };
+    const st = el.style;
+    st.setProperty('--bl', Math.round(l) + 'px'); st.setProperty('--bt', Math.round(top) + 'px'); st.setProperty('--bw', Math.round(r - l) + 'px');
+    st.setProperty('--bh', Math.round(bh) + 'px'); st.setProperty('--ey', Math.round(gtop) + 'px'); st.setProperty('--ct', Math.round(top + bh + GAP) + 'px');
     return t;
   }
 
@@ -376,7 +345,7 @@ async function boot() {
   }
 
   /* ---------------- index dots: projected to the DOM rows ---------------- */
-  const state = { p: 0, h: 0, dr: 0, o: 0, sc: 0 };
+  const state = { p: 0, h: 0, dr: 0, sc: 0 };
   const lastDot = Array.from({ length: 8 }, () => null);
   function updateDots() {
     const dts = $$('#index .idx-list li .dt'), e = smooth(state.h);
@@ -396,42 +365,17 @@ async function boot() {
   document.addEventListener('pointerleave', () => { ptrKT = 0; });
   addEventListener('blur', () => { ptrKT = 0; });
 
-  /* Where the screenshot sits and how far the type has opened (state.o: 0 = letters, 1 = open view; state.sc: how far
-     the live scroll-through has slid the page up under the open window). The screenshot's anchor point (the focal band
-     in the letters, the window's own centre when open) travels from the letters' centre to the window's centre. */
   /* hand-set framing where the picture's interest is a small part of it: SNOF's shot is a login card in the middle of a
-     blank page, so the letters zoom in on the card and the open view crops to the middle of the shot */
-  const FRAME = { 'p-rasanai': { fy: 0.13 }, 'p-squeak': { fy: 0.545 }, 'p-heresay': { fy: 0.07 }, 'p-snof': { zoom: 1.9, fx: 0.5, fy: 0.47, x0: 0.2, x1: 0.8 } };
-  const OPEN_AR = 1.22;                                              // the open window's height / width for a tall page
-  function openRect(pi) {
-    const ar = pi.ar;
-    if (mobile) {
-      const cw = pi.frame.x1 - pi.frame.x0, iw = pi.wide ? W * 0.9 : Math.min(W * 0.88, (H * 0.44) / OPEN_AR);
-      const wh = pi.wide ? iw / cw * ar : iw * OPEN_AR; return { iw, wh, cx: W / 2, cy: 92 + wh / 2 };
-    }
-    const top = 82, bot = H - 104, avail = bot - top;               // clear of the nav above and the counter + rail below
-    if (pi.wide) { const cw = pi.frame.x1 - pi.frame.x0, iw = Math.min(W * 0.62, 980 * cw, avail * 1.12 / ar * cw); return { iw, wh: iw / cw * ar, cx: W * 0.62, cy: (top + bot) / 2 }; }
-    const iw = Math.min(W * 0.5, avail / OPEN_AR);
-    return { iw, wh: iw * OPEN_AR, cx: W * 0.6, cy: (top + bot) / 2 };
-  }
+     blank page, so the letters zoom in on the card. */
+  const FRAME = { 'p-rasanai': { fy: 0.13 }, 'p-squeak': { fy: 0.545 }, 'p-heresay': { fy: 0.07 }, 'p-snof': { zoom: 1.9, fx: 0.5, fy: 0.47 } };
+  /* Where the screenshot sits under the letters. state.sc (0..1) slides the page up through the type, from its focus
+     toward the end of the pan. The picture is always wider and taller than the letters, so it fills every glyph. */
   function placePlane(pi, pu) {
-    const e = smooth((state.o - 0.3) / 0.7), bb = pi.bb, ar = pi.ar;
-    const O = openRect(pi), sc = pi.wide ? 0 : state.sc;
-    const fr = pi.frame, cropW = fr.x1 - fr.x0;
-    const iw0 = bb.w * fr.zoom, iw1 = O.iw / cropW;                             // the screenshot's full width, in the letters and when open
-    const ih1 = iw1 * ar, fy1 = clamp((O.wh / 2 + sc * Math.max(0, ih1 - O.wh)) / ih1, 0, 1);
-    const iw = iw0 + (iw1 - iw0) * e, ih = iw * ar;
-    const fy = pi.fy + (fy1 - pi.fy) * e, fx = fr.fx + ((fr.x0 + fr.x1) / 2 - fr.fx) * e;
-    const ax = bb.cx + (O.cx - bb.cx) * e, ay = bb.cy + (O.cy - bb.cy) * e;      // where the anchor lands on screen (y down)
-    const winW = bb.w * 1.12 + (O.iw - bb.w * 1.12) * e, winH = bb.h * 1.3 + (O.wh - bb.h * 1.3) * e;
+    const bb = pi.bb, fr = pi.frame, iw = bb.w * fr.zoom, ih = iw * pi.ar, half = pi.band / 2;
+    const f0 = clamp(pi.fy, half, 1 - half), f1 = clamp(pi.fy1, half, 1 - half), fy = f0 + (f1 - f0) * state.sc;
     plane.position.set(0, 0, 0); plane.scale.set(W, H, 1);
     pu.uTex.value = pi.tex; pu.uMask.value = pi.mask; pu.uPx.value.set(W, H);
-    pu.uC.value.set(bb.cx / W, 1 - bb.cy / H);
-    pu.uS.value = 1 + 5.5 * Math.pow(state.o, 1.6);
-    pu.uO.value = state.o; pu.uE.value = e; pu.uScr.value = pi.wide ? 0 : smooth(sc * 3);
-    pu.uImgC.value.set(ax - (fx - 0.5) * iw, H - (ay - (fy - 0.5) * ih)); pu.uImgS.value.set(iw, ih);
-    pu.uWinC.value.set(ax, H - ay); pu.uWinS.value.set(winW, winH);
-    const mu = mat.uniforms; mu.uOp.value = state.o; mu.uWin.value.set(ax - W / 2, H / 2 - ay, winW, winH);
+    pu.uImgC.value.set(bb.cx - (fr.fx - 0.5) * iw, H - (bb.cy - (fy - 0.5) * ih)); pu.uImgS.value.set(iw, ih);
   }
 
   /* ---------------- render loop ---------------- */
@@ -461,7 +405,7 @@ async function boot() {
         }
       }
     }
-    plane.visible = show > 0; planeMat.uniforms.uShow.value = show; u.uShow.value = show; if (!show) u.uOp.value = 0;
+    plane.visible = show > 0; planeMat.uniforms.uShow.value = show; u.uShow.value = show;
     u.uF.value = f; u.uT.value += dt; u.uVel.value = vel; u.uPtrK.value = ptrK;
     renderer.render(scene, camera);
   }
@@ -470,21 +414,27 @@ async function boot() {
 
   /* ---------------- scroll choreography ---------------- */
   /* A project's stretch of scroll, in timeline units (1 unit = half a screen of scroll), from where its letters are filled:
-       0.1  filled: snap point 1           0.6-1.4  the letters open into the borderless view
-       1.45 open view settled: snap point 2   then SC of live scroll-through (free, no snap), then 0.45 to close */
+       0.1 filled: the one snap point   0.5 the pan starts: the page slides up through the letters, free (no snap)
+       then a short settle before the letters dissolve to particles and the next name forms. */
   const MOVE = 0.9, HOLDQ = 0.6, H0 = 0.5;
-  const FILLED = 0.1, OPEN_AT = 0.6, OPEN_DUR = 0.8, OPENED = OPEN_AT + OPEN_DUR + 0.05, CLOSE_DUR = 0.45;
+  const FILLED = 0.1, PAN_AT = 0.5, TAIL = 0.3;
   const isProj = t => PROJ_T.includes(t);
-  const scrollLen = t => projEls[PROJ_T.indexOf(t)].dataset.kind === 'wide' ? 0.4 : 3.2;
-  const holdLen = t => isProj(t) ? OPENED + 0.05 + scrollLen(t) + CLOSE_DUR + 0.12 : HOLDQ;
+  const scrollLen = t => projEls[PROJ_T.indexOf(t)].dataset.kind === 'wide' ? 0.6 : 3.4;
+  const holdLen = t => isProj(t) ? PAN_AT + scrollLen(t) + TAIL : HOLDQ;
   const starts = {}; let TOTAL = H0; for (let t = 1; t <= 10; t++) { TOTAL += MOVE; starts[t] = TOTAL; TOTAL += holdLen(t); }
   const holdStart = t => t === 0 ? 0 : starts[t];
   const snapOf = t => isProj(t) ? holdStart(t) + FILLED : holdStart(t) + HOLDQ * 0.5;
-  const scrollEnd = t => holdStart(t) + OPENED + 0.05 + scrollLen(t);
+  const panStart = t => holdStart(t) + PAN_AT, panEnd = t => holdStart(t) + PAN_AT + scrollLen(t);
   const snapPts = [0]; for (let t = 1; t <= 10; t++) snapPts.push(t === 10 ? 1 : snapOf(t) / TOTAL);
-  PROJ_T.forEach(t => snapPts.push((holdStart(t) + OPENED) / TOTAL, scrollEnd(t) / TOTAL));
-  /* no snap inside the scroll-through: it is the person's to read; snap only to the filled letters and the opened view */
-  const freeR = PROJ_T.map(t => [(holdStart(t) + OPENED + 0.02) / TOTAL, scrollEnd(t) / TOTAL]);
+  /* snap only to a filled-letters moment; none from just after it until the pan is done, then forward to the next project */
+  const freeR = PROJ_T.map(t => [(holdStart(t) + FILLED + 0.12) / TOTAL, panEnd(t) / TOTAL]);
+  const snapAt = at => {
+    if (freeR.some(r => at >= r[0] && at <= r[1])) return at;
+    const ends = freeR.map(r => r[1]).filter(e => e < at), last = ends.length ? Math.max(...ends) : -1;
+    const nx = snapPts.find(s => s > at + 1e-6);
+    if (last >= 0 && nx !== undefined && !snapPts.some(s => s > last && s <= at)) return nx;        // the pan is done: on to the next name
+    return snapPts.reduce((b, s) => Math.abs(s - at) < Math.abs(b - at) ? s : b, 0);
+  };
   const fill = $('#railFill'), hud = $('#hud'), hudN = $('#hudN'), hudNm = $('#hudNm'), hudDs = $('#hudDs');
   const indexEl = $('#index');
   let ctx = null, pinST = null, hudShown = -2, noSnap = false;
@@ -519,7 +469,7 @@ async function boot() {
         defaults: { ease: 'none' },
         scrollTrigger: {
           trigger: '#stage', start: 'top top', end: () => '+=' + Math.round(TOTAL * unit()), pin: true, scrub: 0.8, anticipatePin: 1, invalidateOnRefresh: true,
-          snap: { snapTo: (v, self) => { const at = self.progress; return noSnap || freeR.some(r => at >= r[0] && at <= r[1]) ? at : snapPts.reduce((b, s) => Math.abs(s - at) < Math.abs(b - at) ? s : b, 0); }, directional: false, delay: 0.12, duration: { min: 0.25, max: 0.9 }, ease: 'power2.inOut' },
+          snap: { snapTo: (v, self) => { const at = self.progress; return noSnap ? at : snapAt(at); }, directional: false, delay: 0.12, duration: { min: 0.25, max: 0.9 }, ease: 'power2.inOut' },
           onUpdate: self => { fill.style.transform = `scaleX(${self.progress})`; }
         },
         onUpdate: () => {
@@ -533,29 +483,21 @@ async function boot() {
       tl.to('.rail', { opacity: 0, duration: 0.25 }, TOTAL - 0.25);
       tl.set({}, {}, TOTAL);
       projEls.forEach((el, j) => {
-        const hs = holdStart(PROJ_T[j]), at = hs - 0.42, HOLD = holdLen(PROJ_T[j]) - 0.12;
-        const lines = [$('.pname a', el), $('.tag span', el), ...$('.desc', el).__lines, $('.lk', el)];
+        const hs = holdStart(PROJ_T[j]), at = hs - 0.22, HOLD = holdLen(PROJ_T[j]) - 0.12;
+        const lines = [$('.eyebrow span', el), ...$('.desc', el).__lines, $('.lk', el)];
         gsap.set(lines, { yPercent: 115 });
-        gsap.set($('.pmark', el), { autoAlpha: 0 });
         tl.set(el, { autoAlpha: 1 }, at)
           .to(lines, { yPercent: 0, duration: 0.3, ease: 'power3.out', stagger: 0.03 }, at)
-          .to($('.pmark', el), { autoAlpha: 1, duration: 0.4 }, at)
-          .to([...lines, $('.pmark', el)], { yPercent: -115, duration: 0.28, ease: 'power2.in', stagger: 0.02, immediateRender: false }, hs + HOLD)
+          .to(lines, { yPercent: -115, duration: 0.28, ease: 'power2.in', stagger: 0.02, immediateRender: false }, hs + HOLD)
           .set(el, { autoAlpha: 0 }, hs + HOLD + 0.36);
-        /* the type opens into the site, then closes back to letters before it dissolves to particles */
-        const sEnd = scrollEnd(PROJ_T[j]);
+        /* the page slides up through the letters while they hold */
         tl.set(state, { sc: 0 }, hs - 0.05)
-          .to(state, { o: 1, duration: OPEN_DUR, ease: 'power2.inOut' }, hs + OPEN_AT)
-          .to(state, { sc: 1, duration: sEnd - (hs + OPENED + 0.05), ease: 'none' }, hs + OPENED + 0.05)
-          .to(state, { o: 0, duration: CLOSE_DUR, ease: 'power2.inOut', immediateRender: false }, sEnd);
-        const dy = planeInfo[j] && planeInfo[j].copyDy;
-        if (mobile && dy) tl.to($('.copy', el), { y: dy, duration: OPEN_DUR, ease: 'power2.inOut' }, hs + OPEN_AT)
-          .to($('.copy', el), { y: 0, duration: CLOSE_DUR, ease: 'power2.inOut', immediateRender: false }, sEnd);
+          .to(state, { sc: 1, duration: scrollLen(PROJ_T[j]), ease: 'none' }, panStart(PROJ_T[j]));
       });
       /* index: the 8 dots land on the DOM rows, then the field loosens into the drift behind it */
       ScrollTrigger.create({ trigger: indexEl, start: 'top bottom', end: 'top 38%', scrub: true, onUpdate: s => { state.h = s.progress; } });
       ScrollTrigger.create({ trigger: indexEl, start: 'top 38%', end: 'top -15%', scrub: true, onUpdate: s => { state.dr = s.progress; indexEl.style.setProperty('--dot', clamp(s.progress * 4).toFixed(3)); } });
-      window.__sq = { state, tl, st: pinST, TOTAL, holdStart, scrollEnd, OPENED, FILLED, holdLen, snapPts, planeInfo, setNoSnap: v => { noSnap = v; }, N: () => N };
+      window.__sq = { state, tl, st: pinST, TOTAL, holdStart, panStart, panEnd, FILLED, holdLen, snapPts, planeInfo, setNoSnap: v => { noSnap = v; }, N: () => N };
     });
   }
 
