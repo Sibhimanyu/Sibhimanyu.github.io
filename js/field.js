@@ -95,11 +95,16 @@ async function boot() {
         float v = clamp(abs(uVel), 0., 1.);
         pos.xy += vec2(sin(uT*3. + r.x*50. + pos.y*0.02), cos(uT*2.6 + r.y*50. + pos.x*0.02)) * v * (14. + 60.*r.z) * uSc;
         // dust: one in eight lingers once the page is crisp, hanging faint along the open view's feathered edges
-        float dust = (1. - step(0.5, gi)) * step(r.z, 0.55);
+        float dust = (1. - step(0.5, gi)) * step(r.z, 0.3);
         if (dust > 0.5 && uOp > 0.) {
-          vec2 e = vec2(r.y, r.w) * 2. - 1.;
-          vec2 ed = sign(e) * (0.8 + 0.3 * pow(abs(e), vec2(0.8))) * (uWin.zw * 0.5) * (0.9 + 0.2 * r.x);
-          ed += vec2(sin(uT*0.31 + r.y*40.), cos(uT*0.27 + r.x*40.)) * 12. * uSc;
+          // a thin scatter along the whole perimeter of the open view (never clumped at the corners), a little outside the edge
+          float per = 2. * (uWin.z + uWin.w), u = fract(r.y * 7.13 + r.x) * per, off = (r.w - 0.35) * 26. * uSc;
+          vec2 hw = uWin.zw * 0.5, ed;
+          if (u < uWin.z) ed = vec2(u - hw.x, hw.y + off);
+          else if (u < uWin.z + uWin.w) ed = vec2(hw.x + off, hw.y - (u - uWin.z));
+          else if (u < 2. * uWin.z + uWin.w) ed = vec2(hw.x - (u - uWin.z - uWin.w), -hw.y - off);
+          else ed = vec2(-hw.x - off, -hw.y + (u - 2. * uWin.z - uWin.w));
+          ed += vec2(sin(uT*0.31 + r.y*40.), cos(uT*0.27 + r.x*40.)) * 6. * uSc;
           pos.xy = mix(pos.xy, uWin.xy + ed, smoothstep(0.5, 1., uOp));
         }
         // pointer repel
@@ -282,6 +287,13 @@ async function boot() {
     return fy;
   }
 
+  /* a project's copy block at the phone's width, measured off-screen under the same rules the live page uses */
+  function copyHeight(el) {
+    const w = document.createElement('div'); w.className = 'gl'; w.style.cssText = 'position:fixed;left:0;top:0;width:' + W + 'px;visibility:hidden;pointer-events:none';
+    const c = $('.copy', el).cloneNode(true); c.style.cssText = 'position:static;'; w.appendChild(c); document.body.appendChild(w);
+    const h = c.offsetHeight; w.remove(); return h;
+  }
+
   /* the name set huge: a mask for the plane, and the particle target that forms it */
   async function sampleName(el, j) {
     const name = el.dataset.name, lines = nameLines(name), n = lines.length;
@@ -296,12 +308,20 @@ async function boot() {
     const capR = x.measureText('H').actualBoundingBoxAscent / 100, gap = 0.13;
     /* the name sits on one line (only a two-word name wraps), fitted to the width; on a phone that leaves a thin strip,
        so the type is stretched taller (a tall condensed face) to give the picture room to show */
-    const sy = mobile ? 1.7 : 1;
+    const sy = 1;
     const aTop = mobile ? 92 : 96, aBot = mobile ? H * 0.52 : H - 262;
     const fsW = 100 * W * (mobile ? 0.94 : 0.93) / wMax, fsH = (aBot - aTop) / ((n * capR + (n - 1) * gap) * sy);
     const fs = Math.min(fsW, fsH);
     x.font = font(fs); x.letterSpacing = `${-fs * 0.04}px`; x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillStyle = '#fff';
-    const bh = (n * capR + (n - 1) * gap) * fs * sy, top = (aTop + aBot) / 2 - bh / 2;
+    let bh = (n * capR + (n - 1) * gap) * fs * sy, top = (aTop + aBot) / 2 - bh / 2, copyDy = 0;
+    if (mobile) {
+      /* name and copy are one group, centred in the screen; the copy sits just under the name and drops to the bottom when the view opens */
+      const ch = copyHeight(el), g = 26, lo = 80, hi = H - 76;
+      bh = (n * capR + (n - 1) * gap) * fs;
+      top = lo + Math.max(0, (hi - lo - (bh + g + ch)) / 2);
+      el.style.setProperty('--ct', Math.round(top + bh + g) + 'px');
+      copyDy = Math.max(0, (hi - ch) - (top + bh + g));
+    }
     x.save(); x.translate(0, top); x.scale(1, sy);
     lines.forEach((l, i) => x.fillText(l, W / 2, capR * fs + i * (capR + gap) * fs));
     x.restore();
@@ -324,7 +344,7 @@ async function boot() {
     const wide = el.dataset.kind === 'wide', ar = img.naturalHeight / img.naturalWidth;
     const bb = { cx: W / 2, cy: top + bh / 2, w: wMax * fs / 100, h: bh };
     const frame = Object.assign({ zoom: 1.06, fx: 0.5, x0: 0, x1: 1 }, FRAME[el.id]);
-    planeInfo[j] = { tex: texFor(img), mask, ar, wide, bb, frame, fy: frame.fy ?? focusFor(img, Math.min(0.9, bb.h / (bb.w * frame.zoom * ar)), wide) };
+    planeInfo[j] = { tex: texFor(img), mask, ar, wide, bb, frame, copyDy, fy: frame.fy ?? focusFor(img, Math.min(0.9, bb.h / (bb.w * frame.zoom * ar)), wide) };
     return t;
   }
 
@@ -381,7 +401,7 @@ async function boot() {
      in the letters, the window's own centre when open) travels from the letters' centre to the window's centre. */
   /* hand-set framing where the picture's interest is a small part of it: SNOF's shot is a login card in the middle of a
      blank page, so the letters zoom in on the card and the open view crops to the middle of the shot */
-  const FRAME = { 'p-rasanai': { fy: 0.13 }, 'p-snof': { zoom: 1.9, fx: 0.5, fy: 0.47, x0: 0.2, x1: 0.8 } };
+  const FRAME = { 'p-rasanai': { fy: 0.13 }, 'p-squeak': { fy: 0.545 }, 'p-snof': { zoom: 1.9, fx: 0.5, fy: 0.47, x0: 0.2, x1: 0.8 } };
   const OPEN_AR = 1.22;                                              // the open window's height / width for a tall page
   function openRect(pi) {
     const ar = pi.ar;
@@ -528,6 +548,9 @@ async function boot() {
           .to(state, { o: 1, duration: OPEN_DUR, ease: 'power2.inOut' }, hs + OPEN_AT)
           .to(state, { sc: 1, duration: sEnd - (hs + OPENED + 0.05), ease: 'none' }, hs + OPENED + 0.05)
           .to(state, { o: 0, duration: CLOSE_DUR, ease: 'power2.inOut', immediateRender: false }, sEnd);
+        const dy = planeInfo[j] && planeInfo[j].copyDy;
+        if (mobile && dy) tl.to($('.copy', el), { y: dy, duration: OPEN_DUR, ease: 'power2.inOut' }, hs + OPEN_AT)
+          .to($('.copy', el), { y: 0, duration: CLOSE_DUR, ease: 'power2.inOut', immediateRender: false }, sEnd);
       });
       /* index: the 8 dots land on the DOM rows, then the field loosens into the drift behind it */
       ScrollTrigger.create({ trigger: indexEl, start: 'top bottom', end: 'top 38%', scrub: true, onUpdate: s => { state.h = s.progress; } });
