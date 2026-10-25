@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" />
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Person", "@id": "https://sibhimanyu.github.io/#me", "name": "Sibhimanyu", "url": "https://sibhimanyu.github.io/", "sameAs": ["https://github.com/Sibhimanyu"]}, {"@type": "ItemList", "name": "Projects Sibhimanyu has worked on", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "RasanAI", "url": "https://sibhimanyu.github.io/rasanai/"}, {"@type": "ListItem", "position": 2, "name": "Flotilla", "url": "https://sibhimanyu.github.io/flotilla/"}, {"@type": "ListItem", "position": 3, "name": "Heresay", "url": "https://sibhimanyu.github.io/heresay/"}, {"@type": "ListItem", "position": 4, "name": "Squeak", "url": "https://sibhimanyu.github.io/squeak/"}, {"@type": "ListItem", "position": 5, "name": "Imago", "url": "https://imago.onslate.in/"}, {"@type": "ListItem", "position": 6, "name": "Greenroom", "url": "https://sibhimanyu.github.io/greenroom/"}, {"@type": "ListItem", "position": 7, "name": "Abhishri Academy", "url": "https://abhishri-academy.web.app/public-calendar"}, {"@type": "ListItem", "position": 8, "name": "SNOF", "url": "https://snof-live.web.app/"}]}]}</script>
 <script>
   // Motion is an enhancement: no JS, reduced motion or no WebGL leaves a plain, readable document.
@@ -71,7 +71,8 @@
   .tagline { font-size:clamp(1.25rem,2.2vw,1.9rem); font-weight:500; letter-spacing:-.018em; line-height:1.25; max-width:24ch; text-wrap:balance; }
   .hint, .hud, .rail { display:none; }
   .proj { display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1fr); gap:clamp(24px,5vw,88px); align-items:center; padding:clamp(40px,7vw,96px) var(--pad); border-top:1px solid var(--line); }
-  .shot { border:1px solid var(--line); overflow:hidden; max-height:min(84vh,880px); background:#111; }
+  /* the plain page keeps the same idea: a borderless screenshot whose edges feather into the page, light at the top so the site's own header shows */
+  .shot { overflow:hidden; max-height:min(84vh,880px); -webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent),linear-gradient(180deg,transparent,#000 4%,#000 68%,transparent); -webkit-mask-composite:source-in; mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent),linear-gradient(180deg,transparent,#000 4%,#000 68%,transparent); mask-composite:intersect; }
   .shot img { width:100%; height:auto; }
   .shot.wide img { aspect-ratio:2/1; object-fit:cover; }
   .divider { padding:clamp(72px,12vw,170px) var(--pad); border-top:1px solid var(--line); }
@@ -80,7 +81,9 @@
   .copy { position:relative; min-width:0; }
   .pmark { width:40px; height:40px; border-radius:10px; margin-bottom:20px; }
   .pmark.wide { width:auto; height:30px; border-radius:0; }
-  .pname { font-size:clamp(2.4rem,4.6vw,4.6rem); font-weight:600; letter-spacing:-.04em; line-height:1; padding-bottom:.08em; }
+  .pname { font-size:clamp(2.8rem,7.4vw,7rem); font-weight:800; text-transform:uppercase; letter-spacing:-.045em; line-height:.88; padding-bottom:.08em; }
+  .pname a { color:var(--fg); }
+  @supports ((-webkit-background-clip:text) or (background-clip:text)) { .pname a { background:var(--shot) center var(--fy,14%)/cover no-repeat, #E8E4DC; background-blend-mode:multiply; -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; } }
   .t { text-decoration:none; }
   .t:hover { text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:7px; }
   .tag { margin-top:12px; font-size:.76rem; color:var(--dim); text-transform:uppercase; letter-spacing:.1em; }
@@ -179,14 +182,24 @@
   .gl .index, .gl .foot, .gl .closing, .gl .foot-note { background:transparent; }
   .gl .index { --dot:0; }
   .gl .idx-list li { background:linear-gradient(90deg, rgba(10,10,10,.5), rgba(10,10,10,.5)); }
+
+  /* THROUGH THE LETTERS: the name is drawn in the canvas; the copy is a quiet corner */
+  .gl .pname a { background:none; -webkit-text-fill-color:currentColor; color:var(--fg); }
+  .gl .copy { left:var(--pad); top:auto; bottom:84px; transform:none; width:min(25vw,340px); }
+  .gl .copy::before { inset:-50px -60px -40px calc(var(--pad) * -1 - 20px); background:radial-gradient(closest-side, rgba(10,10,10,.8), rgba(10,10,10,.5) 65%, rgba(10,10,10,0)); }
+  .gl .pmark { display:none; }
+  .gl .pname { font-size:1rem; font-weight:600; text-transform:none; letter-spacing:-.01em; line-height:1.2; margin-bottom:2px; }
+  .gl .pname a::after { content:" ↗"; color:var(--ac); }
+  .gl .tag { margin-top:4px; font-size:.7rem; }
+  .gl .desc { margin-top:12px; font-size:.95rem; line-height:1.45; max-width:32ch; }
+  .gl .links { margin-top:6px; }
   @media (max-width:760px) {
     .gl .tagline { left:20px; bottom:64px; font-size:18px; max-width:260px; }
     .gl .hint { display:none; }
-    .gl .copy { left:22px; right:22px; width:auto; top:calc(var(--imgb, 56vh) + 26px); transform:none; }
+    .gl .copy { left:22px; right:22px; width:auto; top:auto; bottom:84px; transform:none; }
     .gl .copy::before { inset:-30px -22px -30px -22px; }
     .gl .pmark { display:none; }
-    .gl .pname { font-size:2.3rem; }
-    .gl .desc { margin-top:12px; font-size:1rem; max-width:none; }
+    .gl .desc { margin-top:8px; font-size:.95rem; max-width:none; }
     .gl .links { margin-top:6px; }
     .gl .hud { left:20px; right:auto; bottom:32px; font-size:11px; }
     .gl .hud .ds { display:none; }
@@ -218,7 +231,7 @@
     </section>
     <section id="work" aria-labelledby="h-work">
       <h2 class="vh" id="h-work">Projects</h2>
-      <article class="proj" id="p-rasanai" data-n="01" data-name="RasanAI" data-tag="macOS · AI film" data-kind="tall" data-src="assets/rasanai-tall.jpg" data-host="sibhimanyu.github.io/rasanai">
+      <article class="proj" id="p-rasanai" data-n="01" data-name="RasanAI" data-tag="macOS · AI film" data-kind="tall" data-src="assets/rasanai-tall.jpg" data-host="sibhimanyu.github.io/rasanai" style="--shot:url(assets/rasanai-tall.jpg);--fy:13%">
         <div class="copy rv">
           <img class="pmark" src="assets/rasanai-mark.svg" alt="" width="40" height="40" loading="lazy">
           <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/rasanai/">RasanAI</a></h3>
@@ -230,7 +243,7 @@
           <img src="assets/rasanai-tall.jpg" alt="The RasanAI website" width="1280" height="2400" loading="lazy">
         </figure>
       </article>
-      <article class="proj" id="p-flotilla" data-n="02" data-name="Flotilla" data-tag="Web · multiplayer coding agents" data-kind="tall" data-src="assets/flotilla-tall.jpg" data-host="sibhimanyu.github.io/flotilla">
+      <article class="proj" id="p-flotilla" data-n="02" data-name="Flotilla" data-tag="Web · multiplayer coding agents" data-kind="tall" data-src="assets/flotilla-tall.jpg" data-host="sibhimanyu.github.io/flotilla" style="--shot:url(assets/flotilla-tall.jpg);--fy:14%">
         <div class="copy rv">
           <img class="pmark" src="assets/flotilla-mark.svg" alt="" width="40" height="40" loading="lazy">
           <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/flotilla/">Flotilla</a></h3>
@@ -242,7 +255,7 @@
           <img src="assets/flotilla-tall.jpg" alt="The Flotilla website" width="1280" height="2400" loading="lazy">
         </figure>
       </article>
-      <article class="proj" id="p-heresay" data-n="03" data-name="Heresay" data-tag="Web, iOS, macOS · user feedback" data-kind="tall" data-src="assets/heresay-tall.jpg" data-host="sibhimanyu.github.io/heresay">
+      <article class="proj" id="p-heresay" data-n="03" data-name="Heresay" data-tag="Web, iOS, macOS · user feedback" data-kind="tall" data-src="assets/heresay-tall.jpg" data-host="sibhimanyu.github.io/heresay" style="--shot:url(assets/heresay-tall.jpg);--fy:7%">
         <div class="copy rv">
           <img class="pmark" src="assets/heresay-mark.svg" alt="" width="40" height="40" loading="lazy">
           <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/heresay/">Heresay</a></h3>
@@ -254,7 +267,7 @@
           <img src="assets/heresay-tall.jpg" alt="The Heresay website" width="1280" height="2400" loading="lazy">
         </figure>
       </article>
-      <article class="proj" id="p-squeak" data-n="04" data-name="Squeak" data-tag="macOS, iPhone · agent pager" data-kind="tall" data-src="assets/squeak-tall.jpg" data-host="sibhimanyu.github.io/squeak">
+      <article class="proj" id="p-squeak" data-n="04" data-name="Squeak" data-tag="macOS, iPhone · agent pager" data-kind="tall" data-src="assets/squeak-tall.jpg" data-host="sibhimanyu.github.io/squeak" style="--shot:url(assets/squeak-tall.jpg);--fy:53%">
         <div class="copy rv">
           <img class="pmark" src="assets/squeak-mark.png" alt="" width="40" height="40" loading="lazy">
           <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/squeak/">Squeak</a></h3>
@@ -266,7 +279,7 @@
           <img src="assets/squeak-tall.jpg" alt="The Squeak website" width="1280" height="2400" loading="lazy">
         </figure>
       </article>
-      <article class="proj" id="p-imago" data-n="05" data-name="Imago" data-tag="Web · API explorer" data-kind="tall" data-src="assets/imago-tall.jpg" data-host="imago.onslate.in">
+      <article class="proj" id="p-imago" data-n="05" data-name="Imago" data-tag="Web · API explorer" data-kind="tall" data-src="assets/imago-tall.jpg" data-host="imago.onslate.in" style="--shot:url(assets/imago-tall.jpg);--fy:40%">
         <div class="copy rv">
           <img class="pmark" src="assets/imago-mark.svg" alt="" width="40" height="40" loading="lazy">
           <h3 class="pname"><a class="t" href="https://imago.onslate.in/">Imago</a></h3>
@@ -279,7 +292,7 @@
         </figure>
       </article>
       <div class="divider rv" id="divider"><p>a classroom, a school and a farm</p></div>
-      <article class="proj" id="p-greenroom" data-n="06" data-name="Greenroom" data-tag="macOS · classroom setup" data-kind="tall" data-src="assets/greenroom-tall.jpg" data-host="sibhimanyu.github.io/greenroom">
+      <article class="proj" id="p-greenroom" data-n="06" data-name="Greenroom" data-tag="macOS · classroom setup" data-kind="tall" data-src="assets/greenroom-tall.jpg" data-host="sibhimanyu.github.io/greenroom" style="--shot:url(assets/greenroom-tall.jpg);--fy:26%">
         <div class="copy rv">
           <img class="pmark" src="assets/greenroom-mark.png" alt="" width="40" height="40" loading="lazy">
           <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/greenroom/">Greenroom</a></h3>
@@ -291,7 +304,7 @@
           <img src="assets/greenroom-tall.jpg" alt="The Greenroom website" width="1280" height="2400" loading="lazy">
         </figure>
       </article>
-      <article class="proj" id="p-abhishri" data-n="07" data-name="Abhishri Academy" data-tag="Web, iOS · school ERP" data-kind="tall" data-src="assets/abhishri-tall.jpg" data-host="abhishri-academy.web.app/public-calendar">
+      <article class="proj" id="p-abhishri" data-n="07" data-name="Abhishri Academy" data-tag="Web, iOS · school ERP" data-kind="tall" data-src="assets/abhishri-tall.jpg" data-host="abhishri-academy.web.app/public-calendar" style="--shot:url(assets/abhishri-tall.jpg);--fy:44%">
         <div class="copy rv">
           <img class="pmark wide" src="assets/abhishri-mark.png" alt="" height="30" loading="lazy">
           <h3 class="pname"><a class="t" href="https://abhishri-academy.web.app/public-calendar">Abhishri Academy</a></h3>
@@ -303,7 +316,7 @@
           <img src="assets/abhishri-tall.jpg" alt="The Abhishri Academy website" width="1280" height="2400" loading="lazy">
         </figure>
       </article>
-      <article class="proj" id="p-snof" data-n="08" data-name="SNOF" data-tag="Web · farm dashboard" data-kind="wide" data-src="assets/snof-shot.jpg" data-host="snof-live.web.app">
+      <article class="proj" id="p-snof" data-n="08" data-name="SNOF" data-tag="Web · farm dashboard" data-kind="wide" data-src="assets/snof-shot.jpg" data-host="snof-live.web.app" style="--shot:url(assets/snof-shot.jpg);--fy:47%">
         <div class="copy rv">
           <img class="pmark" src="assets/snof-mark.png" alt="" width="40" height="40" loading="lazy">
           <h3 class="pname"><a class="t" href="https://snof-live.web.app/">SNOF</a></h3>
