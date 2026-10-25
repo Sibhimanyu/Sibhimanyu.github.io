@@ -303,7 +303,7 @@ async function boot() {
     const x = c.getContext('2d'); x.scale(sc, sc);
     x.fillStyle = '#000'; x.fillRect(0, 0, W, H);
     const font = fs => `800 ${fs}px "Inter Tight", system-ui, sans-serif`;
-    x.font = font(100); x.letterSpacing = '-4px';
+    x.font = font(100); x.letterSpacing = '-1px';
     const wMax = Math.max(...lines.map(l => x.measureText(l).width));
     const capR = x.measureText('H').actualBoundingBoxAscent / 100, gap = 0.13;
     /* the name sits on one line (only a two-word name wraps), fitted to the width; on a phone that leaves a thin strip,
@@ -312,7 +312,7 @@ async function boot() {
     const aTop = mobile ? 92 : 96, aBot = mobile ? H * 0.52 : H - 262;
     const fsW = 100 * W * (mobile ? 0.94 : 0.93) / wMax, fsH = (aBot - aTop) / ((n * capR + (n - 1) * gap) * sy);
     const fs = Math.min(fsW, fsH);
-    x.font = font(fs); x.letterSpacing = `${-fs * 0.04}px`; x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillStyle = '#fff';
+    x.font = font(fs); x.letterSpacing = `${-fs * 0.01}px`; x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillStyle = '#fff';
     let bh = (n * capR + (n - 1) * gap) * fs * sy, top = (aTop + aBot) / 2 - bh / 2, copyDy = 0;
     if (mobile) {
       /* name and copy are one group, centred in the screen; the copy sits just under the name and drops to the bottom when the view opens */
@@ -401,7 +401,7 @@ async function boot() {
      in the letters, the window's own centre when open) travels from the letters' centre to the window's centre. */
   /* hand-set framing where the picture's interest is a small part of it: SNOF's shot is a login card in the middle of a
      blank page, so the letters zoom in on the card and the open view crops to the middle of the shot */
-  const FRAME = { 'p-rasanai': { fy: 0.13 }, 'p-squeak': { fy: 0.545 }, 'p-snof': { zoom: 1.9, fx: 0.5, fy: 0.47, x0: 0.2, x1: 0.8 } };
+  const FRAME = { 'p-rasanai': { fy: 0.13 }, 'p-squeak': { fy: 0.545 }, 'p-heresay': { fy: 0.07 }, 'p-snof': { zoom: 1.9, fx: 0.5, fy: 0.47, x0: 0.2, x1: 0.8 } };
   const OPEN_AR = 1.22;                                              // the open window's height / width for a tall page
   function openRect(pi) {
     const ar = pi.ar;
