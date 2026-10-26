@@ -32,6 +32,19 @@ async function boot() {
   const NMAX = 100000, TN = 12;
   const KIND = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2];            // 1 = dots (offset by uDots), 2 = drift (sparse, loose)
   const projEls = $$('#work .proj');
+  /* Each project's identity outside its letters, read from the live sites (computed font-family, primary button / brand
+     colours). `ac` is the brand colour lifted where needed to read on #0A0A0A (>= 4.5:1); `brand` is the site's own value. */
+  const PROJECT_SKIN = {
+    'p-rasanai':  { ac: '#9aa0ff', brand: '#2a31a8', font: 'Mukta',              w: 400 },   // Anek Latin 600 / Mukta; indigo #1b1f5e #2a31a8
+    'p-flotilla': { ac: '#2bb5a6', brand: '#0f766e', font: 'Fraunces',           w: 400 },   // Fraunces / Inter; teal #0F766E
+    'p-heresay':  { ac: '#2dd4bf', brand: '#0f766e', font: 'Figtree',            w: 400 },   // Bricolage Grotesque 800 / Figtree; peacock #0f766e, turquoise #2dd4bf
+    'p-squeak':   { ac: '#ffda1a', brand: '#ffda1a', font: 'Figtree',            w: 500 },   // Figtree 700 / Inter; duck yellow #FFDA1A
+    'p-imago':    { ac: '#3ccf7a', brand: '#0f9f4f', font: 'Inter',              w: 400 },   // Inter; green #0f9f4f on #1b1b19 tile
+    'p-greenroom':{ ac: '#7bc653', brand: '#2f6118', font: 'Inter',              w: 400 },   // system SF stack (-> Inter); green #2f6118
+    'p-abhishri': { ac: '#f26b65', brand: '#ef5e58', font: 'Playfair Display',   w: 400 },   // Playfair Display / Open Sans; coral #ef5e58
+    'p-snof':     { ac: '#34c27a', brand: '#16a34a', font: 'Manrope',            w: 500 }    // Manrope 750; farm green (logo)
+  };
+  projEls.forEach(el => { const k = PROJECT_SKIN[el.id]; if (k) { el.style.setProperty('--sk-ac', k.ac); el.style.setProperty('--sk-font', `"${k.font}"`); el.style.setProperty('--sk-w', k.w); } });
   const PROJ_T = [1, 2, 3, 4, 5, 7, 8, 9];                        // project j -> target
   const T = new Array(TN).fill(null);
     const imgLoad = new Map();
@@ -113,48 +126,72 @@ async function boot() {
         gl_FragColor = vec4(vC, a*vA);
       }`
   });
-  /* THROUGH THE LETTERS: a full-screen plane. The project's name, set huge, is a mask (uMask); the screenshot shows
-     only inside the type, dissolving in through a noise threshold. uImg* is the whole screenshot's rectangle: sliding it
-     up under the fixed letters is the scroll-through. There is no frame, window or full picture anywhere. */
-  const planeMat = new THREE.ShaderMaterial({
+  /* THROUGH THE LETTERS, INTO A BAND. Two full-screen planes (the project leaving and the one arriving), each drawing one
+     project: its name's mask (uMask) shows the screenshot only inside the type. uK morphs the type into a wide band: the
+     letters are dilated by a distance field (uDist, in home px) until they merge, then cross-fade into a rectangle whose
+     left/right edges are sharp and whose top/bottom fade softly into the dark. uS/uT place the whole composition on the
+     screen (small and off to one side while it arrives, drifting up as it leaves). uImg* is the whole screenshot. */
+  const makePlaneMat = () => new THREE.ShaderMaterial({
     transparent: true, depthTest: false, depthWrite: false,
-    uniforms: { uTex: { value: null }, uMask: { value: null }, uShow: { value: 0 },
-      uPx: { value: new THREE.Vector2(1, 1) }, uImgC: { value: new THREE.Vector2() }, uImgS: { value: new THREE.Vector2(1, 1) } },
+    uniforms: { uTex: { value: null }, uMask: { value: null }, uDist: { value: null }, uShow: { value: 0 }, uOp: { value: 1 }, uK: { value: 0 },
+      uS: { value: 1 }, uMaxD: { value: 300 }, uRmax: { value: 100 }, uPx: { value: new THREE.Vector2(1, 1) }, uT: { value: new THREE.Vector2() },
+      uImgC: { value: new THREE.Vector2() }, uImgS: { value: new THREE.Vector2(1, 1) }, uFade: { value: new THREE.Vector2(20, 60) },
+      uBand: { value: new THREE.Vector4() }, uGlow: { value: new THREE.Vector3() }, uGl: { value: 1 } },
     vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
     fragmentShader: `
-      uniform sampler2D uTex, uMask; uniform float uShow; uniform vec2 uPx, uImgC, uImgS; varying vec2 vUv;
+      uniform sampler2D uTex, uMask, uDist; uniform float uShow, uOp, uK, uS, uMaxD, uRmax; uniform vec2 uPx, uT, uImgC, uImgS, uFade; uniform vec4 uBand; uniform vec3 uGlow; uniform float uGl; varying vec2 vUv;
       float h(vec2 p){ p = fract(p*vec2(123.34, 456.21)); p += dot(p, p+45.32); return fract(p.x*p.y); }
       float vn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
         return mix(mix(h(i), h(i+vec2(1,0)), f.x), mix(h(i+vec2(0,1)), h(i+vec2(1,1)), f.x), f.y); }
       float fbm(vec2 p){ return vn(p)*0.55 + vn(p*2.1+7.3)*0.3 + vn(p*4.3+13.1)*0.15; }
       void main(){
         vec2 px = vUv * uPx;
-        float m = texture2D(uMask, vUv).r;                                         // the letters
-        vec2 q = (px - uImgC) / uImgS + 0.5;                                       // 0..1 across the screenshot, y up
+        vec2 hp = (px - uT) / uS;                                                  // back into the composition's own (home) pixels
+        vec2 uvh = hp / uPx;
+        float mL = texture2D(uMask, uvh).r;                                        // the letters
+        float d = texture2D(uDist, uvh).r * uMaxD;                                 // distance to the nearest letter, px
+        float r = pow(uK, 0.7) * uRmax;
+        float dil = mix(mL, max(mL, 1. - smoothstep(r - 7., r + 7., d)), step(0.001, uK));
+        vec2 bq = hp - uBand.xy;
+        float xc = mix(1., step(abs(bq.x), uBand.z), step(0.001, uK));              // sharp left and right edges
+        float fk = smoothstep(0., 0.5, uK), wB = mix(1.5, uFade.y, fk), wT = mix(1.5, uFade.x, fk);              // short, soft fade at the bottom and top
+        float vf = smoothstep(0., wB, bq.y + uBand.w) * smoothstep(0., wT, uBand.w - bq.y);
+        float cover = vf * xc * mix(dil, 1., smoothstep(0.3, 0.8, uK));
+        vec2 q = (hp - uImgC) / uImgS + 0.5;                                       // 0..1 across the screenshot, y up
         vec3 c = texture2D(uTex, q).rgb;
         float lum = dot(c, vec3(0.2126, 0.7152, 0.0722));
-        c = max(c, vec3(0.19, 0.188, 0.18));                                         // a dark page must not vanish into the dark
-        c = mix(vec3(lum), c, 1.4);                                                  // a little colour back into the letters
-        c *= mix(vec3(1.), vec3(0.909, 0.894, 0.863), smoothstep(0.55, 0.95, lum));  // light pages: whites toward #E8E4DC, never blank
+        c = max(c, vec3(0.19, 0.188, 0.18) * (1. - 0.6 * uK));                       // a dark page must not vanish into the dark
+        c = mix(vec3(lum), c, 1.4 - 0.3 * uK);                                       // a little colour back into the letters
+        c *= mix(vec3(1.), vec3(0.909, 0.894, 0.863), smoothstep(0.55, 0.95, lum) * (1. - 0.5 * uK));
         float inside = step(0., q.x) * step(q.x, 1.) * step(0., q.y) * step(q.y, 1.);
-        float n = clamp((fbm(px / 30.) - 0.2) / 0.6, 0., 1.);
-        float x = mix(-0.08, 1.08, uShow) - n;                                     // >0 = revealed
-        float a = smoothstep(0., 0.012, x);
-        float edge = (1. - smoothstep(0., 0.05, abs(x - 0.02))) * step(uShow, 0.985) * step(0.01, uShow);
-        c = mix(c, vec3(1., 0.302, 0.122), edge);                                   // accent glow where it breaks up
-        a = max(a, edge * 0.95);
-        if (uShow > 0.995) a = 1.;
-        gl_FragColor = vec4(c, a * m * inside);
+        float a = 1., edge = 0.;
+        if (uShow < 0.995) {
+          float n = clamp((fbm(px / 30.) - 0.2) / 0.6, 0., 1.);
+          float x = mix(-0.08, 1.08, uShow) - n;                                   // >0 = revealed
+          a = smoothstep(0., 0.012, x);
+          edge = (1. - smoothstep(0., 0.05, abs(x - 0.02))) * step(0.01, uShow);
+          c = mix(c, vec3(1., 0.302, 0.122), edge);                                // accent glow where it breaks up
+          a = max(a, edge * 0.95);
+        }
+        float tf = smoothstep(120., 360., uPx.y - px.y);                            // whatever drifts up under the nav fades out before it
+        float a2 = a * cover * inside * uOp * tf;
+        vec2 gq = (hp - uBand.xy) / vec2(uBand.z * 1.05, uBand.w * 2.4);          // the faintest wash of the brand colour behind the type
+        float g = 0.045 * uGl * exp(-dot(gq, gq) * 1.6);
+        float al = a2 + (1. - a2) * g;
+        gl_FragColor = vec4((c * a2 + uGlow * (1. - a2) * g) / max(al, 1e-4), al);
       }`
   });
-  const plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), planeMat);
-  plane.frustumCulled = false; plane.renderOrder = 2; plane.visible = false;
+  const planes = [0, 1].map(i => {
+    const m = makePlaneMat(), mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), m);
+    mesh.frustumCulled = false; mesh.renderOrder = 2 + i; mesh.visible = false;
+    return { mesh, u: m.uniforms };
+  });
   const texCache = new Map();
   function texFor(img) { if (!texCache.has(img.src)) { const t = new THREE.Texture(img); t.anisotropy = 8; t.needsUpdate = true; renderer.initTexture(t); texCache.set(img.src, t); } return texCache.get(img.src); }
   const planeInfo = [];   // per project: { tex, R, v0 }
   const points = new THREE.Points(geo, mat);
   points.frustumCulled = false;
-  scene.add(points); scene.add(plane);
+  scene.add(points); planes.forEach(pl => scene.add(pl.mesh));
 
   /* ---------------- layout + sampling ---------------- */
   function layoutNow() {
@@ -256,6 +293,37 @@ async function boot() {
     return fy;
   }
 
+  /* Distance to the nearest letter pixel, on a quarter-size copy of the mask (exact Euclidean transform), packed into a
+     texture the shader grows the letters with. Rows are written bottom-up to match the mask's orientation. */
+  const MAXD = 300, DINF = 1e20;
+  function dt1(f, n, out, v, z) {
+    let k = 0; v[0] = 0; z[0] = -DINF; z[1] = DINF;
+    for (let q = 1; q < n; q++) {
+      let sx;
+      for (;;) { const pp = v[k]; sx = ((f[q] + q * q) - (f[pp] + pp * pp)) / (2 * q - 2 * pp); if (sx <= z[k]) k--; else break; }
+      k++; v[k] = q; z[k] = sx; z[k + 1] = DINF;
+    }
+    k = 0;
+    for (let q = 0; q < n; q++) { while (z[k + 1] < q) k++; const pp = v[k]; out[q] = (q - pp) * (q - pp) + f[pp]; }
+  }
+  function distTexture(c) {
+    const w = Math.ceil(W / 4), h = Math.ceil(H / 4), sm = document.createElement('canvas'); sm.width = w; sm.height = h;
+    const sx = sm.getContext('2d', { willReadFrequently: true }); sx.drawImage(c, 0, 0, w, h);
+    const d = sx.getImageData(0, 0, w, h).data, g = new Float32Array(w * h), n = Math.max(w, h);
+    for (let i = 0; i < w * h; i++) g[i] = d[i * 4] > 100 ? 0 : DINF;
+    const f = new Float32Array(n), o = new Float32Array(n), v = new Int32Array(n), z = new Float32Array(n + 1);
+    for (let x = 0; x < w; x++) { for (let y = 0; y < h; y++) f[y] = g[y * w + x]; dt1(f, h, o, v, z); for (let y = 0; y < h; y++) g[y * w + x] = o[y]; }
+    for (let y = 0; y < h; y++) { for (let x = 0; x < w; x++) f[x] = g[y * w + x]; dt1(f, w, o, v, z); for (let x = 0; x < w; x++) g[y * w + x] = o[x]; }
+    const out = new Uint8Array(w * h * 4), px = W / w;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const val = Math.min(255, Math.round(Math.sqrt(g[y * w + x]) * px / MAXD * 255)), o4 = ((h - 1 - y) * w + x) * 4;
+      out[o4] = out[o4 + 1] = out[o4 + 2] = val; out[o4 + 3] = 255;
+    }
+    const t = new THREE.DataTexture(out, w, h, THREE.RGBAFormat);
+    t.minFilter = t.magFilter = THREE.LinearFilter; t.generateMipmaps = false; t.needsUpdate = true; renderer.initTexture(t);
+    return t;
+  }
+
   /* a project's copy block (sentence + links), measured off-screen under the same rules the live page uses */
   function copyHeight(el) {
     const w = document.createElement('div'); w.className = 'gl'; w.style.cssText = `position:fixed;left:0;top:0;width:${W}px;visibility:hidden;pointer-events:none;--bl:${Math.round(W * 0.035)}px`;
@@ -282,35 +350,43 @@ async function boot() {
     const fs = Math.min(fsW, fsH);
     x.font = font(fs); x.letterSpacing = `${-fs * 0.01}px`; x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillStyle = '#fff';
     const bh = (n * capR + (n - 1) * gap) * fs;
-    const gtop = lo + Math.max(0, (hi - lo - (EY + bh + GAP + ch)) / 2), top = gtop + EY;
+    /* the band state is the biggest the group gets (the eyebrow rises and the sentence drops), so that is what is centred */
+    const hh = mobile ? Math.max(H * 0.15, bh / 2 + 30) : Math.max(H * 0.21, bh / 2 + 34), dy0 = hh - bh / 2 + 6;
+    const gtop = lo + dy0 + Math.max(0, (hi - lo - (EY + bh + GAP + ch + 2 * dy0 + 18)) / 2), top = gtop + EY;
     let l = 1e9, r = -1e9;
     lines.forEach((ln, i) => {
       x.fillText(ln, W / 2, top + capR * fs + i * (capR + gap) * fs);
       const m = x.measureText(ln); l = Math.min(l, W / 2 - m.actualBoundingBoxLeft); r = Math.max(r, W / 2 + m.actualBoundingBoxRight);
     });
     const mask = new THREE.CanvasTexture(c);
-    mask.minFilter = THREE.LinearFilter; mask.magFilter = THREE.LinearFilter; mask.generateMipmaps = false;
+    mask.minFilter = THREE.LinearMipmapLinearFilter; mask.magFilter = THREE.LinearFilter; mask.generateMipmaps = true;   // mipmapped: a small, arriving name keeps its counters
     renderer.initTexture(mask);
-    // particle target: sample the same letterforms
-    const s1 = document.createElement('canvas'); s1.width = W; s1.height = H;
-    const x1 = s1.getContext('2d', { willReadFrequently: true }); x1.drawImage(c, 0, 0, W, H);
-    const d = x1.getImageData(0, 0, W, H).data, idx = [];
-    for (let i = 0; i < W * H; i++) if (d[i * 4] > 128) idx.push(i);
-    if (!idx.length) throw new Error('empty name sample');
-    const t = newT();
-    for (let i = 0; i < N; i++) {
-      const p = idx[(Math.random() * idx.length) | 0];
-      t.pos[i * 3] = (p % W) + Math.random() - W / 2; t.pos[i * 3 + 1] = H / 2 - ((p / W) | 0) - Math.random(); t.pos[i * 3 + 2] = (Math.random() - .5) * 6;
-      const g = 0.88 + Math.random() * 0.12;
-      t.col[i * 3] = grey(242, g); t.col[i * 3 + 1] = grey(240, g); t.col[i * 3 + 2] = grey(235, g);
+    const dist = distTexture(c);
+    // particle target (the first project only; the others arrive by flowing, never by particles)
+    let t = null;
+    if (j === 0) {
+      const s1 = document.createElement('canvas'); s1.width = W; s1.height = H;
+      const x1 = s1.getContext('2d', { willReadFrequently: true }); x1.drawImage(c, 0, 0, W, H);
+      const d = x1.getImageData(0, 0, W, H).data, idx = [];
+      for (let i = 0; i < W * H; i++) if (d[i * 4] > 128) idx.push(i);
+      if (!idx.length) throw new Error('empty name sample');
+      t = newT();
+      for (let i = 0; i < N; i++) {
+        const p = idx[(Math.random() * idx.length) | 0];
+        t.pos[i * 3] = (p % W) + Math.random() - W / 2; t.pos[i * 3 + 1] = H / 2 - ((p / W) | 0) - Math.random(); t.pos[i * 3 + 2] = (Math.random() - .5) * 6;
+        const g = 0.88 + Math.random() * 0.12;
+        t.col[i * 3] = grey(242, g); t.col[i * 3 + 1] = grey(240, g); t.col[i * 3 + 2] = grey(235, g);
+      }
     }
     const wide = el.dataset.kind === 'wide', ar = img.naturalHeight / img.naturalWidth;
     const bb = { cx: (l + r) / 2, cy: top + bh / 2, w: r - l, h: bh };
     const frame = Object.assign({ zoom: 1.06, fx: 0.5 }, FRAME[el.id]);
-    const band = Math.min(0.9, bb.h / (bb.w * frame.zoom * ar));
+    const band = Math.min(0.9, (2 * hh) / (bb.w * frame.zoom * ar));        // the band is the tallest slice of the page ever shown
     const fy = frame.fy ?? focusFor(img, band, wide);
     const fy1 = wide ? fy + 0.05 : Math.max(fy + 0.15, 0.7);          // the pan: from the focus down toward ~70% of a tall page; a wide shot barely moves
-    planeInfo[j] = { tex: texFor(img), mask, ar, wide, bb, frame, band, fy, fy1 };
+    const sk = PROJECT_SKIN[el.id] || { brand: '#f2f0eb' }, gl = new THREE.Color(sk.brand);
+    planeInfo[j] = { tex: texFor(img), mask, dist, ar, wide, bb, frame, band, fy, fy1, bh, hh, dy0, right: j % 2 === 1, glow: [gl.r, gl.g, gl.b],
+      eb: $('.eyebrow', el), cp: $('.copy', el), a: $('.pname a', el), live: null };
     const st = el.style;
     st.setProperty('--bl', Math.round(l) + 'px'); st.setProperty('--bt', Math.round(top) + 'px'); st.setProperty('--bw', Math.round(r - l) + 'px');
     st.setProperty('--bh', Math.round(bh) + 'px'); st.setProperty('--ey', Math.round(gtop) + 'px'); st.setProperty('--ct', Math.round(top + bh + GAP) + 'px');
@@ -345,7 +421,11 @@ async function boot() {
   }
 
   /* ---------------- index dots: projected to the DOM rows ---------------- */
-  const state = { p: 0, h: 0, dr: 0, sc: 0 };
+  /* p walks the particle path below (0 hero, 1 RasanAI's letters, 2 drift, 3 divider phrase, 4 drift, 5 dots, 6 = index handoff via dr);
+     S[j] is each project's own progress: arr arriving, cp copy in, k type -> band, sc page pan, ex leaving */
+  const PATH = [0, 1, 11, 6, 11, 10, 11];
+  const state = { p: 0, h: 0, dr: 0, pv: 1 };      // pv: particles allowed to show (hero, the divider phrase, the index dots)
+  const S = Array.from({ length: 8 }, () => ({ arr: 0, cp: 0, k: 0, sc: 0, ex: 0 }));
   const lastDot = Array.from({ length: 8 }, () => null);
   function updateDots() {
     const dts = $$('#index .idx-list li .dt'), e = smooth(state.h);
@@ -368,14 +448,37 @@ async function boot() {
   /* hand-set framing where the picture's interest is a small part of it: SNOF's shot is a login card in the middle of a
      blank page, so the letters zoom in on the card. */
   const FRAME = { 'p-rasanai': { fy: 0.13 }, 'p-squeak': { fy: 0.545 }, 'p-heresay': { fy: 0.07 }, 'p-snof': { zoom: 1.9, fx: 0.5, fy: 0.47 } };
-  /* Where the screenshot sits under the letters. state.sc (0..1) slides the page up through the type, from its focus
-     toward the end of the pan. The picture is always wider and taller than the letters, so it fills every glyph. */
-  function placePlane(pi, pu) {
-    const bb = pi.bb, fr = pi.frame, iw = bb.w * fr.zoom, ih = iw * pi.ar, half = pi.band / 2;
-    const f0 = clamp(pi.fy, half, 1 - half), f1 = clamp(pi.fy1, half, 1 - half), fy = f0 + (f1 - f0) * state.sc;
-    plane.position.set(0, 0, 0); plane.scale.set(W, H, 1);
-    pu.uTex.value = pi.tex; pu.uMask.value = pi.mask; pu.uPx.value.set(W, H);
-    pu.uImgC.value.set(bb.cx - (fr.fx - 0.5) * iw, H - (bb.cy - (fy - 0.5) * ih)); pu.uImgS.value.set(iw, ih);
+  /* Where a project sits on the screen and how far it has become a band. */
+  const eo3 = v => 1 - Math.pow(1 - v, 3);
+  function geom(j) {
+    const pi = planeInfo[j], s = S[j], bb = pi.bb, e = Math.pow(smooth(clamp(s.arr)), 2), sc0 = mobile ? 0.34 : 0.28;
+    const scale = sc0 + (1 - sc0) * e;
+    const sx = pi.right ? W * (mobile ? 0.7 : 0.74) : W * (mobile ? 0.3 : 0.26), sy = H * (mobile ? 0.86 : 0.8);
+    const exE = smooth(s.ex), shift = exE * (bb.cy + pi.hh + 90);
+    return { scale, cx: sx + (bb.cx - sx) * e, cy: sy + (bb.cy - sy) * e - shift, shift, op: smooth(clamp(s.arr / 0.3)) * (1 - smooth((s.ex - 0.15) / 0.4)) };
+  }
+  function placeInst(I, j, show) {
+    const pi = planeInfo[j], s = S[j], bb = pi.bb, fr = pi.frame, u = planes[I].u, g = geom(j);
+    const iw = bb.w * fr.zoom, ih = iw * pi.ar, half = pi.band / 2;
+    const f0 = clamp(pi.fy, half, 1 - half), f1 = clamp(pi.fy1, half, 1 - half), fy = f0 + (f1 - f0) * s.sc;
+    const mesh = planes[I].mesh; mesh.visible = true; mesh.position.set(0, 0, 0); mesh.scale.set(W, H, 1);
+    u.uTex.value = pi.tex; u.uMask.value = pi.mask; u.uDist.value = pi.dist; u.uPx.value.set(W, H);
+    u.uS.value = g.scale; u.uT.value.set(g.cx - bb.cx * g.scale, (H - g.cy) - (H - bb.cy) * g.scale);
+    u.uImgC.value.set(bb.cx - (fr.fx - 0.5) * iw, H - (bb.cy - (fy - 0.5) * ih)); u.uImgS.value.set(iw, ih);
+    u.uK.value = s.k; u.uOp.value = g.op; u.uShow.value = show; u.uMaxD.value = MAXD;
+    u.uBand.value.set(bb.cx, H - bb.cy, bb.w / 2, pi.bh / 2 + 6 + (pi.hh - pi.bh / 2) * s.k);
+    u.uRmax.value = pi.dy0 + 0.35 * pi.bh + 20;
+    u.uFade.value.set(pi.hh * 2 * 0.1, pi.hh * 2 * 0.2);
+    u.uGl.value = smooth(clamp((s.arr - 0.8) / 0.2)) * (1 - smooth(s.ex / 0.4));
+    u.uGlow.value.set(pi.glow[0], pi.glow[1], pi.glow[2]);
+    /* the copy rides the composition: the eyebrow rises and the sentence drops as the type becomes a band, both travel up with it */
+    const co = smooth(clamp((s.cp - 0.1) / 0.9)) * (1 - smooth(s.ex / 0.3)), kk = smooth(s.k);
+    pi.eb.style.opacity = co; pi.cp.style.opacity = co;
+    pi.eb.style.transform = `translateY(${(-pi.dy0 * kk - g.shift).toFixed(1)}px)`;
+    pi.cp.style.transform = `translateY(${((pi.dy0 + 12) * kk - g.shift).toFixed(1)}px)`;
+    const live = s.arr > 0.99 && s.k < 0.01 && s.ex < 0.01 && co > 0.9;           // the letters-as-link only while they sit still as letters
+    if (pi.live !== live) { pi.live = live; pi.a.style.pointerEvents = live ? 'auto' : 'none'; pi.a.tabIndex = live ? 0 : -1; }
+    return Math.max(g.op * show, 0);
   }
 
   /* ---------------- render loop ---------------- */
@@ -391,21 +494,23 @@ async function boot() {
     if (intro.on && state.p > 0.02) intro.on = false;
     let f;
     if (intro.on) { bind(11, 0); f = intro.u; }
-    else { const P = clamp(state.p + state.dr, 0, 11); const k = Math.min(Math.floor(P + 1e-6), 10); bind(k, k + 1); f = clamp(P - k); }
+    else { const P = clamp(state.p + state.dr, 0, 6); const k = Math.min(Math.floor(P + 1e-6), 5); bind(PATH[k], PATH[k + 1]); f = clamp(P - k); }
     if (KIND[boundA] === 1 || KIND[boundB] === 1) updateDots();
     let show = 0;
     if (!intro.on) {
-      const P2 = state.p + state.dr;
+      const act = [];
       for (let j = 0; j < 8; j++) {
-        const d = Math.abs(P2 - PROJ_T[j]), pi = planeInfo[j];
-        if (d < 0.3 && pi) {
-          show = 1 - smooth(d / 0.3);
-          if (show > 0) placePlane(pi, planeMat.uniforms);
-          break;
-        }
+        const pi = planeInfo[j]; if (!pi) continue;
+        const sh = j === 0 ? (state.p >= 1 ? 1 : 1 - smooth((1 - state.p) / 0.3)) : 1;
+        if (sh > 0 && (j === 0 || S[j].arr > 0) && S[j].ex < 1) act.push([j, sh]);
       }
-    }
-    plane.visible = show > 0; planeMat.uniforms.uShow.value = show; u.uShow.value = show;
+      for (let I = 0; I < 2; I++) {
+        const a = act[I];
+        if (!a) { planes[I].mesh.visible = false; continue; }
+        const sv = placeInst(I, a[0], a[1]); if (a[0] === 0 && state.p < 1) show = Math.max(show, sv);
+      }
+    } else planes.forEach(pl => { pl.mesh.visible = false; });
+    u.uShow.value = Math.max(show, 1 - state.pv);
     u.uF.value = f; u.uT.value += dt; u.uVel.value = vel; u.uPtrK.value = ptrK;
     renderer.render(scene, camera);
   }
@@ -413,26 +518,30 @@ async function boot() {
   document.addEventListener('visibilitychange', () => { lastT = performance.now(); run(!document.hidden); });
 
   /* ---------------- scroll choreography ---------------- */
-  /* A project's stretch of scroll, in timeline units (1 unit = half a screen of scroll), from where its letters are filled:
-       0.1 filled: the one snap point   0.5 the pan starts: the page slides up through the letters, free (no snap)
-       then a short settle before the letters dissolve to particles and the next name forms. */
-  const MOVE = 0.9, HOLDQ = 0.6, H0 = 0.5;
-  const FILLED = 0.1, PAN_AT = 0.5, TAIL = 0.3;
-  const isProj = t => PROJ_T.includes(t);
-  const scrollLen = t => projEls[PROJ_T.indexOf(t)].dataset.kind === 'wide' ? 0.6 : 3.4;
-  const holdLen = t => isProj(t) ? PAN_AT + scrollLen(t) + TAIL : HOLDQ;
-  const starts = {}; let TOTAL = H0; for (let t = 1; t <= 10; t++) { TOTAL += MOVE; starts[t] = TOTAL; TOTAL += holdLen(t); }
-  const holdStart = t => t === 0 ? 0 : starts[t];
-  const snapOf = t => isProj(t) ? holdStart(t) + FILLED : holdStart(t) + HOLDQ * 0.5;
-  const panStart = t => holdStart(t) + PAN_AT, panEnd = t => holdStart(t) + PAN_AT + scrollLen(t);
-  const snapPts = [0]; for (let t = 1; t <= 10; t++) snapPts.push(t === 10 ? 1 : snapOf(t) / TOTAL);
-  /* snap only to a filled-letters moment; none from just after it until the pan is done, then forward to the next project */
-  const freeR = PROJ_T.map(t => [(holdStart(t) + FILLED + 0.12) / TOTAL, panEnd(t) / TOTAL]);
+  /* The scroll plan, in timeline units (1 unit = half a screen of scroll). Per project, from its letters being filled (L):
+       L+0.1 snap: the letters      +0.6..1.6 the type grows into a wide band      then the page pans through the band (free)
+       then the band drifts up and fades while the next project arrives small on the opposite side and grows into its
+       letters (the next L). Two projects are on screen throughout the hand-over; nothing breaks into particles between them.
+     Particles appear only where they always did: hero -> RasanAI's letters, the divider phrase between Imago and Greenroom
+     (Greenroom then grows in small from the opposite side), and the index dots after SNOF. */
+  const MOVE = 0.9, H0 = 0.5, HOLD_L = 0.6, MORPH = 1.0, EXIT = 1.6, ARR_DV = 1.6, DV_HOLD = 0.7, HOLDQ = 0.6, FILLED = 0.1;
+  const scrollLen = j => projEls[j].dataset.kind === 'wide' ? 0.5 : 2.6;
+  const TL = { L: [], arr0: [], band0: [], band1: [], pan1: [], ex0: [], ex1: [] };
+  let dvSnap = 0, dvEnd = 0, TOTAL = 0;
+  TL.L[0] = H0 + MOVE; TL.arr0[0] = TL.L[0] - 0.7;
+  for (let j = 0; j < 8; j++) {
+    TL.band0[j] = TL.L[j] + HOLD_L; TL.band1[j] = TL.band0[j] + MORPH; TL.pan1[j] = TL.band1[j] + scrollLen(j);
+    TL.ex0[j] = TL.pan1[j]; TL.ex1[j] = TL.ex0[j] + EXIT;
+    if (j === 4) { dvSnap = TL.ex1[4] + DV_HOLD * 0.5; dvEnd = TL.ex1[4] + DV_HOLD; TL.arr0[5] = dvEnd; TL.L[5] = dvEnd + ARR_DV; }
+    else if (j < 7) { TL.arr0[j + 1] = TL.ex0[j]; TL.L[j + 1] = TL.ex1[j]; }
+  }
+  TOTAL = TL.ex1[7] + HOLDQ;
+  const snapOf = j => TL.L[j] + FILLED;
+  const snapPts = [0, ...[0, 1, 2, 3, 4].map(snapOf).map(t => t / TOTAL), dvSnap / TOTAL, ...[5, 6, 7].map(snapOf).map(t => t / TOTAL), 1];
+  /* snap only to a letters-filled moment (and the divider's phrase); none while a project is a band or two are changing places */
   const snapAt = at => {
-    if (freeR.some(r => at >= r[0] && at <= r[1])) return at;
-    const ends = freeR.map(r => r[1]).filter(e => e < at), last = ends.length ? Math.max(...ends) : -1;
-    const nx = snapPts.find(s => s > at + 1e-6);
-    if (last >= 0 && nx !== undefined && !snapPts.some(s => s > last && s <= at)) return nx;        // the pan is done: on to the next name
+    const eps = 1 / TOTAL;
+    for (let i = 1; i < snapPts.length - 1; i++) { const a = snapPts[i], b = snapPts[i + 1]; if (at > a + 0.25 * eps && at < b - 0.6 * eps) return at; }
     return snapPts.reduce((b, s) => Math.abs(s - at) < Math.abs(b - at) ? s : b, 0);
   };
   const fill = $('#railFill'), hud = $('#hud'), hudN = $('#hudN'), hudNm = $('#hudNm'), hudDs = $('#hudDs');
@@ -461,7 +570,6 @@ async function boot() {
   }
 
   function setupScroll() {
-    projEls.forEach(el => { const d = $('.desc', el); d && (d.__lines = splitLines(d)); });
     ctx = gsap.context(() => {
       const unit = () => innerHeight * 0.5;
       gsap.set(projEls, { autoAlpha: 0 });
@@ -472,39 +580,43 @@ async function boot() {
           snap: { snapTo: (v, self) => { const at = self.progress; return noSnap ? at : snapAt(at); }, directional: false, delay: 0.12, duration: { min: 0.25, max: 0.9 }, ease: 'power2.inOut' },
           onUpdate: self => { fill.style.transform = `scaleX(${self.progress})`; }
         },
-        onUpdate: () => {
-          const p = state.p, near = Math.round(p), tj = PROJ_T.indexOf(near);
-          setHud(tj >= 0 && Math.abs(p - near) < 0.4 ? tj : -1);
-        }
       });
       pinST = tl.scrollTrigger;
       tl.to('.hero-ov', { autoAlpha: 0, y: -16, duration: 0.35 }, 0.08);
-      for (let t = 1; t <= 10; t++) tl.to(state, { p: t, duration: MOVE }, starts[t] - MOVE);
       tl.to('.rail', { opacity: 0, duration: 0.25 }, TOTAL - 0.25);
       tl.set({}, {}, TOTAL);
+      /* particles: hero -> RasanAI letters; (hidden) -> drift; Imago's exit -> the divider phrase; phrase -> drift as Greenroom arrives; SNOF's exit -> dots */
+      tl.to(state, { p: 1, duration: MOVE }, H0)
+        .to(state, { p: 2, duration: 0.5 }, TL.L[1] + 0.5)
+        .to(state, { p: 3, duration: EXIT }, TL.ex0[4])
+        .to(state, { p: 4, duration: 1.0 }, dvEnd)
+        .to(state, { p: 5, duration: EXIT }, TL.ex0[7]);
+      tl.to(state, { pv: 0, duration: 0.25, ease: 'none' }, TL.L[0] + 0.05)
+        .to(state, { pv: 1, duration: 0.4, ease: 'none' }, TL.ex0[4])
+        .to(state, { pv: 0, duration: 0.7, ease: 'none' }, dvEnd + 0.2)
+        .to(state, { pv: 1, duration: 0.5, ease: 'none' }, TL.ex0[7]);
       projEls.forEach((el, j) => {
-        const hs = holdStart(PROJ_T[j]), at = hs - 0.22, HOLD = holdLen(PROJ_T[j]) - 0.12;
-        const lines = [$('.eyebrow span', el), ...$('.desc', el).__lines, $('.lk', el)];
-        gsap.set(lines, { yPercent: 115 });
-        tl.set(el, { autoAlpha: 1 }, at)
-          .to(lines, { yPercent: 0, duration: 0.3, ease: 'power3.out', stagger: 0.03 }, at)
-          .to(lines, { yPercent: -115, duration: 0.28, ease: 'power2.in', stagger: 0.02, immediateRender: false }, hs + HOLD)
-          .set(el, { autoAlpha: 0 }, hs + HOLD + 0.36);
-        /* the page slides up through the letters while they hold */
-        tl.set(state, { sc: 0 }, hs - 0.05)
-          .to(state, { sc: 1, duration: scrollLen(PROJ_T[j]), ease: 'none' }, panStart(PROJ_T[j]));
+        const s = S[j]; Object.assign(s, { arr: j === 0 ? 1 : 0, cp: 0, k: 0, sc: 0, ex: 0 });
+        gsap.set([$('.eyebrow', el), $('.copy', el)], { opacity: 0 });
+        tl.set(el, { autoAlpha: 1 }, TL.arr0[j] - 0.05)
+          .set(el, { autoAlpha: 0 }, TL.ex1[j] + 0.02);
+        if (j > 0) tl.to(s, { arr: 1, duration: TL.L[j] - TL.arr0[j], ease: 'none' }, TL.arr0[j]);
+        tl.to(s, { cp: 1, duration: 0.6, ease: 'none' }, TL.L[j] - 0.6)
+          .to(s, { k: 1, duration: MORPH, ease: 'power2.inOut' }, TL.band0[j])
+          .to(s, { sc: 1, duration: scrollLen(j), ease: 'none' }, TL.band1[j])
+          .to(s, { ex: 1, duration: EXIT, ease: 'none' }, TL.ex0[j]);
       });
       /* index: the 8 dots land on the DOM rows, then the field loosens into the drift behind it */
       ScrollTrigger.create({ trigger: indexEl, start: 'top bottom', end: 'top 38%', scrub: true, onUpdate: s => { state.h = s.progress; } });
       ScrollTrigger.create({ trigger: indexEl, start: 'top 38%', end: 'top -15%', scrub: true, onUpdate: s => { state.dr = s.progress; indexEl.style.setProperty('--dot', clamp(s.progress * 4).toFixed(3)); } });
-      window.__sq = { state, tl, st: pinST, TOTAL, holdStart, panStart, panEnd, FILLED, holdLen, snapPts, planeInfo, setNoSnap: v => { noSnap = v; }, N: () => N };
+      window.__sq = { geom, state, S, tl, st: pinST, TOTAL, TL, dvSnap, dvEnd, FILLED, snapPts, planeInfo, setNoSnap: v => { noSnap = v; }, N: () => N };
     });
   }
 
   function goToWork(e) {
     if (!root.classList.contains('gl') || !pinST) return;
     e.preventDefault();
-    const y = pinST.start + snapOf(1) / TOTAL * (pinST.end - pinST.start);
+    const y = pinST.start + snapOf(0) / TOTAL * (pinST.end - pinST.start);
     scrollTo({ top: y, behavior: 'smooth' });
   }
   const navWork = $('#nav-work'); navWork && navWork.addEventListener('click', goToWork);
