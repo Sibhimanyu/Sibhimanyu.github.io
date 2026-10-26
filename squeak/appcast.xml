@@ -11,7 +11,7 @@
       <sparkle:version>20600</sparkle:version>
       <sparkle:shortVersionString>2.6.0</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.6.0</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Set Squeak's logo as your Telegram bot's picture with one button in Settings, Telegram. For Cliq, Settings saves the logo file and shows where to upload it, since Zoho does not allow setting it from Squeak.</li><li>Clicking Squeak in the Dock, Finder or Spotlight now opens the conversation window instead of the small message panel. A clicked notification still opens the message panel for its chat.</li></ul><h4>Also in 2.5.0</h4><ul><li>Choose what Telegram and Zoho Cliq tell you, in Settings: approvals, questions, "seems stuck", quota alerts, which finishes (Conductor chats, all agents or none), quiet hours, and a mute switch for each channel. It needs the background service updated to this version.</li></ul><h4>Also in 2.4.0</h4><ul><li>See what each subagent is doing: tap a subagent in a chat's background strip to open its live steps, right in the conversation window. It needs the background service updated to this version.</li></ul><h4>Also in 2.3.0</h4><ul><li>Updating is smoother: a banner says when an update is available or ready, "Restart to update" quits and relaunches Squeak, and it reopens the window, chat and Settings page you had open with an "Updated to" note.</li><li>Updates can install automatically (Settings, About), including when you quit.</li><li>Squeak's background service now comes with the app. Install it once from Settings, About, Background service; later app updates update it too, and it rolls back by itself if the new one does not start.</li><li>A background service you run from a source checkout is never touched.</li></ul><h4>Also in 2.2.0</h4><ul><li>Scrolling up in a chat loads earlier messages as you go, so long chats open fast and still reach all the way back.</li><li>A message you sent no longer sticks to the end of a finished chat once its answer has arrived.</li><li>Each message can show "Read by" and "Turn ended" receipts, so you can see that the agent picked it up and when its turn finished.</li><li>Answering from your laptop keeps Squeak in sync: what you type in Conductor or the terminal shows up in the chat right away.</li><li>A chat opens at its newest message more reliably.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.6.0.dmg" length="49063392" type="application/octet-stream" sparkle:edSignature="ITDw48eDhi7UlMJJ2KEeYUQQFSkfwBP4VRSUuIyY/QlFE84yfhABdeUfqSyfeBcmjzCVfvmlNInfI2j2enssAg==" />
     </item>
     <item>
@@ -20,7 +20,7 @@
       <sparkle:version>20500</sparkle:version>
       <sparkle:shortVersionString>2.5.0</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.5.0</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Choose what Telegram and Zoho Cliq tell you, in Settings: approvals, questions, "seems stuck", quota alerts, which finishes (Conductor chats, all agents or none), quiet hours, and a mute switch for each channel. It needs the background service updated to this version.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.5.0.dmg" length="48497217" type="application/octet-stream" sparkle:edSignature="OS+zvRwKBningYO2/PyHXEiPvJRB3chpolhZr8qJBmSz9uqi+lYaOEYLgyC5dPNSQ7cr8yA2oICls7ygzURPAw==" />
     </item>
     <item>
@@ -29,7 +29,7 @@
       <sparkle:version>20400</sparkle:version>
       <sparkle:shortVersionString>2.4.0</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.4.0</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>See what each subagent is doing: tap a subagent in a chat's background strip to open its live steps, right in the conversation window. It needs the background service updated to this version.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.4.0.dmg" length="48416066" type="application/octet-stream" sparkle:edSignature="uo15ieZsOTKrBol40JOVXIQbhbeeIv6JQTVAwihMoUZDA2O4Ct7d5TG8d8ajVWLyAbclPm9LtaooBSHzgCZVCQ==" />
     </item>
     <item>
@@ -38,7 +38,7 @@
       <sparkle:version>20300</sparkle:version>
       <sparkle:shortVersionString>2.3.0</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.3.0</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Updating is smoother: a banner says when an update is available or ready, "Restart to update" quits and relaunches Squeak, and it reopens the window, chat and Settings page you had open with an "Updated to" note.</li><li>Updates can install automatically (Settings, About), including when you quit.</li><li>Squeak's background service now comes with the app. Install it once from Settings, About, Background service; later app updates update it too, and it rolls back by itself if the new one does not start.</li><li>A background service you run from a source checkout is never touched.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.3.0.dmg" length="48855035" type="application/octet-stream" sparkle:edSignature="6+gw+ooc1vST0d6OOtxscV62GX9dSCMLvOcdTSLA0DmMuOKxXW/028RZXGCNc7IqIfhhgJgB5LQ15Q9FqIwGBQ==" />
     </item>
     <item>
@@ -47,7 +47,7 @@
       <sparkle:version>20200</sparkle:version>
       <sparkle:shortVersionString>2.2.0</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.2.0</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Scrolling up in a chat loads earlier messages as you go, so long chats open fast and still reach all the way back.</li><li>A message you sent no longer sticks to the end of a finished chat once its answer has arrived.</li><li>Each message can show "Read by" and "Turn ended" receipts, so you can see that the agent picked it up and when its turn finished.</li><li>Answering from your laptop keeps Squeak in sync: what you type in Conductor or the terminal shows up in the chat right away.</li><li>A chat opens at its newest message more reliably.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.2.0.dmg" length="5969949" type="application/octet-stream" sparkle:edSignature="6MHZAIEKqq4blux6zGRMWPqQZBjp5jQ4PcD6oqsznm5dN+bOsgazsWwv9v1kKg0bn3dO6Zs1//zVKyqD2Ge0Aw==" />
     </item>
     <item>
@@ -56,7 +56,7 @@
       <sparkle:version>20134</sparkle:version>
       <sparkle:shortVersionString>2.1.34</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.34</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>A Conductor chat's model line, under its title, is now a menu: switch to another model from the same provider, change the thinking level, or turn fast mode on. Conductor's own window shows the change.</li><li>A working chat shows its subagents and background shells above the composer, each with how long it has run and how it ended, and says "Seems stuck" with a Stop button when the model has gone quiet.</li><li>The … button beside Open in Conductor opens a pull request or archives the chat's workspace, and New chat can make a new workspace in any of your repositories.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.34.dmg" length="5897187" type="application/octet-stream" sparkle:edSignature="e4Xk/VdzlVqFYCPB9prVIq07vOh+iIuw7RUNoal7+M7tzVjRr8idV3LAYJVgMoCpxWnPpFSwD1YZj0OfvzGmDw==" />
     </item>
     <item>
@@ -65,7 +65,7 @@
       <sparkle:version>20133</sparkle:version>
       <sparkle:shortVersionString>2.1.33</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.33</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Squeak for iPhone's Mac controls show your apps with their real icons, and the controls for whichever app is in front: Conductor's workspaces and chats, or a browser's tabs. Squeak's app helper now draws those icons.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.33.dmg" length="5731052" type="application/octet-stream" sparkle:edSignature="snX1GfhQ52arAYhI+SVrb9FjOZxB5ucVulWOk+3lVYn+DQ09qW5/CEApd2nXEXUrQ/hI8YpaD/0zV5iMMdmaDA==" />
     </item>
     <item>
@@ -74,7 +74,7 @@
       <sparkle:version>20132</sparkle:version>
       <sparkle:shortVersionString>2.1.32</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.32</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>In a chat, scrolling up shows a round button above the composer that takes you back to the newest message in one click (or ⌘↓). It says "New" when a message arrived while you were reading.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.32.dmg" length="5725664" type="application/octet-stream" sparkle:edSignature="audgpIOM66JNL7x6Y2fNQ35y9kHI4dxOEryhZ51aTTaD2QJD6YJIutH96rvhNecSMyE6BcKGY8GQ8wSnKq2SDA==" />
     </item>
     <item>
@@ -83,7 +83,7 @@
       <sparkle:version>20131</sparkle:version>
       <sparkle:shortVersionString>2.1.31</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.31</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Settings, Keep awake has two modes, Lid open and Lid closed, each with its own switches that it remembers. Lid open can keep the screen on (so the Mac doesn't lock), mute, use Low Power Mode and pause chat apps for the whole session; Lid closed keeps its own set for when the lid shuts. A lid-closed session goes back to the lid-open switches when you open the lid.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.31.dmg" length="5710310" type="application/octet-stream" sparkle:edSignature="7ZZCDgiMWW6JPq4DDrbGh2Wyd4F5lsV0c1iTSHVx0+ftNuKXbqjozuCDGskMqE1yfbYyVULh2S9lDDv5i7K0Dg==" />
     </item>
     <item>
@@ -92,7 +92,7 @@
       <sparkle:version>20130</sparkle:version>
       <sparkle:shortVersionString>2.1.30</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.30</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Squeak for iPhone's Mac controls can set your Mac's energy mode: Automatic, Low Power or High Power. Low Power still turns on by itself when the Mac runs hot or the battery is low.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.30.dmg" length="5685146" type="application/octet-stream" sparkle:edSignature="2MnCHxcKI9YmjFn9m58oGk+cU8Hmx/CGBzSKmnEqAyOemZIlDtypVjFj6SHkYUWCTfL/SF777nDL2xGWk+kSAQ==" />
     </item>
     <item>
@@ -101,7 +101,7 @@
       <sparkle:version>20129</sparkle:version>
       <sparkle:shortVersionString>2.1.29</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.29</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Squeak for iPhone's Mac controls can now bring apps to the front, open and quit them, switch desktops, play, pause and skip music, and lock your Mac. Squeak carries a small helper for the app list.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.29.dmg" length="5665667" type="application/octet-stream" sparkle:edSignature="mJ4q5IZxExQ3P+x+iZuw+w+CqVR+07r/6SqyGgT/Xr+OOYpsiPTAmX/sVu6KnHi60qCP3HdkSgPMVfrtGNgeCQ==" />
     </item>
     <item>
@@ -110,7 +110,7 @@
       <sparkle:version>20128</sparkle:version>
       <sparkle:shortVersionString>2.1.28</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.28</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Fan control now offers fixed speeds too (40%, 60%, 80%, full), which you can pick from the Mac controls page in Squeak for iPhone, along with your Mac's volume, mute, brightness and screen off.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.28.dmg" length="5642149" type="application/octet-stream" sparkle:edSignature="MN+ixyFPUFbgF8xXxKITtfwxcgRnqS6S+QFmBnHqBQ+ZzUBmM5F5bbVo8/qL2BB/SaVCblEolsoS4btf/o6XAw==" />
     </item>
     <item>
@@ -119,7 +119,7 @@
       <sparkle:version>20127</sparkle:version>
       <sparkle:shortVersionString>2.1.27</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.27</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Settings, Keep awake has a Heat section: your Mac's chip and battery temperature and fan speed during a session. When it warms up, Squeak turns on Low Power Mode and moves your agents to the efficiency cores so they keep going but cooler, and lets the Mac sleep if it stays hot.</li><li>Set up fan control (one Mac password) lets Squeak run the fans at full speed while a session runs warm, and hand them back to macOS when it cools.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.27.dmg" length="5640449" type="application/octet-stream" sparkle:edSignature="vCg3YW3JO3k8dt3bcfPNjdrZKRCMCRgovPVWOt0j/q62CrrAXJdQ7nExqaLRZRjh0zin5Wtx1p6M3yNiGnM6DA==" />
     </item>
     <item>
@@ -128,7 +128,7 @@
       <sparkle:version>20126</sparkle:version>
       <sparkle:shortVersionString>2.1.26</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.26</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Search results list the newest chats first.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.26.dmg" length="5597444" type="application/octet-stream" sparkle:edSignature="OH8nw35UEHWEOpi6XCi+qnsTW5onQV24faSTImRywKsDDvd4zWkMqCoZ5ZdCx4zNNdV6wTPx2zK8L3PjB2Z9Bg==" />
     </item>
     <item>
@@ -137,7 +137,7 @@
       <sparkle:version>20125</sparkle:version>
       <sparkle:shortVersionString>2.1.25</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.25</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Quick message opens with a double-tap of Control. Settings, General offers Double-tap Control, Double-tap Option, ⌃⇧ Space, ⌥ Space or None. Double-tap needs Input Monitoring once (Squeak only notices the modifier taps, never what you type); until it is allowed, ⌃⇧ Space works.</li><li>Squeak is now signed with a stable certificate, so permissions you grant stay across updates.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.25.dmg" length="5605773" type="application/octet-stream" sparkle:edSignature="k90Cwc8G/onbAMWi50VZAs37B50PVUMMrEW11nWHIryjNAc/bcenGxeKfBl/GKTQDO+AzPjHQUUyCbpdVlHEAw==" />
     </item>
     <item>
@@ -146,7 +146,7 @@
       <sparkle:version>20124</sparkle:version>
       <sparkle:shortVersionString>2.1.24</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.24</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Quick message no longer says a chat can't be answered when Squeak's service is only restarting. It says it is reconnecting, keeps Send on, and checks again when you press it; your text stays if it still can't go.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.24.dmg" length="5547745" type="application/octet-stream" sparkle:edSignature="lhYZ7zvf5b+v+oZWxXcXC8quZrZODbub4n1fvvdVeBomJgkeTSbIUx7F8F4xK0Q0Ex6g7PY3GoX4V8LJOA45BQ==" />
     </item>
     <item>
@@ -155,7 +155,7 @@
       <sparkle:version>20123</sparkle:version>
       <sparkle:shortVersionString>2.1.23</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.23</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>A finished chat stays in the list for a day, not 15 minutes, so work you have not looked at yet does not vanish.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.23.dmg" length="5530333" type="application/octet-stream" sparkle:edSignature="H6T46UENbGZjrP0o9xFLwaV+vpJZuiANpBZ0t+LnBxRAuNH6Q/msdKQl4cxostmc0FISdYRGZr+/rqmrBiQqDA==" />
     </item>
     <item>
@@ -164,7 +164,7 @@
       <sparkle:version>20122</sparkle:version>
       <sparkle:shortVersionString>2.1.22</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.22</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Tables in an agent's message lay out properly: each row is as tall as its longest cell, cells never overlap, and a wide table scrolls sideways instead of being cut off.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.22.dmg" length="5531108" type="application/octet-stream" sparkle:edSignature="R8VU9YEyIqpd9r/k+uGN9R/dmbNAIclA2njjFuUQanbXB3Xjo2WGPIy9XgFz7pxyRuDnT0UAiV3nUXdFF/oFBA==" />
     </item>
     <item>
@@ -173,7 +173,7 @@
       <sparkle:version>20121</sparkle:version>
       <sparkle:shortVersionString>2.1.21</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.21</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Hotspot failover can be set up on the Mac: Settings, Keep awake, type your iPhone's hotspot name and password, Save. The password stays in your Mac's Keychain.</li><li>The safety rules show your Mac's real battery levels, not fixed 40% and 10%.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.21.dmg" length="5517022" type="application/octet-stream" sparkle:edSignature="+NkzRV792hCPfI7xK7Pgb39myUg3MzWBvMtWKUIexCaWE5qgVdJxFiXk4O/DFN8ehPcjFOS3lLabceAs+PxcAA==" />
     </item>
     <item>
@@ -182,7 +182,7 @@
       <sparkle:version>20120</sparkle:version>
       <sparkle:shortVersionString>2.1.20</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.20</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Keep awake has its own page in Settings: what is on and until when, the one-time lid-closed setup in one button, what happens when the lid closes (display, sound, Low Power Mode, chat apps), the battery and heat safety rules in plain words, and hotspot failover.</li><li>The menu-bar panel always shows Keep Mac awake: time left, the lid state, and Add 1 hour, Add lid closed and End as buttons instead of hidden menus.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.20.dmg" length="5489210" type="application/octet-stream" sparkle:edSignature="0F/YfUfLFUYHktmM8t7LOqWe4BMgWfD4IZXNQLIqZZ/G6X4PA230Pg3FvavLToGoDZAzHXGGvoejbsIJpu0mDQ==" />
     </item>
     <item>
@@ -191,7 +191,7 @@
       <sparkle:version>20119</sparkle:version>
       <sparkle:shortVersionString>2.1.19</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.19</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>A chat whose reply ends with a question ("Want me to open a PR?") now counts as needing you: it moves to Needs you, shows the question, and raises the same banner as an agent waiting on an answer. Click the banner to answer in Quick message.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.19.dmg" length="5383942" type="application/octet-stream" sparkle:edSignature="SbUcCaobYBF8ye4wz5gv1UMEvL1n5fCbA7iMtBVIQ2mbkigMrbWJ7uyTgllkAMKS5jpf1C/NpbdrKw3gFYflCQ==" />
     </item>
     <item>
@@ -200,7 +200,7 @@
       <sparkle:version>20118</sparkle:version>
       <sparkle:shortVersionString>2.1.18</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.18</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>The menu-bar panel no longer sits inside a taller, square-edged window after a section folds: the window shrinks to the panel, and its shadow is redrawn to match.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.18.dmg" length="5378019" type="application/octet-stream" sparkle:edSignature="nLYNIwj29sVGj6YHNomMGljtVWQyhAx/arOoQutVSrdSqntMXfrIM56kpJbFr+H+vxXCCOf7APCMCN6NnrnJCQ==" />
     </item>
     <item>
@@ -209,7 +209,7 @@
       <sparkle:version>20117</sparkle:version>
       <sparkle:shortVersionString>2.1.17</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.17</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Quick message: when Send is off because Squeak has no way to reply to the chat it is aimed at (a chat that is not Conductor's, or a Claude or Codex it cannot type into), it now says so and points to the To menu, instead of leaving a greyed button.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.17.dmg" length="5377880" type="application/octet-stream" sparkle:edSignature="Jo3/++UIB9C09m+UACwlMhlOsXZChzZTyBNGsRtzMTgMpf5odBkRjX4LZeynNwRY2fdqCMTSYEdFiaI9cJICBg==" />
     </item>
     <item>
@@ -218,7 +218,7 @@
       <sparkle:version>20116</sparkle:version>
       <sparkle:shortVersionString>2.1.16</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.16</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Keep Mac awake: the menu lists the lid-closed choices first, so a Mac you set to stay awake stays awake with its lid shut. Lid open, and until you end it, are still there.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.16.dmg" length="5375013" type="application/octet-stream" sparkle:edSignature="ygSnveeMqZ7NrZ6Ibn0EuqU5WQNfHl7pqh1OkpMWFrKke0s5lEcDdAtIgSZtwgNdMiMMBnMwtVPpGW3vbeTBBA==" />
     </item>
     <item>
@@ -227,7 +227,7 @@
       <sparkle:version>20115</sparkle:version>
       <sparkle:shortVersionString>2.1.15</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.15</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Two new shortcuts for Quick message, easy to reach with one hand: ⌃⇧ Space and ⌃⇧ K. Choose one in Settings.</li><li>⌘\ shows or hides the sidebar from anywhere in the window, even while typing.</li><li>The session list now says "10 sessions · 3 working" instead of "10 active across your Mac", which also counted finished and errored chats.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.15.dmg" length="5374314" type="application/octet-stream" sparkle:edSignature="LlX4LZ/Ql7gggPybZzpAq0Y0emarqI4u3RXt1I0UxcDHjc0H9rbCf/pJkEtCvn5RKBolwxeV8h7j7/xFTvVzDw==" />
     </item>
     <item>
@@ -236,7 +236,7 @@
       <sparkle:version>20114</sparkle:version>
       <sparkle:shortVersionString>2.1.14</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.14</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Settings now opens inside the main window, System Settings style: a sidebar of pages (General, Connections, Telegram, Zoho Cliq, iPhone, Privacy, About) and one page at a time. Esc or Back to sessions returns to your chats.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.14.dmg" length="5373291" type="application/octet-stream" sparkle:edSignature="ehqra0B2UEFdBDGCiDLhDa3kU6Qr/wLE9JS3+jVczT30GU560IjaOJLrtUPWVC78qpqTWZUcDM/ZSWPLkLUuBg==" />
     </item>
     <item>
@@ -245,7 +245,7 @@
       <sparkle:version>20113</sparkle:version>
       <sparkle:shortVersionString>2.1.13</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.13</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Squeak for Web moved to its own address, squeak-mac.web.app.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.13.dmg" length="5356064" type="application/octet-stream" sparkle:edSignature="Vfhla5HNCNegnBxfr2azQT1z6hwEuxXC1Epn9HZ3BIMFVeRBakHbDx0SuTVAS99yPP/vTlCPppAaN/cyaSt8AA==" />
     </item>
     <item>
@@ -254,7 +254,7 @@
       <sparkle:version>20112</sparkle:version>
       <sparkle:shortVersionString>2.1.12</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.12</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Pairing now has a Copy pairing code button, for Squeak for Web (squeak-mac.web.app): paste the code there, then approve here.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.12.dmg" length="5356240" type="application/octet-stream" sparkle:edSignature="j3elI7OdA3ZsdBZzsLLioJVnfssD9UBW3UpjtFvsiis7YvT/R+demv2DP4HUkS7XaqdtNB319GXiNSTE4Io4Aw==" />
     </item>
     <item>
@@ -263,7 +263,7 @@
       <sparkle:version>20111</sparkle:version>
       <sparkle:shortVersionString>2.1.11</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.11</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>A redesigned menu-bar panel: chats are grouped into Needs you, Errors, Finished, Working and Idle (Idle folded away), each row shows its state, age, repo and agent, and a finished chat shows the start of its reply. New chat sits in the header; Settings, Check for Updates and Quit are under "…".</li><li>Rows stay in place while the pointer is over the list, and Escape closes the panel.</li><li>Clicking a notification shows the reply that notification was about, even if the chat has moved on since. If that reply can't be found, it says so instead of showing a different one.</li><li>A reply only counts as read once you have actually seen it.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.11.dmg" length="5347630" type="application/octet-stream" sparkle:edSignature="pF2vkNXD0cdcPcbCmFRR48sYFeSI56n/1kN6Nwp6a9d7CyefAL3Fq2QDtwAsc1BkZlMex9JeHLvaykMrwBZsAQ==" />
     </item>
     <item>
@@ -272,7 +272,7 @@
       <sparkle:version>20110</sparkle:version>
       <sparkle:shortVersionString>2.1.10</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.10</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Quitting Squeak from the Dock, or with ⌘Tab then Q, while its window is open now closes the window like ⌘Q does, and Squeak keeps running in the menu bar. "Quit Squeak" in the menu-bar panel, ⌥⌘Q, and logging out or shutting down still quit it completely.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.10.dmg" length="5072926" type="application/octet-stream" sparkle:edSignature="zbNJKL6aLvYYepmQRAjfJIAWVPXu4ndgvsGv6qMCt3r1rnRdT4XUa8+SfL6QqZvVZh95dX3L2Cx2NTcgEdCvAQ==" />
     </item>
     <item>
@@ -281,7 +281,7 @@
       <sparkle:version>20109</sparkle:version>
       <sparkle:shortVersionString>2.1.9</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.9</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Clicking a notification opens the quick message on exactly that chat, also when Squeak was not running: the click is kept until the app is ready instead of being dropped at launch.</li><li>Opening Squeak from Spotlight or Finder, or the activation a clicked notification causes, shows the quick message instead of the conversation window, and Squeak no longer opens a window by itself at launch.</li><li>⌥ Space is the default quick message shortcut. Anyone still on the old ⌥⌘M default is moved to it once; it stays selectable in Settings.</li><li>Notifications have no inline reply. Clicking one, or dismissing it, never sends anything; unsent text stays as a draft per chat.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.9.dmg" length="5072287" type="application/octet-stream" sparkle:edSignature="5CN6Ov1vcCYSh7NeJqRT8GCaWXePJjUU121D13ER7W4pHH2I7fGFu2RcSTtePlOiisAkpHZDN1CBH7QtFgeLBg==" />
     </item>
     <item>
@@ -290,7 +290,7 @@
       <sparkle:version>20108</sparkle:version>
       <sparkle:shortVersionString>2.1.8</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.8</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>⌘Q in Squeak's window now closes the window and keeps Squeak in the menu bar. "Quit Squeak" in the menu-bar panel, or ⌥⌘Q, quits it completely.</li><li>Clicking a notification opens the quick message on that chat. Unsent text is kept per chat, and the composer closes when you click elsewhere or switch Spaces.</li><li>Refreshing Claude usage reads it with Claude Code's own sign-in and spends no tokens.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.8.dmg" length="5058380" type="application/octet-stream" sparkle:edSignature="bwtM/qpvOigseWAkbjPWMG3n/cD/g/lPtvhM+Xky+seaOske2gISN/qpNRxOGsMRqAiVSd2WGsDuxxZirXv3DA==" />
     </item>
     <item>
@@ -299,7 +299,7 @@
       <sparkle:version>20107</sparkle:version>
       <sparkle:shortVersionString>2.1.7</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.7</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>A compact menu-bar panel in the style of macOS system menus, with grouped sections, inset dividers, and full-width actions for messages, chats and settings.</li><li>The panel fits the display it opens on and keeps its actions reachable on smaller screens. New chat is available with ⌘N from the panel.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.7.dmg" length="5042224" type="application/octet-stream" sparkle:edSignature="nb+Aj2kAQga8AvgwlSQvxGMSmzoVnVBak2VECn0EYZn0EC5g/G251fNVbkVRXAZswzOhWxXEx2xciC8Shqt3AQ==" />
     </item>
     <item>
@@ -308,7 +308,7 @@
       <sparkle:version>20106</sparkle:version>
       <sparkle:shortVersionString>2.1.6</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.6</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Keep Mac awake with the lid closed, from the menu bar: "Set up lid-closed…" asks for your Mac password once (macOS's own prompt), then "Lid closed too" sessions start from the popover or your iPhone without asking again. Squeak checks the rule allows only its four sleep and Low Power Mode commands before installing it.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.6.dmg" length="5485405" type="application/octet-stream" sparkle:edSignature="eMoZ9Hy9kHAfUyDPPxcBpz4I/f+3nWJ5Xo8pzr2sMLIth06iI353G/7CWwpDfQ1QoC6ZNOOBrjtOihKSbo/1AQ==" />
     </item>
     <item>
@@ -317,7 +317,7 @@
       <sparkle:version>20105</sparkle:version>
       <sparkle:shortVersionString>2.1.5</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.5</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Notifications say what a session wants: a question ("is asking you something", with the question when session names are on), a plan to review, or an approval. A second question in a chat that is still waiting notifies again.</li><li>Reply to a finished Conductor chat straight from its notification.</li><li>Settings says when macOS is hiding Squeak's banners (alert style None) and opens the right pane to fix it.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.5.dmg" length="4998221" type="application/octet-stream" sparkle:edSignature="VSNbEFI53k9TVHSNS7qy1ZtbMuNGoIgxsT0t++VBEyLFuMpLPoh5Bq41z7689M6QI2B3P+fjAflwp9uhTEB/Cg==" />
     </item>
     <item>
@@ -326,7 +326,7 @@
       <sparkle:version>20104</sparkle:version>
       <sparkle:shortVersionString>2.1.4</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.4</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Quick message (⌘K) is a glass pill: type on top; the chat, its state, repo and agent under it, with a round Send. A soft warm light glows from under it and breathes while your message sends. ⌥↩ steers a working agent.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.4.dmg" length="4960058" type="application/octet-stream" sparkle:edSignature="SWHK+rT5Rzee9FpvhAnhdCfbojqYz3aNFmTxtVXgVUZxTdn976EpIFXvNRGRiHsyVKHxBdPWK/DkzMdreIQaAA==" />
     </item>
     <item>
@@ -335,7 +335,7 @@
       <sparkle:version>20103</sparkle:version>
       <sparkle:shortVersionString>2.1.3</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.3</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>The awake session shows on the Mac: what is left beside the duck in the menu bar ("1:52", "∞" until you end it), and a Keep Mac awake row in the popover to start one, add an hour, or end it.</li><li>When the Mac has switched to your iPhone's hotspot, the popover says so.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.3.dmg" length="4930017" type="application/octet-stream" sparkle:edSignature="m4GoiiYVJDOTj2XUyJ7WaMzHx+XdTTyW8rjV9n02Til6TW5sVOqIAVAGmywx+PDciIVv0kH/6ZODlGj67MR/Bg==" />
     </item>
     <item>
@@ -344,7 +344,7 @@
       <sparkle:version>20102</sparkle:version>
       <sparkle:shortVersionString>2.1.2</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.2</sparkle:releaseNotesLink>
+      <description><![CDATA[<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{color-scheme:light dark}body{font:13px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;color:#18181b;background:transparent;margin:0;padding:4px 2px}ul{margin:0 0 10px;padding-left:18px}li{margin:0 0 6px}p{margin:0 0 10px}h4{font-size:12px;font-weight:600;color:#52525b;margin:16px 0 6px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}code{font:12px ui-monospace,'SF Mono',monospace;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:6px}@media (prefers-color-scheme:dark){body{color:#f4f4f5}h4{color:#a1a1aa;border-top-color:rgba(255,255,255,.12)}code{background:rgba(255,255,255,.1)}}</style></head><body><ul><li>Usage bars show what is left, like a battery: "58% left", full once a window resets.</li></ul></body></html>]]></description>
       <enclosure url="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.2.dmg" length="4893780" type="application/octet-stream" sparkle:edSignature="iROIFPb9qMDGXT+4BNnZcEDiDMD8/mWNws1PXnBjQYA43S+4TziBro8sL9/aR3E5be9jQCBVCmCRi5c2rqItDg==" />
     </item>
   </channel>
