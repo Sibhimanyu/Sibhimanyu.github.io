@@ -22,6 +22,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400&family=Figtree:wght@400;500;700&family=Inter:wght@400;700&family=Manrope:wght@500;700&family=Mukta:wght@400;700&family=Playfair+Display:wght@400&display=swap" />
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Person", "@id": "https://sibhimanyu.github.io/#me", "name": "Sibhimanyu", "url": "https://sibhimanyu.github.io/", "sameAs": ["https://github.com/Sibhimanyu"]}, {"@type": "ItemList", "name": "Projects Sibhimanyu has worked on", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "RasanAI", "url": "https://sibhimanyu.github.io/rasanai/"}, {"@type": "ListItem", "position": 2, "name": "Flotilla", "url": "https://sibhimanyu.github.io/flotilla/"}, {"@type": "ListItem", "position": 3, "name": "Heresay", "url": "https://sibhimanyu.github.io/heresay/"}, {"@type": "ListItem", "position": 4, "name": "Squeak", "url": "https://sibhimanyu.github.io/squeak/"}, {"@type": "ListItem", "position": 5, "name": "Imago", "url": "https://imago.onslate.in/"}, {"@type": "ListItem", "position": 6, "name": "Greenroom", "url": "https://sibhimanyu.github.io/greenroom/"}, {"@type": "ListItem", "position": 7, "name": "Abhishri Academy", "url": "https://abhishri-academy.web.app/public-calendar"}, {"@type": "ListItem", "position": 8, "name": "SNOF", "url": "https://snof-live.web.app/"}]}]}</script>
 <script>
   // Motion is an enhancement: no JS, reduced motion or no WebGL leaves a plain, readable document.
@@ -76,7 +77,18 @@
   .divider p { font-size:clamp(2.2rem,8.4vw,8rem); font-weight:600; letter-spacing:-.045em; line-height:.98; max-width:15ch; }
 
   .eyebrow { font-size:.8rem; line-height:1.4; color:var(--dim); letter-spacing:.04em; margin-bottom:clamp(12px,1.6vw,20px); }
-  .eyebrow b { color:var(--ac); font-weight:500; }
+  .eyebrow { display:flex; align-items:center; gap:10px; }
+  .eyebrow > span { display:inline-flex; align-items:center; gap:10px; }
+  .eyebrow .mk { height:30px; width:auto; max-width:30px; object-fit:contain; border-radius:6px; flex:none; }
+  .eyebrow .mk.wide { max-width:96px; border-radius:0; }
+  .eyebrow b { color:var(--sk-ac, var(--ac)); font-weight:500; }
+  /* each project's own voice outside its letters: its brand colour, and its own font for the sentence and the link */
+  .proj { --sk-ac:var(--ac); }
+  .proj .desc, .proj .go, .proj .lnk { font-family:var(--sk-font, var(--sans)); }
+  .proj .desc { font-weight:var(--sk-w, 400); }
+  .proj .go span { color:var(--sk-ac); }
+  .proj .go:hover { text-decoration:underline; text-decoration-color:var(--sk-ac); text-decoration-thickness:2px; text-underline-offset:6px; }
+  .proj :focus-visible { outline-color:var(--sk-ac); }
   .pname { font-size:clamp(3rem,12.4vw,15rem); font-weight:800; text-transform:uppercase; letter-spacing:-.01em; line-height:.9; padding-bottom:.06em; }
   .pname a { color:var(--fg); text-decoration:none; }
   @supports ((-webkit-background-clip:text) or (background-clip:text)) { .pname a { background:var(--shot) center var(--fy,14%)/cover no-repeat, #E8E4DC; background-blend-mode:multiply; -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; } }
@@ -158,10 +170,9 @@
   .gl .shot, .gl .divider { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); border:0; }
   /* the composition hangs off the letters' measured bounds (--bl/--bt/--bw/--bh from the mask layout, set in field.js) */
   .gl .eyebrow { position:absolute; left:var(--bl); top:var(--ey); margin:0; overflow:hidden; padding-bottom:3px; white-space:nowrap; }
-  .gl .eyebrow span { display:block; }
   .gl .pname { position:absolute; left:var(--bl); top:var(--bt); width:var(--bw); height:var(--bh); margin:0; padding:0; font-size:1rem; line-height:1; }
   .gl .pname a { display:block; width:100%; height:100%; font-size:0; background:none; color:transparent; -webkit-text-fill-color:transparent; pointer-events:auto; border-radius:2px; }
-  .gl .pname a:focus-visible { outline:2px solid var(--ac); outline-offset:10px; }
+  .gl .pname a:focus-visible { outline:2px solid var(--sk-ac, var(--ac)); outline-offset:10px; }
   .gl .copy { position:absolute; left:var(--bl); top:var(--ct); width:calc(100vw - var(--bl) * 2); margin:0; pointer-events:none; }
   .gl .copy a, .gl .copy .note { pointer-events:auto; }
   .gl .desc { margin:0; font-size:clamp(17px,1.5vw,22px); line-height:1.4; max-width:46ch; }
@@ -208,8 +219,8 @@
     </section>
     <section id="work" aria-labelledby="h-work">
       <h2 class="vh" id="h-work">Projects</h2>
-      <article class="proj" id="p-rasanai" data-n="01" data-name="RasanAI" data-tag="macOS · AI film" data-kind="tall" data-src="assets/rasanai-tall.jpg" data-host="sibhimanyu.github.io/rasanai" style="--shot:url(assets/rasanai-tall.jpg);--fy:13%">
-        <p class="eyebrow mono"><span><b>01</b> — macOS · AI film</span></p>
+      <article class="proj" id="p-rasanai" data-n="01" data-name="RasanAI" data-tag="macOS · AI film" data-kind="tall" data-src="assets/rasanai-tall.jpg" data-host="sibhimanyu.github.io/rasanai" style="--shot:url(assets/rasanai-tall.jpg);--fy:13%;--sk-ac:#9aa0ff;--sk-font:\'Mukta\';--sk-w:400">
+        <p class="eyebrow mono"><span><img class="mk" src="assets/rasanai-mark.svg" alt="" height="30"><b>01</b> — macOS · AI film</span></p>
         <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/rasanai/">RasanAI</a></h3>
         <div class="copy rv">
           <p class="desc">A Mac app that turns a sentence and your footage into a finished film. You make five calls; Claude directs the rest.</p>
@@ -219,8 +230,8 @@
           <img src="assets/rasanai-tall.jpg" alt="The RasanAI website" width="1280" height="2400" loading="lazy">
         </figure>
       </article>
-      <article class="proj" id="p-flotilla" data-n="02" data-name="Flotilla" data-tag="Web · multiplayer coding agents" data-kind="tall" data-src="assets/flotilla-tall.jpg" data-host="sibhimanyu.github.io/flotilla" style="--shot:url(assets/flotilla-tall.jpg);--fy:14%">
-        <p class="eyebrow mono"><span><b>02</b> — Web · multiplayer coding agents</span></p>
+      <article class="proj" id="p-flotilla" data-n="02" data-name="Flotilla" data-tag="Web · multiplayer coding agents" data-kind="tall" data-src="assets/flotilla-tall.jpg" data-host="sibhimanyu.github.io/flotilla" style="--shot:url(assets/flotilla-tall.jpg);--fy:14%;--sk-ac:#2bb5a6;--sk-font:\'Fraunces\';--sk-w:400">
+        <p class="eyebrow mono"><span><img class="mk" src="assets/flotilla-mark.svg" alt="" height="30"><b>02</b> — Web · multiplayer coding agents</span></p>
         <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/flotilla/">Flotilla</a></h3>
         <div class="copy rv">
           <p class="desc">Several AI coding agents build one app together, with tasks handed out, file ownership enforced and one live board.</p>
@@ -230,8 +241,8 @@
           <img src="assets/flotilla-tall.jpg" alt="The Flotilla website" width="1280" height="2400" loading="lazy">
         </figure>
       </article>
-      <article class="proj" id="p-heresay" data-n="03" data-name="Heresay" data-tag="Web, iOS, macOS · user feedback" data-kind="tall" data-src="assets/heresay-tall.jpg" data-host="sibhimanyu.github.io/heresay" style="--shot:url(assets/heresay-tall.jpg);--fy:7%">
-        <p class="eyebrow mono"><span><b>03</b> — Web, iOS, macOS · user feedback</span></p>
+      <article class="proj" id="p-heresay" data-n="03" data-name="Heresay" data-tag="Web, iOS, macOS · user feedback" data-kind="tall" data-src="assets/heresay-tall.jpg" data-host="sibhimanyu.github.io/heresay" style="--shot:url(assets/heresay-tall.jpg);--fy:7%;--sk-ac:#2dd4bf;--sk-font:\'Figtree\';--sk-w:400">
+        <p class="eyebrow mono"><span><img class="mk" src="assets/heresay-mark.svg" alt="" height="30"><b>03</b> — Web, iOS, macOS · user feedback</span></p>
         <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/heresay/">Heresay</a></h3>
         <div class="copy rv">
           <p class="desc">In-app bug reports that reach your coding agent once your team accepts them.</p>
@@ -241,8 +252,8 @@
           <img src="assets/heresay-tall.jpg" alt="The Heresay website" width="1280" height="2400" loading="lazy">
         </figure>
       </article>
-      <article class="proj" id="p-squeak" data-n="04" data-name="Squeak" data-tag="macOS, iPhone · agent pager" data-kind="tall" data-src="assets/squeak-tall.jpg" data-host="sibhimanyu.github.io/squeak" style="--shot:url(assets/squeak-tall.jpg);--fy:53%">
-        <p class="eyebrow mono"><span><b>04</b> — macOS, iPhone · agent pager</span></p>
+      <article class="proj" id="p-squeak" data-n="04" data-name="Squeak" data-tag="macOS, iPhone · agent pager" data-kind="tall" data-src="assets/squeak-tall.jpg" data-host="sibhimanyu.github.io/squeak" style="--shot:url(assets/squeak-tall.jpg);--fy:53%;--sk-ac:#ffda1a;--sk-font:\'Figtree\';--sk-w:500">
+        <p class="eyebrow mono"><span><img class="mk" src="assets/squeak-mark.png" alt="" height="30"><b>04</b> — macOS, iPhone · agent pager</span></p>
         <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/squeak/">Squeak</a></h3>
         <div class="copy rv">
           <p class="desc">Watches every Claude Code and Codex session on your Mac and pages you when one needs you.</p>
@@ -252,8 +263,8 @@
           <img src="assets/squeak-tall.jpg" alt="The Squeak website" width="1280" height="2400" loading="lazy">
         </figure>
       </article>
-      <article class="proj" id="p-imago" data-n="05" data-name="Imago" data-tag="Web · API explorer" data-kind="tall" data-src="assets/imago-tall.jpg" data-host="imago.onslate.in" style="--shot:url(assets/imago-tall.jpg);--fy:40%">
-        <p class="eyebrow mono"><span><b>05</b> — Web · API explorer</span></p>
+      <article class="proj" id="p-imago" data-n="05" data-name="Imago" data-tag="Web · API explorer" data-kind="tall" data-src="assets/imago-tall.jpg" data-host="imago.onslate.in" style="--shot:url(assets/imago-tall.jpg);--fy:40%;--sk-ac:#3ccf7a;--sk-font:\'Inter\';--sk-w:400">
+        <p class="eyebrow mono"><span><img class="mk" src="assets/imago-mark.svg" alt="" height="30"><b>05</b> — Web · API explorer</span></p>
         <h3 class="pname"><a class="t" href="https://imago.onslate.in/">Imago</a></h3>
         <div class="copy rv">
           <p class="desc">Paste an API URL or a curl command and get a live interface drawn from the JSON&#x27;s shape.</p>
@@ -264,8 +275,8 @@
         </figure>
       </article>
       <div class="divider rv" id="divider"><p>a classroom, a school and a farm</p></div>
-      <article class="proj" id="p-greenroom" data-n="06" data-name="Greenroom" data-tag="macOS · classroom setup" data-kind="tall" data-src="assets/greenroom-tall.jpg" data-host="sibhimanyu.github.io/greenroom" style="--shot:url(assets/greenroom-tall.jpg);--fy:26%">
-        <p class="eyebrow mono"><span><b>06</b> — macOS · classroom setup</span></p>
+      <article class="proj" id="p-greenroom" data-n="06" data-name="Greenroom" data-tag="macOS · classroom setup" data-kind="tall" data-src="assets/greenroom-tall.jpg" data-host="sibhimanyu.github.io/greenroom" style="--shot:url(assets/greenroom-tall.jpg);--fy:26%;--sk-ac:#7bc653;--sk-font:\'Inter\';--sk-w:400">
+        <p class="eyebrow mono"><span><img class="mk" src="assets/greenroom-mark.png" alt="" height="30"><b>06</b> — macOS · classroom setup</span></p>
         <h3 class="pname"><a class="t" href="https://sibhimanyu.github.io/greenroom/">Greenroom</a></h3>
         <div class="copy rv">
           <p class="desc">Starts a whole morning class in one click: OBS virtual camera, Zoom and a tiled layout.</p>
@@ -275,8 +286,8 @@
           <img src="assets/greenroom-tall.jpg" alt="The Greenroom website" width="1280" height="2400" loading="lazy">
         </figure>
       </article>
-      <article class="proj" id="p-abhishri" data-n="07" data-name="Abhishri Academy" data-tag="Web, iOS · school ERP" data-kind="tall" data-src="assets/abhishri-tall.jpg" data-host="abhishri-academy.web.app/public-calendar" style="--shot:url(assets/abhishri-tall.jpg);--fy:44%">
-        <p class="eyebrow mono"><span><b>07</b> — Web, iOS · school ERP</span></p>
+      <article class="proj" id="p-abhishri" data-n="07" data-name="Abhishri Academy" data-tag="Web, iOS · school ERP" data-kind="tall" data-src="assets/abhishri-tall.jpg" data-host="abhishri-academy.web.app/public-calendar" style="--shot:url(assets/abhishri-tall.jpg);--fy:44%;--sk-ac:#f26b65;--sk-font:\'Playfair Display\';--sk-w:400">
+        <p class="eyebrow mono"><span><img class="mk wide" src="assets/abhishri-mark.png" alt="" height="30"><b>07</b> — Web, iOS · school ERP</span></p>
         <h3 class="pname"><a class="t" href="https://abhishri-academy.web.app/public-calendar">Abhishri Academy</a></h3>
         <div class="copy rv">
           <p class="desc">Attendance, fees and receipts for staff, an iOS app, and a portal for parents.</p>
@@ -286,8 +297,8 @@
           <img src="assets/abhishri-tall.jpg" alt="The Abhishri Academy website" width="1280" height="2400" loading="lazy">
         </figure>
       </article>
-      <article class="proj" id="p-snof" data-n="08" data-name="SNOF" data-tag="Web · farm dashboard" data-kind="wide" data-src="assets/snof-shot.jpg" data-host="snof-live.web.app" style="--shot:url(assets/snof-shot.jpg);--fy:47%">
-        <p class="eyebrow mono"><span><b>08</b> — Web · farm dashboard</span></p>
+      <article class="proj" id="p-snof" data-n="08" data-name="SNOF" data-tag="Web · farm dashboard" data-kind="wide" data-src="assets/snof-shot.jpg" data-host="snof-live.web.app" style="--shot:url(assets/snof-shot.jpg);--fy:47%;--sk-ac:#34c27a;--sk-font:\'Manrope\';--sk-w:500">
+        <p class="eyebrow mono"><span><img class="mk" src="assets/snof-mark.png" alt="" height="30"><b>08</b> — Web · farm dashboard</span></p>
         <h3 class="pname"><a class="t" href="https://snof-live.web.app/">SNOF</a></h3>
         <div class="copy rv">
           <p class="desc">Every room, sensor and switch on the farm, live from Home Assistant.</p>
