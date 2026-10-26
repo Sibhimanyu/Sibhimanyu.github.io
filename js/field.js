@@ -351,7 +351,9 @@ async function boot() {
     x.font = font(fs); x.letterSpacing = `${-fs * 0.01}px`; x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillStyle = '#fff';
     const bh = (n * capR + (n - 1) * gap) * fs;
     /* the band state is the biggest the group gets (the eyebrow rises and the sentence drops), so that is what is centred */
-    const hh = mobile ? Math.max(H * 0.15, bh / 2 + 30) : Math.max(H * 0.21, bh / 2 + 34), dy0 = hh - bh / 2 + 6;
+    /* on a phone the band takes as much of the screen as the copy leaves (up to ~56%), so the page inside reads */
+    const fitHH = (hi - lo - (EY + bh + GAP + ch + 18)) / 2 + bh / 2 - 6;
+    const hh = mobile ? Math.max(bh / 2 + 30, Math.min(H * 0.28, fitHH)) : Math.max(H * 0.21, bh / 2 + 34), dy0 = hh - bh / 2 + 6;
     const gtop = lo + dy0 + Math.max(0, (hi - lo - (EY + bh + GAP + ch + 2 * dy0 + 18)) / 2), top = gtop + EY;
     let l = 1e9, r = -1e9;
     lines.forEach((ln, i) => {
