@@ -136,10 +136,10 @@ async function boot() {
     uniforms: { uTex: { value: null }, uMask: { value: null }, uDist: { value: null }, uShow: { value: 0 }, uOp: { value: 1 }, uK: { value: 0 },
       uS: { value: 1 }, uMaxD: { value: 300 }, uRmax: { value: 100 }, uPx: { value: new THREE.Vector2(1, 1) }, uT: { value: new THREE.Vector2() },
       uImgC: { value: new THREE.Vector2() }, uImgS: { value: new THREE.Vector2(1, 1) }, uFade: { value: new THREE.Vector2(20, 60) },
-      uBand: { value: new THREE.Vector4() }, uGlow: { value: new THREE.Vector3() } },
+      uBand: { value: new THREE.Vector4() }, uGlow: { value: new THREE.Vector3() }, uGl: { value: 1 } },
     vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
     fragmentShader: `
-      uniform sampler2D uTex, uMask, uDist; uniform float uShow, uOp, uK, uS, uMaxD, uRmax; uniform vec2 uPx, uT, uImgC, uImgS, uFade; uniform vec4 uBand; uniform vec3 uGlow; varying vec2 vUv;
+      uniform sampler2D uTex, uMask, uDist; uniform float uShow, uOp, uK, uS, uMaxD, uRmax; uniform vec2 uPx, uT, uImgC, uImgS, uFade; uniform vec4 uBand; uniform vec3 uGlow; uniform float uGl; varying vec2 vUv;
       float h(vec2 p){ p = fract(p*vec2(123.34, 456.21)); p += dot(p, p+45.32); return fract(p.x*p.y); }
       float vn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
         return mix(mix(h(i), h(i+vec2(1,0)), f.x), mix(h(i+vec2(0,1)), h(i+vec2(1,1)), f.x), f.y); }
@@ -173,10 +173,10 @@ async function boot() {
           c = mix(c, vec3(1., 0.302, 0.122), edge);                                // accent glow where it breaks up
           a = max(a, edge * 0.95);
         }
-        float tf = smoothstep(70., 230., uPx.y - px.y);                            // whatever drifts up under the nav fades out before it
+        float tf = smoothstep(120., 360., uPx.y - px.y);                            // whatever drifts up under the nav fades out before it
         float a2 = a * cover * inside * uOp * tf;
         vec2 gq = (hp - uBand.xy) / vec2(uBand.z * 1.05, uBand.w * 2.4);          // the faintest wash of the brand colour behind the type
-        float g = 0.045 * uOp * exp(-dot(gq, gq) * 1.6);
+        float g = 0.045 * uGl * exp(-dot(gq, gq) * 1.6);
         float al = a2 + (1. - a2) * g;
         gl_FragColor = vec4((c * a2 + uGlow * (1. - a2) * g) / max(al, 1e-4), al);
       }`
@@ -359,7 +359,7 @@ async function boot() {
       const m = x.measureText(ln); l = Math.min(l, W / 2 - m.actualBoundingBoxLeft); r = Math.max(r, W / 2 + m.actualBoundingBoxRight);
     });
     const mask = new THREE.CanvasTexture(c);
-    mask.minFilter = THREE.LinearFilter; mask.magFilter = THREE.LinearFilter; mask.generateMipmaps = false;
+    mask.minFilter = THREE.LinearMipmapLinearFilter; mask.magFilter = THREE.LinearFilter; mask.generateMipmaps = true;   // mipmapped: a small, arriving name keeps its counters
     renderer.initTexture(mask);
     const dist = distTexture(c);
     // particle target (the first project only; the others arrive by flowing, never by particles)
@@ -424,7 +424,7 @@ async function boot() {
   /* p walks the particle path below (0 hero, 1 RasanAI's letters, 2 drift, 3 divider phrase, 4 drift, 5 dots, 6 = index handoff via dr);
      S[j] is each project's own progress: arr arriving, cp copy in, k type -> band, sc page pan, ex leaving */
   const PATH = [0, 1, 11, 6, 11, 10, 11];
-  const state = { p: 0, h: 0, dr: 0 };
+  const state = { p: 0, h: 0, dr: 0, pv: 1 };      // pv: particles allowed to show (hero, the divider phrase, the index dots)
   const S = Array.from({ length: 8 }, () => ({ arr: 0, cp: 0, k: 0, sc: 0, ex: 0 }));
   const lastDot = Array.from({ length: 8 }, () => null);
   function updateDots() {
@@ -451,11 +451,11 @@ async function boot() {
   /* Where a project sits on the screen and how far it has become a band. */
   const eo3 = v => 1 - Math.pow(1 - v, 3);
   function geom(j) {
-    const pi = planeInfo[j], s = S[j], bb = pi.bb, e = smooth(clamp(s.arr)), sc0 = mobile ? 0.34 : 0.28;
+    const pi = planeInfo[j], s = S[j], bb = pi.bb, e = Math.pow(smooth(clamp(s.arr)), 2), sc0 = mobile ? 0.34 : 0.28;
     const scale = sc0 + (1 - sc0) * e;
     const sx = pi.right ? W * (mobile ? 0.7 : 0.74) : W * (mobile ? 0.3 : 0.26), sy = H * (mobile ? 0.86 : 0.8);
     const exE = smooth(s.ex), shift = exE * (bb.cy + pi.hh + 90);
-    return { scale, cx: sx + (bb.cx - sx) * e, cy: sy + (bb.cy - sy) * e - shift, shift, op: smooth(clamp(s.arr / 0.3)) * (1 - smooth((s.ex - 0.55) / 0.45)) };
+    return { scale, cx: sx + (bb.cx - sx) * e, cy: sy + (bb.cy - sy) * e - shift, shift, op: smooth(clamp(s.arr / 0.3)) * (1 - smooth((s.ex - 0.15) / 0.4)) };
   }
   function placeInst(I, j, show) {
     const pi = planeInfo[j], s = S[j], bb = pi.bb, fr = pi.frame, u = planes[I].u, g = geom(j);
@@ -469,6 +469,7 @@ async function boot() {
     u.uBand.value.set(bb.cx, H - bb.cy, bb.w / 2, pi.bh / 2 + 6 + (pi.hh - pi.bh / 2) * s.k);
     u.uRmax.value = pi.dy0 + 0.35 * pi.bh + 20;
     u.uFade.value.set(pi.hh * 2 * 0.1, pi.hh * 2 * 0.2);
+    u.uGl.value = smooth(clamp((s.arr - 0.8) / 0.2)) * (1 - smooth(s.ex / 0.4));
     u.uGlow.value.set(pi.glow[0], pi.glow[1], pi.glow[2]);
     /* the copy rides the composition: the eyebrow rises and the sentence drops as the type becomes a band, both travel up with it */
     const co = smooth(clamp((s.cp - 0.1) / 0.9)) * (1 - smooth(s.ex / 0.3)), kk = smooth(s.k);
@@ -506,10 +507,10 @@ async function boot() {
       for (let I = 0; I < 2; I++) {
         const a = act[I];
         if (!a) { planes[I].mesh.visible = false; continue; }
-        show = Math.max(show, placeInst(I, a[0], a[1]));
+        const sv = placeInst(I, a[0], a[1]); if (a[0] === 0 && state.p < 1) show = Math.max(show, sv);
       }
     } else planes.forEach(pl => { pl.mesh.visible = false; });
-    u.uShow.value = show;
+    u.uShow.value = Math.max(show, 1 - state.pv);
     u.uF.value = f; u.uT.value += dt; u.uVel.value = vel; u.uPtrK.value = ptrK;
     renderer.render(scene, camera);
   }
@@ -590,6 +591,10 @@ async function boot() {
         .to(state, { p: 3, duration: EXIT }, TL.ex0[4])
         .to(state, { p: 4, duration: 1.0 }, dvEnd)
         .to(state, { p: 5, duration: EXIT }, TL.ex0[7]);
+      tl.to(state, { pv: 0, duration: 0.25, ease: 'none' }, TL.L[0] + 0.05)
+        .to(state, { pv: 1, duration: 0.4, ease: 'none' }, TL.ex0[4])
+        .to(state, { pv: 0, duration: 0.7, ease: 'none' }, dvEnd + 0.2)
+        .to(state, { pv: 1, duration: 0.5, ease: 'none' }, TL.ex0[7]);
       projEls.forEach((el, j) => {
         const s = S[j]; Object.assign(s, { arr: j === 0 ? 1 : 0, cp: 0, k: 0, sc: 0, ex: 0 });
         gsap.set([$('.eyebrow', el), $('.copy', el)], { opacity: 0 });
@@ -604,7 +609,7 @@ async function boot() {
       /* index: the 8 dots land on the DOM rows, then the field loosens into the drift behind it */
       ScrollTrigger.create({ trigger: indexEl, start: 'top bottom', end: 'top 38%', scrub: true, onUpdate: s => { state.h = s.progress; } });
       ScrollTrigger.create({ trigger: indexEl, start: 'top 38%', end: 'top -15%', scrub: true, onUpdate: s => { state.dr = s.progress; indexEl.style.setProperty('--dot', clamp(s.progress * 4).toFixed(3)); } });
-      window.__sq = { state, S, tl, st: pinST, TOTAL, TL, dvSnap, dvEnd, FILLED, snapPts, planeInfo, setNoSnap: v => { noSnap = v; }, N: () => N };
+      window.__sq = { geom, state, S, tl, st: pinST, TOTAL, TL, dvSnap, dvEnd, FILLED, snapPts, planeInfo, setNoSnap: v => { noSnap = v; }, N: () => N };
     });
   }
 
