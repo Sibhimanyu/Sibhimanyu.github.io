@@ -173,7 +173,7 @@ async function boot() {
           c = mix(c, vec3(1., 0.302, 0.122), edge);                                // accent glow where it breaks up
           a = max(a, edge * 0.95);
         }
-        float tf = smoothstep(120., 360., uPx.y - px.y);                            // whatever drifts up under the nav fades out before it
+        float tf = 1.;
         float a2 = a * cover * inside * uOp * tf;
         vec2 gq = (hp - uBand.xy) / vec2(uBand.z * 1.05, uBand.w * 2.4);          // the faintest wash of the brand colour behind the type
         float g = 0.045 * uGl * exp(-dot(gq, gq) * 1.6);
@@ -453,11 +453,22 @@ async function boot() {
   /* Where a project sits on the screen and how far it has become a band. */
   const eo3 = v => 1 - Math.pow(1 - v, 3);
   function geom(j) {
-    const pi = planeInfo[j], s = S[j], bb = pi.bb, e = Math.pow(smooth(clamp(s.arr)), 2), sc0 = mobile ? 0.34 : 0.28;
-    const scale = sc0 + (1 - sc0) * e;
-    const sx = pi.right ? W * (mobile ? 0.7 : 0.74) : W * (mobile ? 0.3 : 0.26), sy = H * (mobile ? 0.86 : 0.8);
-    const exE = smooth(s.ex), shift = exE * (bb.cy + pi.hh + 90);
-    return { scale, cx: sx + (bb.cx - sx) * e, cy: sy + (bb.cy - sy) * e - shift, shift, op: smooth(clamp(s.arr / 0.3)) * (1 - smooth((s.ex - 0.15) / 0.4)) };
+    const pi = planeInfo[j], s = S[j], bb = pi.bb, sc0 = mobile ? 0.34 : 0.28;
+    if (s.ex <= 0) {                                                      // arriving: small at the bottom corner, growing into the letters
+      const e = Math.pow(smooth(clamp(s.arr)), 2), scale = sc0 + (1 - sc0) * e;
+      const sx = pi.right ? W * (mobile ? 0.7 : 0.74) : W * (mobile ? 0.3 : 0.26), sy = H * (mobile ? 0.86 : 0.8);
+      const cx = sx + (bb.cx - sx) * e, cy = sy + (bb.cy - sy) * e;
+      return { scale, cx, cy, dx: cx - bb.cx, dy: cy - bb.cy, op: smooth(clamp(s.arr / 0.3)) };
+    }
+    /* leaving, mirroring the next project's arrival: shrink toward the top corner opposite to where the next one enters
+       (the same curve as its growth, run backwards), park just under the nav, then slide out through the corner and fade */
+    const nextRight = (j + 1) % 2 === 1, left = nextRight;
+    const hx = left ? W * (mobile ? 0.3 : 0.26) : W * (mobile ? 0.7 : 0.74);
+    const yT = Math.max(H * (mobile ? 0.14 : 0.2), 88 + pi.hh * sc0 + 6);
+    const u1 = clamp(s.ex / 0.75), u2 = smooth(clamp((s.ex - 0.75) / 0.25));
+    const e = Math.pow(smooth(1 - u1), 2), scale = sc0 + (1 - sc0) * e;
+    const cx = hx + (bb.cx - hx) * e + (left ? -1 : 1) * u2 * W * 0.1, cy = yT + (bb.cy - yT) * e - u2 * (yT + pi.hh * sc0 + 40);
+    return { scale, cx, cy, dx: cx - bb.cx, dy: cy - bb.cy, op: 1 - u2 };
   }
   function placeInst(I, j, show) {
     const pi = planeInfo[j], s = S[j], bb = pi.bb, fr = pi.frame, u = planes[I].u, g = geom(j);
@@ -474,10 +485,10 @@ async function boot() {
     u.uGl.value = smooth(clamp((s.arr - 0.8) / 0.2)) * (1 - smooth(s.ex / 0.4));
     u.uGlow.value.set(pi.glow[0], pi.glow[1], pi.glow[2]);
     /* the copy rides the composition: the eyebrow rises and the sentence drops as the type becomes a band, both travel up with it */
-    const co = smooth(clamp((s.cp - 0.1) / 0.9)) * (1 - smooth(s.ex / 0.3)), kk = smooth(s.k);
+    const co = smooth(clamp((s.cp - 0.1) / 0.9)) * (1 - smooth(s.ex / 0.22)), kk = smooth(s.k);
     pi.eb.style.opacity = co; pi.cp.style.opacity = co;
-    pi.eb.style.transform = `translateY(${(-pi.dy0 * kk - g.shift).toFixed(1)}px)`;
-    pi.cp.style.transform = `translateY(${((pi.dy0 + 12) * kk - g.shift).toFixed(1)}px)`;
+    pi.eb.style.transform = `translate(${g.dx.toFixed(1)}px, ${(-pi.dy0 * kk + g.dy).toFixed(1)}px)`;
+    pi.cp.style.transform = `translate(${g.dx.toFixed(1)}px, ${((pi.dy0 + 12) * kk + g.dy).toFixed(1)}px)`;
     const live = s.arr > 0.99 && s.k < 0.01 && s.ex < 0.01 && co > 0.9;           // the letters-as-link only while they sit still as letters
     if (pi.live !== live) { pi.live = live; pi.a.style.pointerEvents = live ? 'auto' : 'none'; pi.a.tabIndex = live ? 0 : -1; }
     return Math.max(g.op * show, 0);
@@ -526,7 +537,7 @@ async function boot() {
        letters (the next L). Two projects are on screen throughout the hand-over; nothing breaks into particles between them.
      Particles appear only where they always did: hero -> RasanAI's letters, the divider phrase between Imago and Greenroom
      (Greenroom then grows in small from the opposite side), and the index dots after SNOF. */
-  const MOVE = 0.9, H0 = 0.5, HOLD_L = 0.6, MORPH = 1.0, EXIT = 1.6, ARR_DV = 1.6, DV_HOLD = 0.7, HOLDQ = 0.6, FILLED = 0.1;
+  const MOVE = 0.9, H0 = 0.5, HOLD_L = 0.6, MORPH = 1.0, EXIT = 1.6, ARR_DV = 1.6, DV_HOLD = 0.9, HOLDQ = 0.6, FILLED = 0.1;
   const scrollLen = j => projEls[j].dataset.kind === 'wide' ? 0.5 : 2.6;
   const TL = { L: [], arr0: [], band0: [], band1: [], pan1: [], ex0: [], ex1: [] };
   let dvSnap = 0, dvEnd = 0, TOTAL = 0;
@@ -590,20 +601,20 @@ async function boot() {
       /* particles: hero -> RasanAI letters; (hidden) -> drift; Imago's exit -> the divider phrase; phrase -> drift as Greenroom arrives; SNOF's exit -> dots */
       tl.to(state, { p: 1, duration: MOVE }, H0)
         .to(state, { p: 2, duration: 0.5 }, TL.L[1] + 0.5)
-        .to(state, { p: 3, duration: EXIT }, TL.ex0[4])
+        .to(state, { p: 3, duration: EXIT - 0.3 }, TL.ex0[4] + 0.6)
         .to(state, { p: 4, duration: 1.0 }, dvEnd)
-        .to(state, { p: 5, duration: EXIT }, TL.ex0[7]);
+        .to(state, { p: 5, duration: EXIT - 0.3 }, TL.ex0[7] + 0.6);
       tl.to(state, { pv: 0, duration: 0.25, ease: 'none' }, TL.L[0] + 0.05)
-        .to(state, { pv: 1, duration: 0.4, ease: 'none' }, TL.ex0[4])
+        .to(state, { pv: 1, duration: 0.4, ease: 'none' }, TL.ex0[4] + 0.6)
         .to(state, { pv: 0, duration: 0.7, ease: 'none' }, dvEnd + 0.2)
-        .to(state, { pv: 1, duration: 0.5, ease: 'none' }, TL.ex0[7]);
+        .to(state, { pv: 1, duration: 0.5, ease: 'none' }, TL.ex0[7] + 0.6);
       projEls.forEach((el, j) => {
         const s = S[j]; Object.assign(s, { arr: j === 0 ? 1 : 0, cp: 0, k: 0, sc: 0, ex: 0 });
         gsap.set([$('.eyebrow', el), $('.copy', el)], { opacity: 0 });
         tl.set(el, { autoAlpha: 1 }, TL.arr0[j] - 0.05)
           .set(el, { autoAlpha: 0 }, TL.ex1[j] + 0.02);
         if (j > 0) tl.to(s, { arr: 1, duration: TL.L[j] - TL.arr0[j], ease: 'none' }, TL.arr0[j]);
-        tl.to(s, { cp: 1, duration: 0.6, ease: 'none' }, TL.L[j] - 0.6)
+        tl.to(s, { cp: 1, duration: 0.3, ease: 'none' }, TL.L[j] - 0.3)
           .to(s, { k: 1, duration: MORPH, ease: 'power2.inOut' }, TL.band0[j])
           .to(s, { sc: 1, duration: scrollLen(j), ease: 'none' }, TL.band1[j])
           .to(s, { ex: 1, duration: EXIT, ease: 'none' }, TL.ex0[j]);
