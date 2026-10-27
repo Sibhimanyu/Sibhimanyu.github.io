@@ -33,7 +33,7 @@
   (function () {
     var r = document.documentElement;
     r.classList.add('js');
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) r.classList.add('rm', 'nogl', 'fx');
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) r.classList.add('rm', 'nogl', 'fx'); else { r.classList.add('wp'); setTimeout(function () { if (!window.__wpOK) r.classList.remove('wp'); }, 3500); }
     // the plain hero stays hidden until the live field paints; if that has not happened in 2.5 s (modules failed, slow network) show it
     setTimeout(function () { r.classList.add('reveal'); }, 2500);
   })();
@@ -43,7 +43,7 @@
   @font-face { font-family:"Inter Tight"; font-style:normal; font-weight:100 900; font-display:swap; src:url(assets/fonts/inter-tight-latin.woff2) format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
   :root { --bg:#0A0A0A; --fg:#F2F0EB; --ac:#FF4D1F; --dim:rgba(242,240,235,.66); --faint:rgba(242,240,235,.42); --line:rgba(242,240,235,.16);
     --sans:"Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif; --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
-    --pad:clamp(20px,3.1vw,44px); --ease:cubic-bezier(.16,1,.3,1); }
+    --pad:clamp(20px,3.1vw,44px); --cell:4px; --sq:3.6px; --ease:cubic-bezier(.16,1,.3,1); }
   * { box-sizing:border-box; margin:0; padding:0; }
   html { background:var(--bg); scroll-padding-top:72px; }
   body { background:var(--bg); color:var(--fg); font:400 16px/1.55 var(--sans); -webkit-font-smoothing:antialiased; overflow-x:clip; }
@@ -86,7 +86,7 @@
   .note { font-size:.72rem; border:1px solid var(--line); border-radius:999px; padding:4px 11px; color:var(--dim); }
 
   /* Work: one row per project */
-  .work { padding:clamp(72px,10vw,140px) var(--pad) clamp(48px,7vw,96px); }
+  .work { padding:clamp(24px,3.4vw,48px) var(--pad) clamp(48px,7vw,96px); }
   .idx-head { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:20px 40px; margin-bottom:clamp(20px,3vw,40px); }
   .idx-head h2 { font-size:clamp(2.4rem,6vw,5.6rem); font-weight:600; letter-spacing:-.045em; line-height:1; }
   .chips { flex-wrap:wrap; gap:6px; }
@@ -95,7 +95,23 @@
   .chip[aria-pressed="true"] { background:var(--fg); color:var(--bg); border-color:var(--fg); }
   .chip span { margin-left:8px; opacity:.6; font-variant-numeric:tabular-nums; }
   .status { color:var(--dim); font-size:.78rem; margin-bottom:10px; min-height:1.6em; }
-  .idx-list { border-top:1px solid var(--fg); }
+  /* the dotted rule: one element, CSS background dots the size of the portrait's squares, off-white at 45% */
+  .idx-list::before, .rule { content:""; display:block; height:var(--sq,3.6px); background:linear-gradient(90deg,var(--fg) var(--sq,3.6px),transparent 0) 0 0 / var(--cell,4px) 100% repeat-x; opacity:.45; }
+  .idx-list::before { margin-bottom:0; }
+  .bridge { display:flex; align-items:flex-end; height:21vh; padding:0 var(--pad); }
+  .rule { width:100%; --rule:1; clip-path:inset(0 calc((1 - var(--rule)) * 50%)); }
+  @media (max-width:1023px) { .bridge { height:14vh; } }
+  @media (max-width:599px) { .bridge { height:10vh; } }
+  .chip[aria-pressed="true"] { font-weight:700; }
+  .idx-head h2:focus { outline:none; }
+  /* Work arrives in reading order, once: heading, count, filters, divider and rows (80 ms apart, 150 ms each, 390 ms in all); html.wi0 skips it */
+  .wp .work :is(#h-work, #idx-status, .chips, .idx-list > li, .idx-list::before) { transition:opacity .15s ease-out; }
+  .wp:not(.wi) .work :is(#h-work, #idx-status, .chips, .idx-list > li, .idx-list::before) { opacity:0; }
+  .wp .work #idx-status { transition-delay:.08s; }
+  .wp .work .chips { transition-delay:.16s; }
+  .wp .work :is(.idx-list > li) { transition-delay:.24s; }
+  .wp .work .idx-list::before { transition-delay:.24s; }
+  .wi0 .work :is(#h-work, #idx-status, .chips, .idx-list > li, .idx-list::before) { transition:none !important; }
   .idx-list li { --sk-ac:var(--ac); display:grid; grid-template-columns:28px 2.2rem minmax(0,2.1fr) minmax(0,1.3fr) minmax(0,.8fr); gap:8px 24px; align-items:center; padding:clamp(18px,2.4vw,30px) 0; border-bottom:1px solid var(--line); }
   .mk { width:28px; height:28px; object-fit:contain; border-radius:6px; opacity:.85; transition:opacity .25s; }
   .idx-list li:hover .mk, .idx-list li:focus-within .mk { opacity:1; }
@@ -112,6 +128,7 @@
   .l a.go { color:var(--fg); }
   .go span { margin-left:.4em; display:inline-block; transition:transform .25s var(--ease); }
   .go:hover span { transform:translate(3px,-3px); }
+  .idx-list li { transition:opacity .15s ease-out; }
   .idx-list a:focus-visible { outline-color:var(--sk-ac); }
   @media (max-width:860px) {
     .idx-list li { grid-template-columns:28px minmax(0,1fr); gap:6px 14px; }
@@ -142,37 +159,21 @@
   .fx .rv.in { opacity:1; transform:none; }
 
 
-  /* Live: one full-screen canvas of 1-bit squares sits behind the page (portrait.js) */
-  .live #portrait { display:block; position:fixed; left:0; top:0; margin:0; z-index:0; pointer-events:none; }
+  /* Live: the hero is one composition (canvas, name, text) that scrolls away with the page; no pin, no hand-over (portrait.js draws it once) */
   .live main, .live footer { position:relative; z-index:1; }
-  .live .idx-list { border-top-color:rgba(242,240,235,var(--rv,0)); }
-  /* The hand-over stage is pure CSS geometry, so it rides the compositor with the scroll and cannot lag it:
-     the hero is one stable-height screen (--H, the small viewport, so a phone's address bar never moves it); the Work section starts
-     at its final screen position (--wtop) and is sticky there for --pin px of scroll (the .stage-tail spacer ends the pin), then
-     scrolls on from exactly that spot. portrait.js only draws squares and fades text, as a function of scroll progress. */
-  .live .hero { position:relative; height:var(--H,100svh); min-height:0; padding:0; display:block; }
-  .live .work-run { position:relative; margin-top:calc(var(--wtop,12svh) - var(--H,100svh)); }
-  .live .work { position:sticky; top:var(--wtop,12svh); z-index:2; padding-top:clamp(32px,4vw,56px); }
-  .live .stage-tail { height:var(--pin,160svh); }
-  .live:not(.handed) .work { pointer-events:none; }
-  .stage-tail { display:none; }
-  .live .stage-tail { display:block; }
-  .live .hero h1 { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
-  .live .hero-ov, .st .hero-ov { pointer-events:none; z-index:1; }
-  .live .hero-ov { position:fixed; left:0; top:0; width:100%; height:var(--H,100svh); }
-  .st .hero-ov { position:absolute; left:0; top:0; width:100%; height:100%; }
+  .st .hero-ov { pointer-events:none; z-index:1; position:absolute; left:0; top:0; width:100%; height:100%; }
   .eyebrow { font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint); margin-bottom:14px; }
-  :is(.live,.st) .eyebrow, :is(.live,.st) .tagline, :is(.live,.st) .hint { display:block; position:absolute; }
-  :is(.live,.st) .eyebrow { left:var(--pad); top:var(--eyeTop,26%); font-size:clamp(11px,.84vw,14px); line-height:1; letter-spacing:.2em; text-transform:uppercase; color:rgba(242,240,235,.5); white-space:nowrap; animation:rise 1.2s var(--ease) .9s both; }
-  :is(.live,.st) .tagline { left:var(--pad); top:var(--tagTop,58%); max-width:none; font-size:clamp(17px,1.44vw,24px); font-weight:400; line-height:1.33; letter-spacing:-.012em; text-wrap:wrap; color:rgba(242,240,235,.94); animation:rise 1.2s var(--ease) 1.1s both; pointer-events:auto; }
-  :is(.live,.st) .hint { left:0; width:87%; bottom:5.5%; text-align:center; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:rgba(242,240,235,.78); text-shadow:0 0 6px #0A0A0A, 0 0 12px #0A0A0A; animation:rise 1.2s var(--ease) 1.5s both; }
+  .st .eyebrow, .st .tagline, .st .hint { display:block; position:absolute; }
+  .st .eyebrow { left:var(--pad); top:var(--eyeTop,26%); font-size:clamp(11px,.84vw,14px); line-height:1; letter-spacing:.2em; text-transform:uppercase; color:rgba(242,240,235,.5); white-space:nowrap; animation:rise 1.2s var(--ease) .9s backwards; }
+  .st .tagline { opacity:calc(1 - var(--hp,0) * .35); left:var(--pad); top:var(--tagTop,58%); max-width:none; font-size:clamp(17px,1.44vw,24px); font-weight:400; line-height:1.33; letter-spacing:-.012em; text-wrap:wrap; color:rgba(242,240,235,.94); animation:rise 1.2s var(--ease) 1.1s backwards; pointer-events:auto; }
+  .st .hint { opacity:calc(1 - var(--hp,0) * 9); left:0; width:87%; bottom:5.5%; text-align:center; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:rgba(242,240,235,.78); text-shadow:0 0 6px #0A0A0A, 0 0 12px #0A0A0A; animation:rise 1.2s var(--ease) 1.5s backwards; }
   .hint .arr { display:block; position:relative; width:1px; height:56px; margin:14px auto 0; background:rgba(242,240,235,.8); animation:nudge 2.4s ease-in-out 2.5s infinite; }
   .hint .arr::after { content:""; position:absolute; left:-3.5px; bottom:0; width:7px; height:7px; border-right:1px solid rgba(242,240,235,.8); border-bottom:1px solid rgba(242,240,235,.8); transform:translateY(-1px) rotate(45deg) scale(.9); transform-origin:center; }
   @keyframes rise { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
   @keyframes nudge { 0%,60%,100% { transform:none; } 30% { transform:translateY(5px); } }
   /* static composition (reduced motion): the same hero, drawn once, no scroll hand-over */
-  .st .hero { position:relative; height:var(--H,100svh); min-height:0; padding:0; display:block; }
-  .st #portrait { display:block; position:absolute; left:0; top:0; margin:0; pointer-events:none; }
+  .st .hero { overflow:clip; position:relative; height:var(--H,100svh); min-height:0; padding:0; display:block; }
+  .st #portrait { display:block; position:absolute; left:0; top:0; margin:0; pointer-events:none; -webkit-mask-image:linear-gradient(#000 95%,transparent); mask-image:linear-gradient(#000 95%,transparent); }
   .st .hero h1 { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
   .live .work, .live .foot, .live .closing, .live .foot-note { background:transparent; }
   /* the glyph preview that follows the pointer over a row (fine pointers only) */
@@ -181,9 +182,9 @@
   @media (hover:none), (pointer:coarse) { .live #thumb.on { display:none; } }
   @media (max-width:760px) {
     .dk { display:none; }
-    :is(.live,.st) .eyebrow { font-size:12px; }
-    :is(.live,.st) .tagline { left:var(--pad); max-width:min(62vw,320px); font-size:17px; line-height:1.3; }
-    :is(.live,.st) .hint { left:0; width:100%; bottom:30px; }
+    .st .eyebrow { font-size:12px; }
+    .st .tagline { left:var(--pad); max-width:min(62vw,320px); font-size:17px; line-height:1.3; }
+    .st .hint { left:0; width:100%; bottom:30px; }
     .js .nav ul { display:none; }
     .js .burger { position:relative; display:block; width:44px; height:44px; margin-right:-8px; z-index:2; }
     .burger span { position:absolute; left:9px; right:9px; height:1.5px; background:var(--fg); transition:transform .3s var(--ease), opacity .2s; }
@@ -197,7 +198,7 @@
     .menu-open .nav { background:transparent; -webkit-backdrop-filter:none; backdrop-filter:none; }
     .menu-open .nav::after { display:none; }
   }
-  @media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto !important; } .tagline, .hint, .eyebrow, .hint .arr { animation:none !important; } }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto !important; transition:none !important; } .rule { clip-path:none; } .tagline, .hint, .eyebrow, .hint .arr { animation:none !important; } }
 
 </style>
 </head>
@@ -230,10 +231,10 @@
     </div>
   </section>
 
-  <div class="work-run">
+  <div class="bridge" aria-hidden="true"><i class="rule"></i></div>
   <section class="work" id="work" aria-labelledby="h-work">
     <div class="idx-head">
-      <h2 id="h-work">Work</h2>
+      <h2 id="h-work" tabindex="-1">Work</h2>
       <div class="chips js-only" role="group" aria-label="Filter projects">
         <button type="button" class="chip" data-f="all" aria-pressed="true">All<span>8</span></button>
         <button type="button" class="chip" data-f="agents" aria-pressed="false">AI agents<span>5</span></button>
@@ -300,8 +301,6 @@
       </li>
     </ol>
   </section>
-  <div class="stage-tail" aria-hidden="true"></div>
-  </div>
 </main>
 
 <footer class="foot">

@@ -16,11 +16,10 @@
         r.hidden = !show;
         if (show) {
           n++;
-          if (r.animate && !root.classList.contains('rm')) r.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: n * 35, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'backwards' });
+          if (r.animate && !root.classList.contains('rm')) r.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160, easing: 'ease-out', fill: 'backwards' });
         }
       });
       say(n);
-      window.dispatchEvent(new CustomEvent('sq:layout'));
     });
     chip.addEventListener('keydown', function (e) {
       var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
@@ -29,6 +28,30 @@
       chips[(i + d + chips.length) % chips.length].focus();
     });
   });
+
+  /* ---- Work: arrives once, in reading order (CSS does the stagger); an anchor, a deep link or a fast scroll shows it finished ---- */
+  var work = document.getElementById('work'), h2 = document.getElementById('h-work');
+  function enter(instant) { if (instant) root.classList.add('wi0'); root.classList.add('wi'); }
+  function toWork(e) {
+    if (!work) return;
+    if (e) { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); }
+    enter(true); work.scrollIntoView({ behavior: 'auto', block: 'start' });
+    try { history.replaceState(null, '', '#work'); } catch (_) {}
+    if (h2) h2.focus({ preventScroll: true });
+  }
+  if (work) {
+    window.__wpOK = true;
+    $$('a[href="#work"]').forEach(function (a) { a.addEventListener('click', toWork); });
+    if (!('IntersectionObserver' in window)) enter(true);
+    else {
+      var wio = new IntersectionObserver(function (l) {
+        if (!l.some(function (x) { return x.isIntersecting; })) return;
+        wio.disconnect(); enter(work.getBoundingClientRect().top < innerHeight * 0.4);
+      }, { rootMargin: '0px 0px -12% 0px' });
+      wio.observe(work);
+    }
+    if (location.hash === '#work') { enter(true); addEventListener('load', function () { if (h2) h2.focus({ preventScroll: true }); }); }
+  }
 
   /* ---- Phone menu: a button that opens a full-screen list; Esc or a link closes it ---- */
   var burger = document.getElementById('burger'), menu = document.getElementById('menu');

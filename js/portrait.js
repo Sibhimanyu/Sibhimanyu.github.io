@@ -1,10 +1,8 @@
-/* The hero and its hand-over to the Work list: one canvas of 1-bit squares.
-   At rest it is the name and a portrait of the site owner (a photo, cut out, tone-mapped and ordered-dithered).
-   Scrolling away, the squares rain down and re-gather as the project names of the Work list, row rules included;
-   the DOM rows take over once they have settled. The hand-over is a function of one smoothed scroll progress p (see frame()); the Work
-   section sits sticky at its final place under the fixed canvas (CSS), so targets are work-local numbers measured once per layout.
-   Composition: the name sits BEHIND the portrait on a desktop (name squares are dropped wherever the portrait has coverage) and above it on a phone;
-   a seeded halo of stray small squares fades out around the silhouette. Squares near a mouse shrink (hover.js). Reduced motion / no canvas: drawn once, static. */
+/* The hero: one canvas of sized squares, drawn once. A portrait of the site owner (a photo, cut out, tone-mapped and ordered-dithered) with a
+   seeded halo of stray small squares, and his name BEHIND him on a desktop (name squares are dropped wherever the portrait has coverage) or
+   above him on a phone. It scrolls away with the page like any other content: no pinned stage, no per-square animation on scroll.
+   What runs: the develop-in on load, the blink, the mouse effect (hover.js, mouse only) and one rAF-throttled scroll controller that writes
+   CSS custom properties (--hp hero progress, --rule the bridge's dotted rule). Reduced motion / no canvas: drawn once, static, no listeners. */
 
 import { createHover } from './hover.js';
 const root = document.documentElement;
@@ -19,6 +17,8 @@ const canvas = document.getElementById('portrait');
 const IMG_P = new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = 'assets/portrait-src.webp'; });
 const mark = n => { try { performance.mark('hero-' + n); } catch (e) {} };
 let nameOn = true, nameT = 0;
+let g = null, hero = null, lastVP = null, live = false, running = false, raf = 0, tDev = 0, IMG = null, blinkT0 = -1e9, blinkDbl = false, blinkFreeze = null;
+const ptr = { x: -1e5, y: -1e5, on: false };
 
 /* ------------------------------------------------------------------ tone mapping (the approved panel B) */
 /* local contrast against a box-blurred mean/std, a histogram equalisation and the raw tone, 3x supersampled, averaged to the grid */
@@ -109,11 +109,6 @@ function rasterText(text, font, ls, x, base, fs, align, wEst, cell) {
   return out;
 }
 
-/* ------------------------------------------------------------------ the field */
-let wtop = 100, lastVP = null, g = null, hero = null, rowsData = [], listEl = null, headEl = null, heroOv = null, workEl = null, statusEl = null;
-let live = false, running = false, raf = 0, tPrev = 0, tDev = 0, T = 1, pS = 0, pInit = false, cleared = false, lastHeroOp = -1, lastHeadOp = -1;
-let nextBlink = 0, blinkT0 = -1e9, blinkDbl = false, blinkFreeze = null; const blocks = [], rv = new Float32Array(32); let headDoc = null;
-const ptr = { x: -1e5, y: -1e5, on: false, touch: false };
 
 /* page-grid helpers: a square is a cell (C, R) of the page-wide grid; the halo is a seeded scatter of small squares whose density falls with the
    distance (to ~80 px) from the silhouette, so it is the same on every load and static at rest */
@@ -172,80 +167,6 @@ function buildHero() {
   return h;
 }
 
-/* a project row: its name and its bottom rule as ON cells, in document coordinates */
-function rowCells(li) {
-  const a = li.querySelector('.who a'), cell = g.cell, sy = -workEl.getBoundingClientRect().top, rect = a.getBoundingClientRect(), cs = getComputedStyle(a);
-  const probe = document.createElement('span'); probe.style.cssText = 'display:inline-block;width:0;height:0'; a.appendChild(probe);
-  const base = probe.getBoundingClientRect().bottom + sy; probe.remove();
-  const fs = parseFloat(cs.fontSize), font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`, ls = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing;
-  const nm = rasterText(a.textContent.trim(), font, ls, rect.left, base, fs, 'left', rect.width + 4, cell), xs = [], ys = [], vs = [];
-  for (let i = 0; i < nm.length; i += 2) { xs.push(nm[i] * cell); ys.push(nm[i + 1] * cell); vs.push(1); }
-  const lr = li.getBoundingClientRect(), R = Math.round((lr.bottom + sy - 1) / cell), C0 = Math.ceil(lr.left / cell), C1 = Math.floor(lr.right / cell);
-  for (let C = C0; C < C1; C++) { xs.push(C * cell); ys.push(R * cell); vs.push(0.5); }
-  /* the row's text, as bars of 50% dither where each line sits: the squares gather there too, then the real text fades in over them */
-  const bars = el => { if (!el) return; const rg = document.createRange(); rg.selectNodeContents(el);
-    for (const rc of rg.getClientRects()) { if (rc.width < 6) continue;
-      const r0 = Math.round((rc.top + sy + rc.height * 0.3) / cell), r1 = Math.round((rc.bottom + sy - rc.height * 0.22) / cell), c0 = Math.ceil(rc.left / cell), c1 = Math.floor(rc.right / cell);
-      for (let r = r0; r < r1; r++) for (let c = c0; c < c1; c++) if ((r & 1) === (c & 1)) { xs.push(c * cell); ys.push(r * cell); vs.push(0.45); } } };
-  bars(li.querySelector('.d')); bars(li.querySelector('.who p')); li.querySelectorAll('.l a, .l .note').forEach(bars);
-  return { xs, ys, vs, top: rect.top + sy, bottom: lr.bottom + sy, left: rect.left, width: rect.width, rtop: lr.top + sy };   /* work-local y: screen y = wy + local */
-}
-
-/* Cells are work-local: y measured from the Work section's top, so they do not depend on the scroll. Screen y = wy + local, where wy is
-   the section's top on screen (sticky at --wtop while the stage lasts, scrolling from there after it). */
-const cellsFor = r => r.isHead ? headCells() : rowCells(r.li);
-/* the heading, filter chips, count line and the list's top rule, as squares */
-function headCells() {
-  const sy = -workEl.getBoundingClientRect().top, cell = g.cell, xs = [], ys = [], vs = [], h2 = headEl.querySelector('h2'), cs = getComputedStyle(h2), rect = h2.getBoundingClientRect();
-  const probe = document.createElement('span'); probe.style.cssText = 'display:inline-block;width:0;height:0'; h2.appendChild(probe); const base = probe.getBoundingClientRect().bottom + sy; probe.remove();
-  const ls = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing, nm = rasterText(h2.textContent.trim(), `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`, ls, rect.left, base, parseFloat(cs.fontSize), 'left', rect.width + 4, cell);
-  for (let i = 0; i < nm.length; i += 2) { xs.push(nm[i] * cell); ys.push(nm[i + 1] * cell); vs.push(1); }
-  const bars = (el, dense) => { const rc = el.getBoundingClientRect(); if (rc.width < 6) return;
-    const r0 = Math.round((rc.top + sy + rc.height * 0.28) / cell), r1 = Math.round((rc.bottom + sy - rc.height * 0.28) / cell), c0 = Math.ceil(rc.left / cell), c1 = Math.floor(rc.right / cell);
-    for (let r = r0; r < r1; r++) for (let c = c0; c < c1; c++) if (dense || (r & 1) === (c & 1)) { xs.push(c * cell); ys.push(r * cell); vs.push(dense ? 1 : 0.45); } };
-  headEl.querySelectorAll('.chip').forEach(c => bars(c, c.getAttribute('aria-pressed') === 'true'));
-  if (statusEl) { const rg = document.createRange(); rg.selectNodeContents(statusEl); for (const rc of rg.getClientRects()) if (rc.width > 6) { const r0 = Math.round((rc.top + sy + rc.height * 0.3) / cell), r1 = Math.round((rc.bottom + sy - rc.height * 0.22) / cell), c0 = Math.ceil(rc.left / cell), c1 = Math.floor(rc.right / cell); for (let r = r0; r < r1; r++) for (let c = c0; c < c1; c++) if ((r & 1) === (c & 1)) { xs.push(c * cell); ys.push(r * cell); vs.push(0.45); } } }
-  const lr = listEl.getBoundingClientRect(), R = Math.round((lr.top + sy) / cell), C0 = Math.ceil(lr.left / cell), C1 = Math.floor(lr.right / cell);
-  for (let C = C0; C < C1; C++) { xs.push(C * cell); ys.push(R * cell); vs.push(1); }
-  const hr = headEl.getBoundingClientRect();
-  return { xs, ys, vs, top: hr.top + sy, bottom: lr.top + sy + 2, left: rect.left, width: rect.width, rtop: hr.top + sy };
-}
-function buildRows() {
-  const lis = [...document.querySelectorAll('.idx-list > li')];
-  const prev = new Map(rowsData.map(r => [r.li, r]));
-  const list = [headEl, ...lis];
-  rowsData = list.map((li, i) => {
-    const old = prev.get(li), r = old || { li, i, state: 0, vis: 0, t0: 0, hash: null, isHead: i === 0 };
-    r.i = i; r.cells = null; r.pDriven = false; r.px = null;
-    if (!li.hidden && li.offsetParent) { const c = cellsFor(r); r.cells = c; const vt = wtop + c.top, vb = wtop + c.bottom; r.pDriven = vt > 56 && (g.mobile ? vt < g.H - 60 : vb < g.H - 20); }
-    return r;
-  });
-}
-
-/* source squares (hero) -> target squares (rows), matched left to right so each name gathers from the column above it */
-function assign() {
-  const h = hero, n = h.n; h.trow.fill(-1);
-  const tx = [], ty = [], tr = [];
-  rowsData.forEach(r => { if (!r.cells || !r.pDriven) return; const c = r.cells; for (let k = 0; k < c.xs.length; k++) { tx.push(c.xs[k]); ty.push(c.ys[k]); tr.push(r.i); } });
-  const nt = tx.length; if (!nt) return;
-  const so = Uint32Array.from({ length: n }, (_, i) => i).sort((a, b) => h.x0[a] - h.x0[b] || h.hash[a] - h.hash[b]);
-  const to = Uint32Array.from({ length: nt }, (_, i) => i).sort((a, b) => tx[a] - tx[b] || ty[a] - ty[b]);
-  const nr = Math.max(1, rowsData.length - 1);
-  let seed = 5; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
-  for (let k = 0; k < nt; k++) {
-    const si = so[Math.min(n - 1, Math.floor((k + 0.5) * n / nt))], ti = to[k];
-    h.tx[si] = tx[ti]; h.ty[si] = ty[ti]; h.trow[si] = tr[ti]; h.d[si] = 0.04 + 0.2 * (tr[ti] / nr) + 0.1 * rnd();
-  }
-  for (let i = 0; i < n; i++) if (h.trow[i] < 0) {
-    h.d[i] = 0.02 + 0.3 * (h.y0[i] / g.H) + 0.1 * rnd();
-    /* a phone has few targets: the spare squares still flow to the rows' type and dissolve there instead of falling away */
-    if (g.mobile && nt) { const ti = (rnd() * nt) | 0; h.tx[i] = tx[ti] + (rnd() - 0.5) * g.cell * 8; h.ty[i] = ty[ti] + (rnd() - 0.5) * g.cell * 4; h.trow[i] = -2; h.d[i] = 0.04 + 0.2 * rnd(); }
-  }
-  /* when each row's squares land (progress values, sorted), so its crisp text can wait for them */
-  rowsData.forEach(r => { const a = []; for (let i = 0; i < n; i++) if (h.trow[i] === r.i) a.push(h.d[i] + LAND); r.land = Float32Array.from(a).sort(); });
-}
-const LAND = 0.58;
-const landed = (r, p) => { const a = r.land; if (!a || !a.length) return 1; let lo = 0, hi = a.length; while (lo < hi) { const m = (lo + hi) >> 1; if (a[m] <= p) lo = m + 1; else hi = m; } return lo / a.length; };
 
 /* The stage height is the SMALL viewport (svh): a phone's address bar showing or hiding must never move anything. The canvas is as tall as the
    large viewport so nothing is cut when the bar hides. */
@@ -256,6 +177,12 @@ function viewport() {
   const H = sv > 100 ? sv : ih;
   return { W: innerWidth, H, Hc: Math.max(H, lv > 100 ? lv : 0, ih) };
 }
+
+/* ------------------------------------------------------------------ the field */
+let eyeList = null, fx = null, fastOn = false, blinkOn = false, blinkTimer = 0, bkMode = 0, bkV = 0, bridgeEl = null, hp = -1, rule = -1, sRaf = 0, dpr0 = 1;
+const stats = { calls: 0 };
+const setVar = (k, v) => root.style.setProperty(k, v);
+
 function makeFx() {
   const h = hero;
   eyeList = []; for (let i = 0; i < h.n; i++) if (h.eye[i]) eyeList.push(i);
@@ -263,28 +190,15 @@ function makeFx() {
     sizeOf: (i, z) => { if (!h.eye[i] || !bkMode) return z; const k = blinkK(i); return z * (1 - k) + h.etz[i] * k; } });
 }
 function layout() {
-  const vp = viewport(), W = vp.W, H = vp.H;
-  g = geometry(W, H, vp.Hc); T = Math.round(H * 1.5);   /* scroll distance the Work section stays pinned while the hand-over plays */
-  wtop = Math.round(Math.max(64, H * 0.12));
-  root.style.setProperty('--pin', T + 'px'); root.style.setProperty('--H', H + 'px'); root.style.setProperty('--wtop', wtop + 'px');
-  const dpr = g.dpr;
-  canvas.width = Math.round(W * dpr); canvas.height = Math.round(vp.Hc * dpr); canvas.style.width = W + 'px'; canvas.style.height = vp.Hc + 'px';
-  root.style.setProperty('--tagTop', g.tagTop + 'px'); root.style.setProperty('--eyeTop', g.eyeTop + 'px');
-  hero = buildHero(); buildRows(); assign(); fastOn = false; makeFx();
-  cleared = false; lastVP = vp;
+  const vp = viewport(); g = geometry(vp.W, vp.H, vp.H);
+  setVar('--H', vp.H + 'px'); setVar('--tagTop', g.tagTop + 'px'); setVar('--eyeTop', g.eyeTop + 'px'); setVar('--cell', g.cell + 'px'); setVar('--sq', (g.sqDev / g.dpr) + 'px');
+  canvas.width = Math.round(vp.W * g.dpr); canvas.height = Math.round(vp.H * g.dpr); canvas.style.width = vp.W + 'px'; canvas.style.height = vp.H + 'px';
+  hero = buildHero(); fastOn = false; makeFx(); lastVP = vp;
 }
 
-/* ------------------------------------------------------------------ the field at rest
-   The mouse effect lives in hover.js (squares near a mouse shrink; dirty rects over a bitmap of the resting field). At rest nothing runs on its own:
-   a frame is scheduled by the pointer, by a blink, or by the develop-in, and the loop stops when they are done. */
-let eyeList = null, fx = null, fastOn = false, blinkOn = false, blinkTimer = 0;
-const msLog = [];
-const stats = { calls: 0, active: 0 };
-
 /* Blink: an eyelid, not a flash. The eye's squares shrink to nothing from the top row down (70 ms), hold (40 ms), then reopen bottom-up
-   (110 ms, ease-out). Every 3-7 s, one in six is a double blink; none is started while the pointer is near the face. */
+   (110 ms, ease-out). Every 3-7 s, one in six is a double blink; none is started while the pointer is near the face or the hero is mostly gone. */
 const BL_C = 70, BL_H = 40, BL_O = 110, BL_GAP = 90, BL_D = BL_C + BL_H + BL_O;
-let bkMode = 0, bkV = 0;
 function blinkTick(now) {
   let t = blinkFreeze != null ? blinkFreeze : now - blinkT0; bkMode = 0;
   if (t < 0) return 0;
@@ -293,157 +207,86 @@ function blinkTick(now) {
   if (t < BL_C) { bkMode = 1; bkV = t / BL_C; } else if (t < BL_C + BL_H) { bkMode = 2; bkV = 1; } else { bkMode = 3; bkV = (t - BL_C - BL_H) / BL_O; }
   return bkMode;
 }
-/* how closed this square's lid is (0 open, 1 closed): top rows first when closing, bottom rows first when reopening */
 const blinkK = i => {
   const row = hero.erow[i], nr = hero.enr[i];
   if (bkMode === 1) return clamp(bkV * nr - row);
   if (bkMode === 2) return 1;
   const o = 1 - (1 - bkV) ** 3; return 1 - clamp(o * nr - (nr - 1 - row));
 };
-/* a frame at rest: only the cells the pointer or a blink touches are redrawn; returns true while something is still moving */
-function restFrame(now) {
-  if (!fx) return false;
-  if (!fastOn) { fastOn = true; fx.full(); heroOv.style.opacity = 1; lastHeroOp = 1; rowsData.forEach(r => { r.li.style.opacity = 0; r.vis = 0; }); statusEl.style.opacity = 0; listEl.style.setProperty('--rv', 0); }
-  const blink = blinkTick(now) > 0; if (blink || blinkOn) for (let q = 0; q < eyeList.length; q++) fx.force(eyeList[q]); blinkOn = blink;
-  const busy = fx.step(now); stats.calls = fx.calls;
-  return busy || blink;
-}
-/* blinks are timer-driven, not frame-driven: nothing wakes the page between them */
 function scheduleBlink(ms) {
   clearTimeout(blinkTimer);
   blinkTimer = setTimeout(() => {
     if (!live || !hero) return;
-    if (pS > 0.05 || document.hidden || (ptr.on && Math.hypot(ptr.x - hero.ecx, ptr.y - hero.ecy) < 280)) { scheduleBlink(700); return; }
+    if (scrollY > g.H * 0.5 || document.hidden || (ptr.on && Math.hypot(ptr.x - hero.ecx, ptr.y + scrollY - hero.ecy) < 280)) { scheduleBlink(700); return; }
     blinkT0 = performance.now(); blinkDbl = Math.random() < 1 / 6; wake(); scheduleBlink(3000 + Math.random() * 4000);
   }, ms);
 }
 
-let wy = 0, handed = false;
-/* One frame = arithmetic plus one canvas draw: p (smoothed scroll progress) decides where every square is; nothing here reads layout. */
+/* a frame: the develop-in on load (squares grow in, name a little after the portrait), then only what the mouse or a blink touches */
 function frame(now) {
-  raf = 0; if (!running) return;
-  const t0 = performance.now(), ctx = canvas.getContext('2d'), dt = Math.min((now - tPrev) / 1000 || 0.016, 0.05); tPrev = now;
-  const sy = scrollY, pT = clamp(sy / T);
-  wy = wtop - Math.max(0, sy - T);   /* the Work section's top on screen: pinned at --wtop during the stage, scrolling from there after it */
-  if (!pInit) { pS = pT; pInit = true; }
-  /* the picture chases the scroll, rate-capped (a whole hand-over takes at least ~1.2 s however fast the page is scrolled), both ways */
-  { const diff = pT - pS, step = clamp(diff * Math.min(1, dt * 9), -dt / 1.2, dt / 1.2); pS = Math.abs(diff) < 0.0006 ? pT : pS + (Math.abs(step) < Math.abs(diff) ? step : diff); }
-  const p = pS, dpr = g.dpr, cellDev = g.cellDev, sqDev = g.sqDev, cell = g.cell, W = g.W, H = g.H, dev = clamp((now - tDev) / 1200);
-  if (p < 0.0005 && dev >= 1 && now - nameT > 1300) { const busy = restFrame(now); msLog.push(performance.now() - t0); if (msLog.length > 4000) msLog.shift(); if (busy) raf = requestAnimationFrame(frame); else running = false; return; }
-  if (fastOn) { fastOn = false; }
-  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = FG; ctx.strokeStyle = FG; ctx.lineCap = 'round'; ctx.lineWidth = Math.max(1, cellDev * 0.2);
-  /* the page's own DOM follows the field: tagline and hint leave, the Work heading and each row take over as their squares land */
-  const hop = Math.round((1 - smooth(p / 0.2)) * 100) / 100; if (hop !== lastHeroOp) { heroOv.style.opacity = hop; lastHeroOp = hop; }
-  const hd = p >= 0.999; if (hd !== handed) { handed = hd; root.classList.toggle('handed', hd); }
-  /* rows below the hand-over fade with p too, so reversing never pops them; their own squares type on once the hand-over is over */
-  const fade = smooth((p - 0.6) / 0.35);
-  blocks.length = 0;
-  rowsData.forEach(r => {
-    if (!r.pDriven && p < 0.5 && r.state) { r.state = 0; }
-    if (!r.pDriven && r.inView && r.state === 0 && r.cells && p >= 0.97) { r.state = 1; r.t0 = now; }
-    let v = r.pDriven ? smooth((landed(r, p) - 0.9) / 0.1) : (r.state === 2 ? 1 : r.state === 1 ? smooth(((now - r.t0) / 700 - 0.6) / 0.4) : 0) * fade;
-    if (r.cells == null && !r.pDriven && !r.li.hidden) v = fade;
-    v = Math.round(v * 100) / 100; rv[r.i] = v; if (v !== r.vis) { r.vis = v; r.li.style.opacity = v; if (r.isHead) { statusEl.style.opacity = v; listEl.style.setProperty('--rv', v); } }
-    if (v > 0.02 && r.cells && r.pDriven) blocks.push(r.cells.rtop + wy - 4, r.cells.bottom + wy + 4, r.i, v);
-  });
-  const h = hero, n = h.n, blink = blinkTick(now) > 0;
-  if (p < 0.9999) {
-    ctx.beginPath(); const nb = blocks.length;
+  raf = 0; if (!live || !fx) { running = false; return; }
+  const dev = clamp((now - tDev) / 1200), nd = clamp((now - nameT) / 1200);
+  if (dev < 1 || nd < 1) {
+    const ctx = canvas.getContext('2d'), h = hero, cd = g.cellDev, dpr = g.dpr, n = h.n;
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = FG; ctx.beginPath();
     for (let i = 0; i < n; i++) {
-      let x = h.x0[i], yv = h.y0[i], size = cellDev * h.z[i], d = h.d[i];
-      if (h.trow[i] !== -1) {
-        /* along a curved path to the row target (neighbours bow the same way, so the squares move as streams) */
-        const t = clamp((p - d) / LAND), e = ease(t);
-        if (t > 0) {
-          const gx = h.tx[i], gy = h.ty[i] + wy, dx = gx - x, dy = gy - yv, k = 0.3 * Math.sin(h.x0[i] * 0.005 + h.y0[i] * 0.004 + h.trow[i] * 1.1), u1 = 1 - e;
-          const qx = x + dx * 0.5 - dy * k, qy = yv + dy * 0.5 + dx * k;
-          x = u1 * u1 * x + 2 * u1 * e * qx + e * e * gx; yv = u1 * u1 * yv + 2 * u1 * e * qy + e * e * gy;
-        }
-        if (h.trow[i] >= 0) { size += (cellDev * 0.92 - size) * e; if (t >= 1) size *= 1 - rv[h.trow[i]]; } else size *= 1 - smooth((t - 0.55) / 0.45);
-      } else {
-        const tt = clamp((p - d) / 0.55); if (tt > 0) { yv += tt * tt * (g.H * 1.4) * (0.7 + 0.6 * h.hash[i]); x += (h.hash[i] - 0.5) * 30 * tt; size *= 1 - smooth(tt * 1.08 - 0.08); }
-      }
-      if (size < 0.4) continue;
-      /* a square passing over another row's settled text shrinks as that text fades in (no overlapping, no popping) */
-      if (nb) { for (let q = 0; q < nb; q += 4) if (yv > blocks[q] && yv < blocks[q + 1] && h.trow[i] !== blocks[q + 2]) size *= 1 - blocks[q + 3]; if (size < 0.4) continue; }
-      if (yv < -cell || yv > H + cell || x < -cell || x > W + cell) continue;
-      if (p < 0.02) { const dv = clamp(((i >= h.nP ? clamp((now - nameT) / 1200) : dev) * 1.4 - h.hash[(i * 7) % n] * 0.4) / 0.6); if (dv < 1) size *= dv; }
-      if (blink && h.eye[i]) { { const bk = blinkK(i); size = cellDev * (h.z[i] * (1 - bk) + h.etz[i] * bk); } if (size < 0.4) continue; }
-      ctx.rect(Math.round(x * dpr) + (cellDev - size) / 2, Math.round(yv * dpr) + (cellDev - size) / 2, size, size);
+      let size = cd * h.z[i], f = i >= h.nP ? nd : dev;
+      const dv = clamp((f * 1.4 - h.hash[(i * 7) % n] * 0.4) / 0.6); if (dv < 1) size *= dv; if (size < 0.4) continue;
+      ctx.rect(Math.round(h.x0[i] * dpr) + (cd - size) / 2, Math.round(h.y0[i] * dpr) + (cd - size) / 2, size, size);
     }
-    ctx.fill();
-    } else if (!cleared) cleared = true;
-  /* rows whose names were not part of the hand-over type on when they scroll into view */
-  let typing = false;
-  rowsData.forEach(r => {
-    if (r.state !== 1 || !r.cells) return; typing = true;
-    const rt = (now - r.t0) / 700; if (rt >= 1) { r.state = 2; r.li.style.opacity = fade; r.vis = fade; return; }
-    const c = r.cells; ctx.beginPath();
-    for (let k = 0; k < c.xs.length; k++) {
-      const vy = c.ys[k] + wy; if (vy < -cell || vy > H + cell) continue;
-      const th = clamp((c.xs[k] - c.left) / (c.width || 600)) * 0.55 + ((k * 2654435761 >>> 0) % 1000) / 1000 * 0.25;
-      let size = sqDev * clamp((rt * 1.45 - th) / 0.3) * (1 - smooth((rt - 0.8) / 0.2)) * fade; if (size < 0.4) continue;
-      ctx.rect(Math.round(c.xs[k] * dpr) + (sqDev - size) / 2, Math.round(vy * dpr) + (sqDev - size) / 2, size, size);
-    }
-    ctx.fill();
-  });
-  msLog.push(performance.now() - t0); if (msLog.length > 4000) msLog.shift();
-  const idle = (p >= 0.9999 || (p < 0.0005 && dev >= 1 && now - nameT > 1300)) && !typing && pT === pS;
-  if (idle) { running = false; return; }
-  raf = requestAnimationFrame(frame);
+    ctx.fill(); fastOn = false; raf = requestAnimationFrame(frame); return;
+  }
+  if (!fastOn) { fastOn = true; fx.full(); }
+  const blink = blinkTick(now) > 0; if (blink || blinkOn) for (let q = 0; q < eyeList.length; q++) fx.force(eyeList[q]); blinkOn = blink;
+  const busy = fx.step(now); stats.calls = fx.calls;
+  if (busy || blink) raf = requestAnimationFrame(frame); else running = false;
 }
-function wake() { if (!live || running || document.hidden) return; running = true; tPrev = performance.now(); raf = requestAnimationFrame(frame); }
+function wake() { if (!live || running || document.hidden) return; running = true; raf = requestAnimationFrame(frame); }
+
+/* the scroll controller: one rAF-throttled pass writing --hp (how far the hero has gone: the cue fades first, the tagline only a little) and
+   --rule (the dotted rule between hero and Work grows from the centre over ~280 px of scroll). Nothing else follows the scroll. */
+function onScroll() {
+  sRaf = 0; const y = scrollY, h = g ? g.H : innerHeight;
+  const p = Math.round(clamp(y / h) * 200) / 200; if (p !== hp) { hp = p; setVar('--hp', p); }
+  if (bridgeEl) { const r = Math.round(clamp((innerHeight - bridgeEl.getBoundingClientRect().bottom - 40) / 280) * 100) / 100; if (r !== rule) { rule = r; setVar('--rule', r); } }
+  if (ptr.on && fx && y < h) { fx.move(ptr.x, ptr.y + y); wake(); }
+}
 
 /* ------------------------------------------------------------------ boot */
 async function startLive() {
-  mark('start');
   const fontP = document.fonts.load('600 100px "Inter Tight"').catch(() => {});
   const im = await IMG_P; if (!im) throw new Error('no portrait image');
-  IMG = im; mark('image');
+  IMG = im;
   /* the portrait does not wait for the name's font: if it is not here within ~300 ms the name joins as soon as it lands */
   await Promise.race([fontP, new Promise(r => setTimeout(r, 300))]);
-  nameOn = document.fonts.check('600 100px "Inter Tight"'); mark(nameOn ? 'font' : 'nofont');
-  listEl = document.querySelector('.idx-list'); headEl = document.querySelector('.idx-head'); workEl = document.querySelector('.work'); statusEl = document.getElementById('idx-status'); heroOv = document.querySelector('.hero-ov');
-  if (!canvas.getContext('2d') || !listEl) throw new Error('no canvas');
-  root.classList.add('pt', 'live'); live = true;
-  layout(); tDev = nameT = performance.now(); scheduleBlink(5400); mark('layout');
-  if (!nameOn) fontP.then(() => { if (document.fonts.check('600 100px "Inter Tight"')) { nameOn = true; nameW100 = 0; nameT = performance.now(); relayout(); } });
+  nameOn = document.fonts.check('600 100px "Inter Tight"');
+  bridgeEl = document.querySelector('.bridge');
+  if (!canvas.getContext('2d')) throw new Error('no canvas');
+  root.classList.add('pt', 'st', 'live'); live = true;
+  layout(); tDev = nameT = performance.now(); scheduleBlink(5400); onScroll();
+  let rt;
+  const relayout = () => { layout(); nameT = tDev = performance.now() - 5000; wake(); onScroll(); };
+  if (!nameOn) fontP.then(() => { if (document.fonts.check('600 100px "Inter Tight"')) { nameOn = true; nameW100 = 0; layout(); nameT = performance.now(); wake(); } });
   document.fonts.addEventListener('loadingdone', () => { clearTimeout(rt); rt = setTimeout(relayout, 80); });
-  document.querySelectorAll('.idx-list > li').forEach(li => { li.style.opacity = 0; });
-  headEl.style.opacity = 0; statusEl.style.opacity = 0; listEl.style.setProperty('--rv', 0); listEl.style.setProperty('--rv', 0);
-  /* one pointermove listener, one update per frame (the effect reads the latest position when its frame runs) */
-  const aim = e => { if (e.pointerType === 'touch') return; ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; if (fx) fx.move(ptr.x, ptr.y); wake(); };
-  addEventListener('pointermove', aim);
+  /* the mouse effect: mouse only (touch does nothing), one position per frame */
+  addEventListener('pointermove', e => { if (e.pointerType === 'touch') return; ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; if (fx && scrollY < g.H) { fx.move(ptr.x, ptr.y + scrollY); wake(); } });
   const away = () => { ptr.on = false; if (fx) fx.leave(); wake(); };
-  document.addEventListener('pointerleave', away);
-  addEventListener('blur', away);
-  addEventListener('scroll', wake, { passive: true });
+  document.addEventListener('pointerleave', away); addEventListener('blur', away);
+  addEventListener('scroll', () => { if (!sRaf) sRaf = requestAnimationFrame(onScroll); }, { passive: true });
   document.addEventListener('visibilitychange', () => { if (document.hidden) { running = false; cancelAnimationFrame(raf); } else wake(); });
-  var rt;
-  function relayout() { layout(); watch(); wake(); }
-  const io = new IntersectionObserver(list => list.forEach(en => { const r = rowsData.find(x => x.li === en.target); if (r) { r.inView = en.isIntersecting; if (en.isIntersecting) wake(); } }), { threshold: 0.25 });
-  const watch = () => rowsData.forEach(r => io.observe(r.li));
-  watch();
-
   /* only a change of width or of the stage's own (small-viewport) height re-lays out: a phone's address bar moves innerHeight, never svh */
   addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { const v = viewport(); if (lastVP && v.W === lastVP.W && Math.abs(v.H - lastVP.H) < 2) return; relayout(); }, 200); });
-  /* the Work link, a #work address and keyboard focus inside the list all mean "the end of the hand-over" */
-  const toWork = smoothly => scrollTo({ top: T, behavior: smoothly ? 'smooth' : 'auto' });
-  document.querySelectorAll('a[href="#work"]').forEach(a => a.addEventListener('click', e => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); toWork(true); try { history.replaceState(null, '', '#work'); } catch (_) {} }));
-  workEl.addEventListener('focusin', () => { if (scrollY < T - 2) toWork(false); });
-  if (location.hash === '#work' && scrollY < T) toWork(false);
-  addEventListener('sq:layout', () => { clearTimeout(rt); rt = setTimeout(relayout, 60); });
-  window.__field = { stats, get p() { return pS; }, T: () => T, blink: () => { blinkFreeze = null; blinkDbl = false; blinkT0 = performance.now(); wake(); }, blinkFreeze: ms => { blinkFreeze = ms; wake(); }, ms: msLog, wy: () => wy, eyes: () => [hero.ecx, hero.ecy, g.cell], rows: () => rowsData };
-  wake(); mark('firstframe');
+  window.__field = { stats, blink: () => { blinkFreeze = null; blinkDbl = false; blinkT0 = performance.now(); wake(); }, eyes: () => [hero.ecx, hero.ecy, g.cell] };
+  wake();
 }
-let IMG = null;
+
 
 /* reduced motion / no canvas: the same composition drawn once into the hero (no scroll transition) */
 async function startStatic() {
   const im = await IMG_P; if (!im) return; IMG = im;
   const draw = () => {
     const vp = viewport(); g = geometry(vp.W, vp.H, vp.H); hero = buildHero();
-    root.style.setProperty('--H', vp.H + 'px'); root.style.setProperty('--tagTop', g.tagTop + 'px'); root.style.setProperty('--eyeTop', g.eyeTop + 'px');
+    root.style.setProperty('--cell', g.cell + 'px'); root.style.setProperty('--sq', (g.sqDev / g.dpr) + 'px'); root.style.setProperty('--H', vp.H + 'px'); root.style.setProperty('--tagTop', g.tagTop + 'px'); root.style.setProperty('--eyeTop', g.eyeTop + 'px');
     canvas.width = Math.round(vp.W * g.dpr); canvas.height = Math.round(vp.H * g.dpr); canvas.style.width = vp.W + 'px'; canvas.style.height = vp.H + 'px';
     const c = canvas.getContext('2d'), cd = g.cellDev; c.fillStyle = FG; c.beginPath();
     for (let i = 0; i < hero.n; i++) { const z = cd * hero.z[i], q = (cd - z) / 2; c.rect(Math.round(hero.x0[i] * g.dpr) + q, Math.round(hero.y0[i] * g.dpr) + q, z, z); }
