@@ -146,7 +146,7 @@ function buildRows() {
   rowsData = lis.map((li, i) => {
     const old = prev.get(li), r = old || { li, i, state: 0, vis: 0, t0: 0, hash: null };
     r.i = i; r.cells = null; r.pDriven = false; r.px = null;
-    if (!li.hidden && li.offsetParent) { const c = rowCells(li); r.cells = c; const vt = c.top - T, vb = c.bottom - T; r.pDriven = vt > 56 && vb < g.H - 20; }
+    if (!li.hidden && li.offsetParent) { const c = rowCells(li); r.cells = c; const vt = c.top - T, vb = c.bottom - T; r.pDriven = vt > 56 && (g.mobile ? vt < g.H - 60 : vb < g.H - 20); }
     return r;
   });
 }
@@ -165,7 +165,11 @@ function assign() {
     const si = so[Math.min(n - 1, Math.floor((k + 0.5) * n / nt))], ti = to[k];
     h.tx[si] = tx[ti]; h.ty[si] = ty[ti]; h.trow[si] = tr[ti]; h.d[si] = 0.04 + 0.2 * (tr[ti] / nr) + 0.1 * rnd();
   }
-  for (let i = 0; i < n; i++) if (h.trow[i] < 0) h.d[i] = 0.02 + 0.3 * (h.y0[i] / g.H) + 0.1 * rnd();
+  for (let i = 0; i < n; i++) if (h.trow[i] < 0) {
+    h.d[i] = 0.02 + 0.3 * (h.y0[i] / g.H) + 0.1 * rnd();
+    /* a phone has few targets: the spare squares still flow to the rows' type and dissolve there instead of falling away */
+    if (g.mobile && nt) { const ti = (rnd() * nt) | 0; h.tx[i] = tx[ti] + (rnd() - 0.5) * g.cell * 8; h.ty[i] = ty[ti] + (rnd() - 0.5) * g.cell * 4; h.trow[i] = -2; h.d[i] = 0.04 + 0.2 * rnd(); }
+  }
   /* when each row's squares land (progress values, sorted), so its crisp text can wait for them */
   rowsData.forEach(r => { const a = []; for (let i = 0; i < n; i++) if (h.trow[i] === r.i) a.push(h.d[i] + LAND); r.land = Float32Array.from(a).sort(); });
 }
@@ -216,15 +220,15 @@ function frame(now) {
     ctx.beginPath(); const glyphs = [];
     for (let i = 0; i < n; i++) {
       let x = h.x0[i], yv = h.y0[i], size = sqDev, d = h.d[i];
-      if (h.trow[i] >= 0) {
+      if (h.trow[i] !== -1) {
         /* along a curved path to the row target (neighbours bow the same way, so the squares move as streams) */
         const t = clamp((p - d) / LAND), e = ease(t);
         if (t > 0) {
-          const gx = h.tx[i], gy = h.ty[i] - sy, dx = gx - x, dy = gy - yv, k = 0.3 * Math.sin(h.x0[i] * 0.005 + h.y0[i] * 0.004 + h.trow[i] * 1.1), u1 = 1 - e;
+          const gx = h.tx[i], gy = h.ty[i] - Math.max(sy, T), dx = gx - x, dy = gy - yv, k = 0.3 * Math.sin(h.x0[i] * 0.005 + h.y0[i] * 0.004 + h.trow[i] * 1.1), u1 = 1 - e;
           const qx = x + dx * 0.5 - dy * k, qy = yv + dy * 0.5 + dx * k;
           x = u1 * u1 * x + 2 * u1 * e * qx + e * e * gx; yv = u1 * u1 * yv + 2 * u1 * e * qy + e * e * gy;
         }
-        if (t >= 1) size *= 1 - rv[h.trow[i]];
+        if (h.trow[i] >= 0) { if (t >= 1) size *= 1 - rv[h.trow[i]]; } else size *= 1 - smooth((t - 0.55) / 0.45);
       } else {
         const tt = clamp((p - d) / 0.55); if (tt > 0) { yv += tt * tt * (g.H * 1.4) * (0.7 + 0.6 * h.hash[i]); x += (h.hash[i] - 0.5) * 30 * tt; size *= 1 - smooth(tt * 1.08 - 0.08); }
       }
