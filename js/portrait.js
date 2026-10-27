@@ -1,7 +1,8 @@
 /* The hero and its hand-over to the Work list: one canvas of 1-bit squares.
    At rest it is the name and a portrait of the site owner (a photo, cut out, tone-mapped and ordered-dithered).
    Scrolling away, the squares rain down and re-gather as the project names of the Work list, row rules included;
-   the DOM rows take over once they have settled. Squares near the pointer turn into glyphs (x, - or |, a dot),
+   the DOM rows take over once they have settled. The hand-over is a function of one smoothed scroll progress p (see frame()); the Work
+   section sits sticky at its final place under the fixed canvas (CSS), so targets are work-local numbers measured once per layout. Squares near the pointer turn into glyphs (x, - or |, a dot),
    rotate, push outward and spring back. Reduced motion / no canvas: the portrait is drawn once, static. */
 
 const root = document.documentElement;
@@ -50,7 +51,7 @@ function buildGrid(cols, rows, img, bleed) {
       const px = (c + 0.5) / cols * SRC_W, py = (r + 0.5) / rows * SRC_H;
       if (((px - ex) / rx) ** 2 + ((py - ey) / ry) ** 2 <= 1) { cells.push([r, c]); rmin = Math.min(rmin, r); rmax = Math.max(rmax, r); }
     }
-    return { cells, mid: Math.round((rmin + rmax) / 2) };
+    return { cells, rmin, rmax };
   });
   return { cols, rows, L, A, eyes };
 }
@@ -103,35 +104,35 @@ function rasterText(text, font, ls, x, base, fs, align, wEst, cell) {
 }
 
 /* ------------------------------------------------------------------ the field */
-let g = null, hero = null, rowsData = [], listEl = null, headEl = null, heroOv = null, workEl = null, statusEl = null;
+let wtop = 100, lastVP = null, g = null, hero = null, rowsData = [], listEl = null, headEl = null, heroOv = null, workEl = null, statusEl = null;
 let live = false, running = false, raf = 0, tPrev = 0, tDev = 0, T = 1, pS = 0, pInit = false, cleared = false, lastHeroOp = -1, lastHeadOp = -1;
-let nextBlink = 0, blinkEnd = 0; const blocks = [], rv = new Float32Array(32); let headDoc = null;
+let nextBlink = 0, blinkT0 = -1e9, blinkDbl = false, blinkFreeze = null; const blocks = [], rv = new Float32Array(32); let headDoc = null;
 const ptr = { x: -1e5, y: -1e5, on: false, touch: false }; let ptrK = 0;
 
 function buildHero() {
   const P = buildGrid(g.cols, g.rows, IMG, !g.mobile), cell = g.cell, ox = Math.round(g.x / cell), oy = Math.round(g.y / cell);
-  const gc = Math.ceil(g.W / cell) + 4, xs = [], ys = [], vs = [], eyeF = [], zs = [];
-  const eyeSet = new Set(); P.eyes.forEach(e => e.cells.forEach(([r, c]) => eyeSet.add((r + oy) * gc + c + ox)));
+  const gc = Math.ceil(g.W / cell) + 4, xs = [], ys = [], vs = [], eyeF = [], eyeRow = [], eyeN = [], zs = [];
+  const eyeSet = new Map(); P.eyes.forEach((e, k) => e.cells.forEach(([r, c]) => eyeSet.set((r + oy) * gc + c + ox, [r - e.rmin, e.rmax - e.rmin + 1, k])));
   for (let r = 0; r < P.rows; r++) for (let c = 0; c < P.cols; c++) {
     const i = r * P.cols + c; if (P.A[i] < 0.5) continue;
     const R = r + oy, C = c + ox, q = quant(P.L[i], R, C); if (q <= 0) continue;
-    xs.push(C * cell); ys.push(R * cell); zs.push(zOf(q)); vs.push(P.L[i]); eyeF.push(eyeSet.has(R * gc + C) ? 1 : 0);
+    xs.push(C * cell); ys.push(R * cell); zs.push(zOf(q)); vs.push(P.L[i]); const ev = eyeSet.get(R * gc + C); eyeF.push(ev ? 1 : 0); eyeRow.push(ev ? ev[0] : 0); eyeN.push(ev ? ev[1] : 1);
   }
   const nP = xs.length;
   const nm = nameOn ? rasterText(NAME, `600 ${g.fs}px "Inter Tight", system-ui, sans-serif`, `${-g.fs * 0.035}px`, g.cx, g.base, g.fs, 'center', measureName() * g.fs / 100, cell) : [];
-  for (let i = 0; i < nm.length; i += 2) { xs.push(nm[i] * cell); ys.push(nm[i + 1] * cell); zs.push(0.92); vs.push(1); eyeF.push(0); }
-  const n = xs.length, h = { n, nP, z: Float32Array.from(zs), x0: Float32Array.from(xs), y0: Float32Array.from(ys), v: Float32Array.from(vs), eye: Uint8Array.from(eyeF),
+  for (let i = 0; i < nm.length; i += 2) { xs.push(nm[i] * cell); ys.push(nm[i + 1] * cell); zs.push(0.92); vs.push(1); eyeF.push(0); eyeRow.push(0); eyeN.push(1); }
+  const n = xs.length, h = { n, nP, z: Float32Array.from(zs), x0: Float32Array.from(xs), y0: Float32Array.from(ys), v: Float32Array.from(vs), eye: Uint8Array.from(eyeF), erow: Uint8Array.from(eyeRow), enr: Uint8Array.from(eyeN), ecx: 0, ecy: 0,
     hash: new Float32Array(n), d: new Float32Array(n), tx: new Float32Array(n), ty: new Float32Array(n), trow: new Int8Array(n).fill(-1),
-    fi: new Float32Array(n), fv: new Float32Array(n), flick: new Float32Array(n), segs: [] };
+    fi: new Float32Array(n), fv: new Float32Array(n), flick: new Float32Array(n) };
   let seed = 11; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
   for (let i = 0; i < n; i++) h.hash[i] = rnd();
-  P.eyes.forEach(e => { let c0 = 1e9, c1 = -1; e.cells.forEach(([r, c]) => { if (r === e.mid) { c0 = Math.min(c0, c); c1 = Math.max(c1, c); } }); for (let c = c0; c <= c1; c++) h.segs.push((c + ox) * cell, (e.mid + oy) * cell); });
+  { let sx = 0, sy2 = 0, k = 0; for (let i = 0; i < nP; i++) if (h.eye[i]) { sx += h.x0[i]; sy2 += h.y0[i]; k++; } if (k) { h.ecx = sx / k; h.ecy = sy2 / k; } else h.ecx = h.ecy = -1e5; }
   return h;
 }
 
 /* a project row: its name and its bottom rule as ON cells, in document coordinates */
 function rowCells(li) {
-  const a = li.querySelector('.who a'), cell = g.cell, sy = scrollY, rect = a.getBoundingClientRect(), cs = getComputedStyle(a);
+  const a = li.querySelector('.who a'), cell = g.cell, sy = -workEl.getBoundingClientRect().top, rect = a.getBoundingClientRect(), cs = getComputedStyle(a);
   const probe = document.createElement('span'); probe.style.cssText = 'display:inline-block;width:0;height:0'; a.appendChild(probe);
   const base = probe.getBoundingClientRect().bottom + sy; probe.remove();
   const fs = parseFloat(cs.fontSize), font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`, ls = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing;
@@ -145,18 +146,15 @@ function rowCells(li) {
       const r0 = Math.round((rc.top + sy + rc.height * 0.3) / cell), r1 = Math.round((rc.bottom + sy - rc.height * 0.22) / cell), c0 = Math.ceil(rc.left / cell), c1 = Math.floor(rc.right / cell);
       for (let r = r0; r < r1; r++) for (let c = c0; c < c1; c++) if ((r & 1) === (c & 1)) { xs.push(c * cell); ys.push(r * cell); vs.push(0.45); } } };
   bars(li.querySelector('.d')); bars(li.querySelector('.who p')); li.querySelectorAll('.l a, .l .note').forEach(bars);
-  return { xs, ys, vs, top: rect.top + sy, bottom: lr.bottom + sy, left: rect.left, width: rect.width, rtop: lr.top + sy };
+  return { xs, ys, vs, top: rect.top + sy, bottom: lr.bottom + sy, left: rect.left, width: rect.width, rtop: lr.top + sy };   /* work-local y: screen y = wy + local */
 }
 
-/* The Work section is held at its final on-screen position while the hand-over plays (it sits still under the pinned hero), so the
-   glyph targets are exactly where the live DOM text is; it moves normally once the hand-over is done. */
-let shiftOn = '';
-function applyShift(sy) { const v = sy < T ? 'translate3d(0,' + (sy - T).toFixed(1) + 'px,0)' : ''; if (v !== shiftOn) { shiftOn = v; workEl.style.transform = v; workEl.style.pointerEvents = v ? 'none' : ''; } }
-function unshifted(fn) { const t = workEl.style.transform; workEl.style.transform = ''; try { return fn(); } finally { workEl.style.transform = t; } }
-const cellsFor = r => unshifted(() => r.isHead ? headCells() : rowCells(r.li));
+/* Cells are work-local: y measured from the Work section's top, so they do not depend on the scroll. Screen y = wy + local, where wy is
+   the section's top on screen (sticky at --wtop while the stage lasts, scrolling from there after it). */
+const cellsFor = r => r.isHead ? headCells() : rowCells(r.li);
 /* the heading, filter chips, count line and the list's top rule, as squares */
 function headCells() {
-  const sy = scrollY, cell = g.cell, xs = [], ys = [], vs = [], h2 = headEl.querySelector('h2'), cs = getComputedStyle(h2), rect = h2.getBoundingClientRect();
+  const sy = -workEl.getBoundingClientRect().top, cell = g.cell, xs = [], ys = [], vs = [], h2 = headEl.querySelector('h2'), cs = getComputedStyle(h2), rect = h2.getBoundingClientRect();
   const probe = document.createElement('span'); probe.style.cssText = 'display:inline-block;width:0;height:0'; h2.appendChild(probe); const base = probe.getBoundingClientRect().bottom + sy; probe.remove();
   const ls = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing, nm = rasterText(h2.textContent.trim(), `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`, ls, rect.left, base, parseFloat(cs.fontSize), 'left', rect.width + 4, cell);
   for (let i = 0; i < nm.length; i += 2) { xs.push(nm[i] * cell); ys.push(nm[i + 1] * cell); vs.push(1); }
@@ -177,7 +175,7 @@ function buildRows() {
   rowsData = list.map((li, i) => {
     const old = prev.get(li), r = old || { li, i, state: 0, vis: 0, t0: 0, hash: null, isHead: i === 0 };
     r.i = i; r.cells = null; r.pDriven = false; r.px = null;
-    if (!li.hidden && li.offsetParent) { const c = cellsFor(r); r.cells = c; const vt = c.top - T, vb = c.bottom - T; r.pDriven = vt > 56 && (g.mobile ? vt < g.H - 60 : vb < g.H - 20); }
+    if (!li.hidden && li.offsetParent) { const c = cellsFor(r); r.cells = c; const vt = wtop + c.top, vb = wtop + c.bottom; r.pDriven = vt > 56 && (g.mobile ? vt < g.H - 60 : vb < g.H - 20); }
     return r;
   });
 }
@@ -207,18 +205,26 @@ function assign() {
 const LAND = 0.58;
 const landed = (r, p) => { const a = r.land; if (!a || !a.length) return 1; let lo = 0, hi = a.length; while (lo < hi) { const m = (lo + hi) >> 1; if (a[m] <= p) lo = m + 1; else hi = m; } return lo / a.length; };
 
-function layout() {
-  const W = innerWidth, H = innerHeight;
-  g = geometry(W, H, false); T = Math.round(H * 1.8);   /* scroll distance the hero stays pinned while the hand-over plays */
-  root.style.setProperty('--pin', T + 'px');
-  const dpr = g.dpr;
-  canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
-  if (g.tagTop) root.style.setProperty('--tagTop', g.tagTop + 'px'); else root.style.removeProperty('--tagTop');
-  hero = buildHero(); unshifted(buildRows); assign(); gridIdx = null; restOK = false; fastOn = false; prevU = null; FX.ring.length = 0; FX.trail.length = 0;
-  cleared = false;
+/* The stage height is the SMALL viewport (svh): a phone's address bar showing or hiding must never move anything. The canvas is as tall as the
+   large viewport so nothing is cut when the bar hides. */
+let probes = null;
+function viewport() {
+  if (!probes) { probes = ['100svh', '100lvh'].map(h => { const d = document.createElement('div'); d.setAttribute('aria-hidden', 'true'); d.style.cssText = 'position:fixed;left:0;top:0;width:0;height:' + h + ';visibility:hidden;pointer-events:none'; document.body.appendChild(d); return d; }); }
+  const sv = probes[0].offsetHeight, lv = probes[1].offsetHeight, ih = innerHeight;
+  const H = sv > 100 ? sv : ih;
+  return { W: innerWidth, H, Hc: Math.max(H, lv > 100 ? lv : 0, ih) };
 }
-
-
+function layout() {
+  const vp = viewport(), W = vp.W, H = vp.H;
+  g = geometry(W, H, false); T = Math.round(H * 1.5);   /* scroll distance the Work section stays pinned while the hand-over plays */
+  wtop = Math.round(Math.max(64, H * 0.12));
+  root.style.setProperty('--pin', T + 'px'); root.style.setProperty('--H', H + 'px'); root.style.setProperty('--wtop', wtop + 'px');
+  const dpr = g.dpr;
+  canvas.width = Math.round(W * dpr); canvas.height = Math.round(vp.Hc * dpr); canvas.style.width = W + 'px'; canvas.style.height = vp.Hc + 'px';
+  if (g.tagTop) root.style.setProperty('--tagTop', g.tagTop + 'px'); else root.style.removeProperty('--tagTop');
+  hero = buildHero(); buildRows(); assign(); gridIdx = null; restOK = false; fastOn = false; prevU = null; FX.ring.length = 0; FX.trail.length = 0;
+  cleared = false; lastVP = vp;
+}
 
 /* ------------------------------------------------------------------ hover effect at rest: dirty-rect rendering
    The resting field (every square) is drawn ONCE into `rest`; a frame then touches only the cells that are active (under the
@@ -226,6 +232,7 @@ function layout() {
    punches out the active cells' squares in one path and draws them as squares or glyphs, batched per type. */
 const FX = { R: 160, Rt: 110, K: 520, C: 21, ring: [], trail: [], lastRing: 0, lastPX: -1e5, lastPY: -1e5 };
 let rest = null, restOK = false, fastOn = false, act = null, actN = 0, inAct = null, tgt = null, dirx = null, diry = null, gridIdx = null, gridC = 0, gridR = 0, eyeList = null, prevU = null, blinkOn = false;
+const msLog = [];
 const stats = { calls: 0, active: 0 };
 
 function fxPrepare() {
@@ -246,6 +253,30 @@ function buildRest() {
 function addAct(i) { if (!inAct[i]) { inAct[i] = 1; act[actN++] = i; } }
 function setT(i, v, dx, dy) { if (v > tgt[i]) { tgt[i] = v; const l = Math.hypot(dx, dy) + 0.001; dirx[i] = dx / l; diry[i] = dy / l; } addAct(i); }
 function fxRing(x, y, amp, speed, w, max) { FX.ring.push({ x, y, t0: performance.now(), amp, speed, w, max }); if (FX.ring.length > 6) FX.ring.shift(); }
+
+/* Blink: an eyelid, not a flash. The eye's squares shrink to nothing from the top row down (70 ms), hold (40 ms), then reopen bottom-up
+   (110 ms, ease-out). Every 3-7 s, one in six is a double blink; none is started while the pointer is near the face. */
+const BL_C = 70, BL_H = 40, BL_O = 110, BL_GAP = 90, BL_D = BL_C + BL_H + BL_O;
+let bkMode = 0, bkV = 0;
+function blinkTick(now) {
+  let t = blinkFreeze != null ? blinkFreeze : now - blinkT0; bkMode = 0;
+  if (t < 0) return 0;
+  if (blinkDbl && t >= BL_D + BL_GAP) t -= BL_D + BL_GAP;
+  if (t >= BL_D) return 0;
+  if (t < BL_C) { bkMode = 1; bkV = t / BL_C; } else if (t < BL_C + BL_H) { bkMode = 2; bkV = 1; } else { bkMode = 3; bkV = (t - BL_C - BL_H) / BL_O; }
+  return bkMode;
+}
+const blinkScale = i => {
+  const row = hero.erow[i], nr = hero.enr[i];
+  if (bkMode === 1) return 1 - clamp(bkV * nr - row);
+  if (bkMode === 2) return 0;
+  const o = 1 - (1 - bkV) ** 3; return clamp(o * nr - (nr - 1 - row));
+};
+function blinkSchedule(now) {
+  if (blinkFreeze != null || now < nextBlink) return;
+  if (ptr.on && Math.hypot(ptr.x - hero.ecx, ptr.y - hero.ecy) < 280) { nextBlink = now + 500; return; }
+  blinkT0 = now; blinkDbl = Math.random() < 1 / 6; nextBlink = now + 3000 + Math.random() * 4000;
+}
 
 function fastFrame(now, dt) {
   const ctx = canvas.getContext('2d'), h = hero, cell = g.cell, dpr = g.dpr, cd = g.cellDev, sq = g.sqDev, W = g.W, H = g.H;
@@ -275,8 +306,7 @@ function fastFrame(now, dt) {
   }
   /* shimmer and blink */
   { const nf = dt * 22 + (Math.random() < (dt * 22) % 1 ? 1 : 0); for (let q = 0; q < nf; q++) { const j = (Math.random() * h.n) | 0; h.flick[j] = 1; addAct(j); } }
-  if (now > nextBlink) { blinkEnd = now + 120; nextBlink = now + 4000 + Math.random() * 3000; }
-  const blink = now < blinkEnd; if (blink || blinkOn) for (let q = 0; q < eyeList.length; q++) addAct(eyeList[q]); blinkOn = blink;
+  blinkSchedule(now); const blink = blinkTick(now) > 0; if (blink || blinkOn) for (let q = 0; q < eyeList.length; q++) addAct(eyeList[q]); blinkOn = blink;
   /* springs: snappy, a little overshoot */
   const X = [], GL = []; let mnx = 1e9, mny = 1e9, mxx = -1e9, mxy = -1e9, k2 = 0;
   const f0 = h.fi, v0 = h.fv, K = FX.K, C = FX.C;
@@ -298,7 +328,7 @@ function fastFrame(now, dt) {
     erase.rect(ix - 1, iy - 1, cd + 2, cd + 2); const zs = cd * h.z[i], zo = (cd - zs) / 2;
     const mx0 = ix - cd * 4, my0 = iy - cd * 4, mx1 = ix + cd * 5, my1 = iy + cd * 5; if (mx0 < mnx) mnx = mx0; if (my0 < mny) mny = my0; if (mx1 > mxx) mxx = mx1; if (my1 > mxy) mxy = my1;
     if (dropped) { sqs.rect(ix + zo, iy + zo, zs, zs); hasS = true; continue; }
-    if (blink && h.eye[i]) continue;
+    if (blink && h.eye[i]) { const ez = zs * blinkScale(i); if (ez > 0.4) { sqs.rect(ix + (cd - ez) / 2, iy + (cd - ez) / 2, ez, ez); hasS = true; } continue; }
     const f = Math.max(f0[i], 0);
     if (f < 0.02) { sqs.rect(ix + zo, iy + zo, zs, zs); hasS = true; continue; }
     const hs = h.hash[i], ox = dirx[i] * f * cell * 1.8 * dpr, oy = diry[i] * f * cell * 1.8 * dpr, cx = ix + cd / 2 + ox, cy = iy + cd / 2 + oy;
@@ -311,7 +341,6 @@ function fastFrame(now, dt) {
     else if (score > 0.4) { const r = hh * 0.85; fills.moveTo(cx + r * co, cy + r * si); fills.lineTo(cx - r * si, cy + r * co); fills.lineTo(cx - r * co, cy - r * si); fills.lineTo(cx + r * si, cy - r * co); fills.closePath(); hasF = true; }
     else { const r = hh * 0.42; fills.moveTo(cx + r, cy); fills.arc(cx, cy, r, 0, 6.2832); hasF = true; }
   }
-  if (blink) for (let q = 0; q < h.segs.length; q += 2) { const ix = Math.round(h.segs[q] * dpr), iy = Math.round(h.segs[q + 1] * dpr); lines.moveTo(ix, iy + cd / 2); lines.lineTo(ix + cd, iy + cd / 2); hasL = true; }
   const cur = [Math.max(0, mnx), Math.max(0, mny), Math.min(canvas.width, mxx), Math.min(canvas.height, mxy)];
   if (mnx > mxx) cur[0] = cur[1] = cur[2] = cur[3] = 0;
   const U = prevU ? [Math.min(prevU[0], cur[0] || prevU[0]), Math.min(prevU[1], cur[1] || prevU[1]), Math.max(prevU[2], cur[2]), Math.max(prevU[3], cur[3])] : cur;
@@ -326,43 +355,47 @@ function fastFrame(now, dt) {
   return true;
 }
 
-const heroGone = () => false;
+let wy = 0, handed = false;
+/* One frame = arithmetic plus one canvas draw: p (smoothed scroll progress) decides where every square is; nothing here reads layout. */
 function frame(now) {
   raf = 0; if (!running) return;
-  const ctx = canvas.getContext('2d'), dt = Math.min((now - tPrev) / 1000 || 0.016, 0.05); tPrev = now;
-  const sy = scrollY, pT = clamp(sy / T); applyShift(sy);
+  const t0 = performance.now(), ctx = canvas.getContext('2d'), dt = Math.min((now - tPrev) / 1000 || 0.016, 0.05); tPrev = now;
+  const sy = scrollY, pT = clamp(sy / T);
+  wy = wtop - Math.max(0, sy - T);   /* the Work section's top on screen: pinned at --wtop during the stage, scrolling from there after it */
   if (!pInit) { pS = pT; pInit = true; }
-  /* the picture chases the scroll with a capped rate (a full hand-over takes at least ~1.4 s however fast the page is scrolled), both ways */
-  { const diff = pT - pS, step = clamp(diff * Math.min(1, dt * 9), -dt / 1.4, dt / 1.4); pS = Math.abs(diff) < 0.0006 ? pT : pS + (Math.abs(step) < Math.abs(diff) ? step : diff); }
+  /* the picture chases the scroll, rate-capped (a whole hand-over takes at least ~1.2 s however fast the page is scrolled), both ways */
+  { const diff = pT - pS, step = clamp(diff * Math.min(1, dt * 9), -dt / 1.2, dt / 1.2); pS = Math.abs(diff) < 0.0006 ? pT : pS + (Math.abs(step) < Math.abs(diff) ? step : diff); }
   const p = pS, dpr = g.dpr, cellDev = g.cellDev, sqDev = g.sqDev, cell = g.cell, W = g.W, H = g.H, dev = clamp((now - tDev) / 1200);
-  if (p < 0.0005 && dev >= 1 && now - nameT > 1300 && !heroGone()) { fastFrame(now, dt); raf = requestAnimationFrame(frame); return; }
+  if (p < 0.0005 && dev >= 1 && now - nameT > 1300) { fastFrame(now, dt); msLog.push(performance.now() - t0); if (msLog.length > 4000) msLog.shift(); raf = requestAnimationFrame(frame); return; }
   if (fastOn) { fastOn = false; }
   ptrK += ((ptr.on ? 1 : 0) - ptrK) * Math.min(1, dt * 10);
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = FG; ctx.strokeStyle = FG; ctx.lineCap = 'round'; ctx.lineWidth = Math.max(1, cellDev * 0.2);
-  /* the page's own DOM follows the field: tagline and hint leave, the Work heading and each row take over once settled */
+  /* the page's own DOM follows the field: tagline and hint leave, the Work heading and each row take over as their squares land */
   const hop = Math.round((1 - smooth(p / 0.2)) * 100) / 100; if (hop !== lastHeroOp) { heroOv.style.opacity = hop; lastHeroOp = hop; }
-  /* a row's crisp text waits for its own squares (landed >= ~90%), top to bottom; rows without squares type on, but only once the hand-over is over */
+  const hd = p >= 0.999; if (hd !== handed) { handed = hd; root.classList.toggle('handed', hd); }
+  /* rows below the hand-over fade with p too, so reversing never pops them; their own squares type on once the hand-over is over */
+  const fade = smooth((p - 0.6) / 0.35);
   blocks.length = 0;
   rowsData.forEach(r => {
     if (!r.pDriven && p < 0.5 && r.state) { r.state = 0; }
-    if (!r.pDriven && r.inView && r.state === 0 && r.cells && p >= 0.97) { r.cells = cellsFor(r); r.state = 1; r.t0 = now; }
-    let v = r.pDriven ? smooth((landed(r, p) - 0.9) / 0.1) : r.state === 2 ? 1 : r.state === 1 ? smooth(((now - r.t0) / 700 - 0.6) / 0.4) : 0;
-    if (r.cells == null && !r.pDriven && !r.li.hidden) v = 1;
+    if (!r.pDriven && r.inView && r.state === 0 && r.cells && p >= 0.97) { r.state = 1; r.t0 = now; }
+    let v = r.pDriven ? smooth((landed(r, p) - 0.9) / 0.1) : (r.state === 2 ? 1 : r.state === 1 ? smooth(((now - r.t0) / 700 - 0.6) / 0.4) : 0) * fade;
+    if (r.cells == null && !r.pDriven && !r.li.hidden) v = fade;
     v = Math.round(v * 100) / 100; rv[r.i] = v; if (v !== r.vis) { r.vis = v; r.li.style.opacity = v; if (r.isHead) { statusEl.style.opacity = v; listEl.style.setProperty('--rv', v); } }
-    if (v > 0.2 && r.cells) blocks.push(r.cells.rtop - sy - 4, r.cells.bottom - sy + 4, r.i);
+    if (v > 0.02 && r.cells && r.pDriven) blocks.push(r.cells.rtop + wy - 4, r.cells.bottom + wy + 4, r.i, v);
   });
-  const h = hero, n = h.n, blink = now < blinkEnd;
+  const h = hero, n = h.n, blink = blinkTick(now) > 0;
   const R2 = ((ptr.touch ? 70 : 90) * 1.5) ** 2, sig2 = 2 * ((ptr.touch ? 70 : 90) / 2) ** 2;
   let springs = false;
   if (p < 0.9999) {
-    ctx.beginPath(); const glyphs = [];
+    ctx.beginPath(); const glyphs = [], nb = blocks.length;
     for (let i = 0; i < n; i++) {
       let x = h.x0[i], yv = h.y0[i], size = cellDev * h.z[i], d = h.d[i];
       if (h.trow[i] !== -1) {
         /* along a curved path to the row target (neighbours bow the same way, so the squares move as streams) */
         const t = clamp((p - d) / LAND), e = ease(t);
         if (t > 0) {
-          const gx = h.tx[i], gy = h.ty[i] - Math.max(sy, T), dx = gx - x, dy = gy - yv, k = 0.3 * Math.sin(h.x0[i] * 0.005 + h.y0[i] * 0.004 + h.trow[i] * 1.1), u1 = 1 - e;
+          const gx = h.tx[i], gy = h.ty[i] + wy, dx = gx - x, dy = gy - yv, k = 0.3 * Math.sin(h.x0[i] * 0.005 + h.y0[i] * 0.004 + h.trow[i] * 1.1), u1 = 1 - e;
           const qx = x + dx * 0.5 - dy * k, qy = yv + dy * 0.5 + dx * k;
           x = u1 * u1 * x + 2 * u1 * e * qx + e * e * gx; yv = u1 * u1 * yv + 2 * u1 * e * qy + e * e * gy;
         }
@@ -371,13 +404,15 @@ function frame(now) {
         const tt = clamp((p - d) / 0.55); if (tt > 0) { yv += tt * tt * (g.H * 1.4) * (0.7 + 0.6 * h.hash[i]); x += (h.hash[i] - 0.5) * 30 * tt; size *= 1 - smooth(tt * 1.08 - 0.08); }
       }
       if (size < 0.4) continue;
-      const vy = yv; if (blocks.length) { let hid = false; for (let q = 0; q < blocks.length; q += 3) if (vy > blocks[q] && vy < blocks[q + 1] && h.trow[i] !== blocks[q + 2]) { hid = true; break; } if (hid) continue; }
-      if (vy < -cell || vy > H + cell || x < -cell || x > W + cell) continue;
+      /* a square passing over another row's settled text shrinks as that text fades in (no overlapping, no popping) */
+      if (nb) { for (let q = 0; q < nb; q += 4) if (yv > blocks[q] && yv < blocks[q + 1] && h.trow[i] !== blocks[q + 2]) size *= 1 - blocks[q + 3]; if (size < 0.4) continue; }
+      if (yv < -cell || yv > H + cell || x < -cell || x > W + cell) continue;
       if (p < 0.02) { const dv = clamp(((i >= h.nP ? clamp((now - nameT) / 1200) : dev) * 1.4 - h.hash[(i * 7) % n] * 0.4) / 0.6); if (dv < 1) size *= dv; }
-      if (blink && h.eye[i]) continue;
+      if (blink && h.eye[i]) { size *= blinkScale(i); if (size < 0.4) continue; }
+      const vy = yv;
       let f = 0, ox = 0, oy = 0;
       const dx = x + cell / 2 - ptr.x, dy = vy + cell / 2 - ptr.y, d2 = dx * dx + dy * dy;
-      let target = 0; if (ptrK > 0.01 && d2 < R2) target = Math.exp(-d2 / sig2) * ptrK;
+      let target = 0; if (ptrK > 0.01 && d2 < R2 && p < 0.05) target = Math.exp(-d2 / sig2) * ptrK;
       if (target > 0 || h.fi[i] !== 0 || h.fv[i] !== 0) {
         h.fv[i] += ((target - h.fi[i]) * 170 - h.fv[i] * 17) * dt; h.fi[i] += h.fv[i] * dt;
         if (target === 0 && Math.abs(h.fi[i]) < 0.004 && Math.abs(h.fv[i]) < 0.02) h.fi[i] = h.fv[i] = 0; else springs = true;
@@ -390,7 +425,6 @@ function frame(now) {
       if (size < 0.4) continue;
       ctx.rect(Math.round((x + ox) * dpr) + (cellDev - size) / 2, Math.round((vy + oy) * dpr) + (cellDev - size) / 2, size, size);
     }
-    if (blink) for (let q = 0; q < h.segs.length; q += 2) glyphs.push(h.segs[q] + cell / 2, h.segs[q + 1] + cell / 2, 1, 2, 0, 1);
     ctx.fill();
     if (glyphs.length) {
       ctx.beginPath();
@@ -407,23 +441,24 @@ function frame(now) {
     /* shimmer and blink, only while the hero is at rest */
     if (p < 0.05) {
       const nf = dt * 24 + (Math.random() < (dt * 24) % 1 ? 1 : 0); for (let q = 0; q < nf; q++) h.flick[(Math.random() * n) | 0] = 1;
-      if (now > nextBlink && dev >= 1) { blinkEnd = now + 120; nextBlink = now + 4000 + Math.random() * 3000; }
+      if (dev >= 1) blinkSchedule(now);
     }
   } else if (!cleared) cleared = true;
   /* rows whose names were not part of the hand-over type on when they scroll into view */
   let typing = false;
   rowsData.forEach(r => {
     if (r.state !== 1 || !r.cells) return; typing = true;
-    const rt = (now - r.t0) / 700; if (rt >= 1) { r.state = 2; r.li.style.opacity = 1; r.vis = 1; return; }
+    const rt = (now - r.t0) / 700; if (rt >= 1) { r.state = 2; r.li.style.opacity = fade; r.vis = fade; return; }
     const c = r.cells; ctx.beginPath();
     for (let k = 0; k < c.xs.length; k++) {
-      const vy = c.ys[k] - sy; if (vy < -cell || vy > H + cell) continue;
+      const vy = c.ys[k] + wy; if (vy < -cell || vy > H + cell) continue;
       const th = clamp((c.xs[k] - c.left) / (c.width || 600)) * 0.55 + ((k * 2654435761 >>> 0) % 1000) / 1000 * 0.25;
-      let size = sqDev * clamp((rt * 1.45 - th) / 0.3) * (1 - smooth((rt - 0.8) / 0.2)); if (size < 0.4) continue;
+      let size = sqDev * clamp((rt * 1.45 - th) / 0.3) * (1 - smooth((rt - 0.8) / 0.2)) * fade; if (size < 0.4) continue;
       ctx.rect(Math.round(c.xs[k] * dpr) + (sqDev - size) / 2, Math.round(vy * dpr) + (sqDev - size) / 2, size, size);
     }
     ctx.fill();
   });
+  msLog.push(performance.now() - t0); if (msLog.length > 4000) msLog.shift();
   const idle = p >= 0.9999 && !typing && !springs && ptrK < 0.01 && pT === pS;
   if (idle) { running = false; return; }
   raf = requestAnimationFrame(frame);
@@ -455,15 +490,21 @@ async function startLive() {
   addEventListener('blur', () => { ptr.on = false; });
   addEventListener('scroll', wake, { passive: true });
   document.addEventListener('visibilitychange', () => { if (document.hidden) { running = false; cancelAnimationFrame(raf); } else wake(); });
-  var rt, lw = innerWidth, lh = innerHeight;
+  var rt;
   function relayout() { layout(); watch(); wake(); }
   const io = new IntersectionObserver(list => list.forEach(en => { const r = rowsData.find(x => x.li === en.target); if (r) { r.inView = en.isIntersecting; if (en.isIntersecting) wake(); } }), { threshold: 0.25 });
   const watch = () => rowsData.forEach(r => io.observe(r.li));
   watch();
 
-  addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (innerWidth === lw && Math.abs(innerHeight - lh) < 140) return; lw = innerWidth; lh = innerHeight; relayout(); }, 200); });
+  /* only a change of width or of the stage's own (small-viewport) height re-lays out: a phone's address bar moves innerHeight, never svh */
+  addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { const v = viewport(); if (lastVP && v.W === lastVP.W && Math.abs(v.H - lastVP.H) < 2) return; relayout(); }, 200); });
+  /* the Work link, a #work address and keyboard focus inside the list all mean "the end of the hand-over" */
+  const toWork = smoothly => scrollTo({ top: T, behavior: smoothly ? 'smooth' : 'auto' });
+  document.querySelectorAll('a[href="#work"]').forEach(a => a.addEventListener('click', e => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); toWork(true); try { history.replaceState(null, '', '#work'); } catch (_) {} }));
+  workEl.addEventListener('focusin', () => { if (scrollY < T - 2) toWork(false); });
+  if (location.hash === '#work' && scrollY < T) toWork(false);
   addEventListener('sq:layout', () => { clearTimeout(rt); rt = setTimeout(relayout, 60); });
-  window.__field = { stats, get p() { return pS; }, T: () => T, blink: () => { blinkEnd = performance.now() + 120; }, rows: () => rowsData };
+  window.__field = { stats, get p() { return pS; }, T: () => T, blink: () => { blinkFreeze = null; blinkDbl = false; blinkT0 = performance.now(); }, blinkFreeze: ms => { blinkFreeze = ms; }, ms: msLog, wy: () => wy, eyes: () => [hero.ecx, hero.ecy, g.cell], rows: () => rowsData };
   wake(); mark('firstframe');
 }
 let IMG = null;
