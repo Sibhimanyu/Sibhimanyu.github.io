@@ -19,7 +19,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <meta name="theme-color" content="#f7f6f2" />
 <link rel="preload" as="image" href="assets/portrait-src.webp?v=75eeea64" type="image/webp" fetchpriority="high" />
-<link rel="modulepreload" href="js/portrait.js?v=8f1ed54e" />
+<link rel="modulepreload" href="js/portrait.js?v=869a3b1c" />
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-tight-latin.woff2?v=83d548cd" crossorigin />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -33,7 +33,7 @@
   (function () {
     var r = document.documentElement;
     r.classList.add('js');
-    window.__BUILD="3cfa9f14"; // set by scripts/stamp.mjs; js/portrait.js?v=8f1ed54e must report the same build
+    window.__BUILD="0a0797eb"; // set by scripts/stamp.mjs; js/portrait.js?v=869a3b1c must report the same build
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) r.classList.add('rm', 'nogl', 'fx'); else { r.classList.add('wp'); setTimeout(function () { if (!window.__wpOK) r.classList.remove('wp'); }, 3500); }
     // the plain hero stays hidden until the live field paints; if that has not happened in 2.5 s (modules failed, slow network) show it
     setTimeout(function () { r.classList.add('reveal'); }, 2500);
@@ -141,6 +141,7 @@
   /* Footer */
   .foot { padding:0 var(--pad) 40px; }
   .closing { border-top:1px solid var(--fg); padding:clamp(56px,9vw,130px) 0 clamp(36px,5vw,64px); }
+  .closing h2 { position:relative; }
   .closing h2 { font-size:clamp(2.4rem,6.4vw,6rem); font-weight:600; letter-spacing:-.045em; line-height:1; max-width:13ch; margin-bottom:32px; text-wrap:balance; }
   .btn { display:inline-flex; align-items:center; gap:10px; min-height:48px; padding:0 22px; border-radius:999px; font-weight:600; text-decoration:none; background:var(--fg); color:var(--bg); transition:background-color .2s; }
   /* the colour wipe is CSS only: an accent layer grows left to right behind the label */
@@ -332,7 +333,8 @@
 
 <script id="proj" type="application/json">[{"name": "RasanAI", "tag": "macOS \u00b7 AI film", "desc": "A Mac app that turns a sentence and your footage into a finished film. You make five calls; Claude directs the rest.", "site": "https://sibhimanyu.github.io/rasanai/", "mark": "rasanai-mark.svg", "wide": false, "host": "sibhimanyu.github.io/rasanai"}, {"name": "Flotilla", "tag": "Web \u00b7 multiplayer coding agents", "desc": "Several AI coding agents build one app together, with tasks handed out, file ownership enforced and one live board.", "site": "https://sibhimanyu.github.io/flotilla/", "mark": "flotilla-mark.svg", "wide": false, "host": "sibhimanyu.github.io/flotilla"}, {"name": "Heresay", "tag": "Web, iOS, macOS \u00b7 user feedback", "desc": "In-app bug reports that reach your coding agent once your team accepts them.", "site": "https://sibhimanyu.github.io/heresay/", "mark": "heresay-mark.svg", "wide": false, "host": "sibhimanyu.github.io/heresay"}, {"name": "Squeak", "tag": "macOS, iPhone \u00b7 agent pager", "desc": "Watches every Claude Code and Codex session on your Mac and pages you when one needs you.", "site": "https://sibhimanyu.github.io/squeak/", "mark": "squeak-mark.png", "wide": false, "host": "sibhimanyu.github.io/squeak"}, {"name": "Imago", "tag": "Web \u00b7 API explorer", "desc": "Paste an API URL or a curl command and get a live interface drawn from the JSON's shape.", "site": "https://imago.onslate.in/", "mark": "imago-mark.svg", "wide": false, "host": "imago.onslate.in"}, {"name": "Greenroom", "tag": "macOS \u00b7 classroom setup", "desc": "Starts a whole morning class in one click: OBS virtual camera, Zoom and a tiled layout.", "site": "https://sibhimanyu.github.io/greenroom/", "mark": "greenroom-mark.png", "wide": false, "host": "sibhimanyu.github.io/greenroom"}, {"name": "Abhishri Academy", "tag": "Web, iOS \u00b7 school ERP", "desc": "Attendance, fees and receipts for staff, an iOS app, and a portal for parents.", "site": "https://abhishri-academy.web.app/public-calendar", "mark": "abhishri-mark.png", "wide": true, "host": "abhishri-academy.web.app/public-calendar"}, {"name": "SNOF", "tag": "Web \u00b7 farm dashboard", "desc": "Every room, sensor and switch on the farm, live from Home Assistant.", "site": "https://snof-live.web.app/", "mark": "snof-mark.png", "wide": false, "host": "snof-live.web.app"}]</script>
 <script src="js/ui.js?v=b5c2e673" defer></script>
-<script type="module" src="js/portrait.js?v=8f1ed54e"></script>
+<script type="module" src="js/portrait.js?v=869a3b1c"></script>
+<script type="module" src="js/footer-fx.js?v=2c3ad8d0"></script>
 <script src="js/work.js?v=73d507b4" defer></script>
 </body>
 </html>

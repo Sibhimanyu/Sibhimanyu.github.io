@@ -4,8 +4,8 @@
    What runs: the develop-in on load, the blink, the mouse effect (hover.js, mouse only) and one rAF-throttled scroll controller that writes
    CSS custom properties (--hp hero progress, --rule the bridge's dotted rule). Reduced motion / no canvas: drawn once, static, no listeners. */
 
-import { createHover } from './hover.js?v=1f9a4f51';
-export const BUILD = '3cfa9f14';   /* set by scripts/stamp.mjs; must equal window.__BUILD in index.html */
+import { createHover } from './hover.js?v=574a5883';
+export const BUILD = '0a0797eb';   /* set by scripts/stamp.mjs; must equal window.__BUILD in index.html */
 const root = document.documentElement;
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const smooth = v => { v = clamp(v); return v * v * (3 - 2 * v); };
