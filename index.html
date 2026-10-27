@@ -99,7 +99,7 @@
   /* the dotted rule: ONE element, the top divider of Work. CSS background dots the size of the portrait's squares, off-white at 45%.
      While the hero's squares are arriving, the fly canvas draws these same dots (portrait.js) and --rule is 0; once landed --rule is 1 and this takes over. */
   .rule { display:block; width:100%; height:var(--sq,3.6px); margin-bottom:clamp(24px,3.4vw,48px); background:linear-gradient(90deg,var(--fg) var(--sq,3.6px),transparent 0) 0 0 / var(--cell,4px) 100% repeat-x; opacity:.45; clip-path:inset(0 calc((1 - var(--rule,1)) * 50%)); }
-  .idx-list { border-top:1px solid var(--line); }
+  [data-q] { transition:none !important; }
   #fly { position:fixed; left:0; top:0; z-index:2; pointer-events:none; display:none; }
   .live #fly { display:block; }
   .chip[aria-pressed="true"] { font-weight:700; }

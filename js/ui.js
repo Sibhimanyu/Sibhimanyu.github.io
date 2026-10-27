@@ -20,6 +20,7 @@
         }
       });
       say(n);
+      window.dispatchEvent(new CustomEvent('sq:layout'));
     });
     chip.addEventListener('keydown', function (e) {
       var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
