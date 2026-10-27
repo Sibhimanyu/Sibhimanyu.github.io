@@ -43,5 +43,5 @@
   }
   window.__sqFallback = fallback;
   if (root.classList.contains('rm')) fallback();
-  else setTimeout(function () { if (!root.classList.contains('gl')) fallback(); }, 6000);
+  /* no timeout: a slow connection only delays the motion; field.js calls the fallback itself if WebGL or GSAP fail */
 })();

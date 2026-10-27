@@ -405,6 +405,11 @@ async function boot() {
     T[0] = sampleText(['Sibhimanyu'], { frac: 0.86, maxFs: 1500 });
     T[10] = sampleDots();
     T[6] = sampleText(mobile ? ['a classroom,', 'a school', 'and a farm'] : ['a classroom, a school', 'and a farm'], { frac: mobile ? 0.84 : 0.7, maxFs: 220 });
+    /* the projects' screenshots stream in behind the hero, in order; nothing waits for them, so a slow connection
+       still gets the particle name at once (it used to wait for all eight, and the page gave up after 6 s) */
+    streamProjects(tok);
+  }
+  async function streamProjects(tok) {
     for (let j = 0; j < projEls.length; j++) {
       await new Promise(r => setTimeout(r, 0));
       if (tok !== buildTok) return;
