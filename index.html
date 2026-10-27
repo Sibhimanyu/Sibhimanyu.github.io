@@ -143,8 +143,8 @@
   .closing h2 { font-size:clamp(2.4rem,6.4vw,6rem); font-weight:600; letter-spacing:-.045em; line-height:1; max-width:13ch; margin-bottom:32px; text-wrap:balance; }
   .btn { display:inline-flex; align-items:center; gap:10px; min-height:48px; padding:0 22px; border-radius:999px; font-weight:600; text-decoration:none; background:var(--fg); color:var(--bg); transition:background-color .2s; }
   /* the colour wipe is CSS only: an accent layer grows left to right behind the label */
-  .btn { background:linear-gradient(var(--ac),var(--ac)) left center / 0% 100% no-repeat, var(--fg); transition:background-size .32s var(--ease); }
-  .btn:hover, .btn:focus-visible { background-size:100% 100%, auto; }
+  .btn { --cta:#2A0F45; background:linear-gradient(var(--cta),var(--cta)) left center / 0% 100% no-repeat, var(--fg); transition:background-size .32s var(--ease), color .2s .1s; }
+  .btn:hover, .btn:focus-visible { background-size:100% 100%, auto; color:var(--fg); }
   .btn svg { width:18px; height:18px; position:relative; z-index:1; }
   .btn { position:relative; overflow:hidden; isolation:isolate; }
   .btn-t { position:relative; z-index:1; }
