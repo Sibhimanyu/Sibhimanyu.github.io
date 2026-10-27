@@ -43,9 +43,9 @@ function buildGrid(cols, rows, img, edge) {
   for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) { let sl = 0, sa = 0; for (let v = 0; v < S; v++) for (let u = 0; u < S; u++) { const q = (j * S + v) * cw + i * S + u; sl += t[q] * a[q]; sa += a[q]; }
     const q = j * cols + i; A[q] = sa / (S * S); L[q] = sa > 0 ? sl / sa : 0;
     /* the photo's own side edges (the shoulders run off the frame) taper into the page; the bottom bleeds off the screen */
-    const ex = Math.min(edge.l ? i / (cols * 0.1) : 9, edge.r ? (cols - 1 - i) / (cols * 0.1) : 9, edge.b ? (rows - 1 - j) / (rows * edge.b) : 9);
+    const exs = Math.min(edge.l ? i / (cols * 0.1) : 9, edge.r ? (cols - 1 - i) / (cols * 0.1) : 9), exb = edge.b ? (rows - 1 - j) / (rows * edge.b) : 9, ex = Math.min(exs, exb);
     SC[q] = 1;
-    if (ex < 1) { const e = smooth(ex); L[q] *= e; if (e < 0.04) A[q] = 0; if (e < 0.5) SC[q] = 0; } }
+    if (ex < 1) { const e = smooth(ex); L[q] *= e; if (exs < 1 && smooth(exs) < 0.04) A[q] = 0; if (e < 0.5) SC[q] = 0; } }
   const eyes = EYES.map(([ex, ey, rx, ry]) => {
     const cells = []; let rmin = 1e9, rmax = -1;
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
@@ -76,8 +76,8 @@ function measureName() {
 }
 function geometry(W, H, Hc) {
   const mobile = W <= 760, dpr = Math.min(window.devicePixelRatio || 1, 2), pad = Math.max(20, Math.min(44, W * 0.031));
-  const cell0 = mobile ? 3 : Math.max(3, Math.round(W / 420)), cellDev = Math.max(2, Math.round(cell0 * dpr)), cell = cellDev / dpr;
-  const w0 = mobile ? W : W * 0.47, cols = Math.round(w0 / cell), rows = Math.round(cols * SRC_H / SRC_W), w = cols * cell, h = rows * cell;
+  const cell0 = mobile ? 2 : Math.max(3, Math.round(W / 420)), cellDev = Math.max(2, Math.round(cell0 * dpr)), cell = cellDev / dpr;
+  const w0 = mobile ? W * 0.92 : W * 0.47, cols = Math.round(w0 / cell), rows = Math.round(cols * SRC_H / SRC_W), w = cols * cell, h = rows * cell;
   const g = { W, H, Hc, dpr, mobile, cols, rows, cell, cellDev, sqDev: cellDev - Math.max(1, Math.round(0.6 * dpr)), w, h, pad };
   const wMax = measureName();
   /* the face centre is at 51% of the crop's width, the hair top 3% below its top */
@@ -132,7 +132,7 @@ const HALO_PX = 80;
 function portraitSquares(P, ox, oy, gw, gh, cell, eyeSet) {
   const sil = new Uint8Array(gw * gh), cov = new Uint8Array(gw * gh), out = { xs: [], ys: [], zs: [], etz: [], eyeF: [], eyeRow: [], eyeN: [], cov };
   for (let r = 0; r < P.rows; r++) for (let c = 0; c < P.cols; c++) { const R = r + oy, C = c + ox; if (R < 0 || C < 0 || R >= gh || C >= gw) continue; const i = r * P.cols + c;
-    if (P.A[i] >= 0.5) sil[R * gw + C] = 1; if (P.S[i]) cov[R * gw + C] = 1; }
+    if (P.S[i]) { sil[R * gw + C] = 1; cov[R * gw + C] = 1; } }
   for (let r = 0; r < P.rows; r++) for (let c = 0; c < P.cols; c++) {
     const i = r * P.cols + c; if (P.A[i] < 0.5) continue;
     const R = r + oy, C = c + ox; if (R < -1 || C < -1 || R > gh || C > gw) continue;
