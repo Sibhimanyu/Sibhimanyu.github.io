@@ -18,10 +18,15 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <meta name="theme-color" content="#f7f6f2" />
+<link rel="preload" as="image" href="assets/portrait-src.webp" type="image/webp" fetchpriority="high" />
+<link rel="modulepreload" href="js/portrait.js" />
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-tight-latin.woff2" crossorigin />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400&family=Figtree:wght@400;500;700&family=Inter:wght@400;700&family=Manrope:wght@500;700&family=Mukta:wght@400;700&family=Playfair+Display:wght@400&display=swap" />
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" />
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" /></noscript>
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400&family=Figtree:wght@400;500;700&family=Inter:wght@400;700&family=Manrope:wght@500;700&family=Mukta:wght@400;700&family=Playfair+Display:wght@400&display=swap" />
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400&family=Figtree:wght@400;500;700&family=Inter:wght@400;700&family=Manrope:wght@500;700&family=Mukta:wght@400;700&family=Playfair+Display:wght@400&display=swap" /></noscript>
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Person", "@id": "https://sibhimanyu.github.io/#me", "name": "Sibhimanyu", "url": "https://sibhimanyu.github.io/", "sameAs": ["https://github.com/Sibhimanyu"]}, {"@type": "ItemList", "name": "Projects Sibhimanyu has worked on", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "RasanAI", "url": "https://sibhimanyu.github.io/rasanai/"}, {"@type": "ListItem", "position": 2, "name": "Flotilla", "url": "https://sibhimanyu.github.io/flotilla/"}, {"@type": "ListItem", "position": 3, "name": "Heresay", "url": "https://sibhimanyu.github.io/heresay/"}, {"@type": "ListItem", "position": 4, "name": "Squeak", "url": "https://sibhimanyu.github.io/squeak/"}, {"@type": "ListItem", "position": 5, "name": "Imago", "url": "https://imago.onslate.in/"}, {"@type": "ListItem", "position": 6, "name": "Greenroom", "url": "https://sibhimanyu.github.io/greenroom/"}, {"@type": "ListItem", "position": 7, "name": "Abhishri Academy", "url": "https://abhishri-academy.web.app/public-calendar"}, {"@type": "ListItem", "position": 8, "name": "SNOF", "url": "https://snof-live.web.app/"}]}]}</script>
 <script>
   // Motion is an enhancement: no JS, reduced motion or no WebGL leaves a plain, readable document.
@@ -29,9 +34,13 @@
     var r = document.documentElement;
     r.classList.add('js');
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) r.classList.add('rm', 'nogl', 'fx');
+    // the plain hero stays hidden until the live field paints; if that has not happened in 2.5 s (modules failed, slow network) show it
+    setTimeout(function () { r.classList.add('reveal'); }, 2500);
   })();
 </script>
 <style>
+  /* Inter Tight (one variable file, latin) is declared here so nothing waits on a stylesheet for it */
+  @font-face { font-family:"Inter Tight"; font-style:normal; font-weight:100 900; font-display:swap; src:url(assets/fonts/inter-tight-latin.woff2) format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
   :root { --bg:#0A0A0A; --fg:#F2F0EB; --ac:#FF4D1F; --dim:rgba(242,240,235,.66); --faint:rgba(242,240,235,.42); --line:rgba(242,240,235,.16);
     --sans:"Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif; --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
     --pad:clamp(20px,3.1vw,44px); --ease:cubic-bezier(.16,1,.3,1); }
@@ -67,6 +76,7 @@
   .hero h1 { font-size:clamp(3.4rem,15.2vw,14rem); font-weight:600; letter-spacing:-.045em; line-height:.9; margin-bottom:clamp(20px,4vh,36px); }
   .tagline { font-size:clamp(1.25rem,2.2vw,1.9rem); font-weight:500; letter-spacing:-.018em; line-height:1.25; max-width:24ch; text-wrap:balance; }
   .hint, #thumb { display:none; }
+  .js:not(.rm):not(.nogl):not(.live):not(.reveal) .hero h1, .js:not(.rm):not(.nogl):not(.live):not(.reveal) .portrait-img { visibility:hidden; }
   .portrait-img { width:min(62vw,340px); height:auto; margin:0 0 clamp(20px,4vh,36px); }
   #portrait { display:none; margin:0 0 clamp(20px,4vh,36px); pointer-events:none; }
   .pt #portrait { display:block; }

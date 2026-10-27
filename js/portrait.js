@@ -10,10 +10,12 @@ const smooth = v => { v = clamp(v); return v * v * (3 - 2 * v); };
 const ease = v => { v = clamp(v); return v < 0.5 ? 4 * v * v * v : 1 - Math.pow(-2 * v + 2, 3) / 2; };
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const FG = '#F2F0EB', NAME = 'Sibhimanyu';
-const SRC_W = 460, SRC_H = 560, CROP_Y = 40;               /* the crop of assets/portrait-src.png (460x600) */
+const SRC_W = 460, SRC_H = 560, CROP_Y = 40;               /* the crop of assets/portrait-src.webp (460x600) */
 const EYES = [[155, 173, 18, 8], [215, 177, 18, 8]];       /* in the crop: centre x, y, half width, half height */
 const canvas = document.getElementById('portrait');
-const IMG_P = new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = 'assets/portrait-src.png'; });
+const IMG_P = new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = 'assets/portrait-src.webp'; });
+const mark = n => { try { performance.mark('hero-' + n); } catch (e) {} };
+let nameOn = true, nameT = 0;
 
 /* ------------------------------------------------------------------ tone mapping (the approved panel B) */
 /* local contrast against a box-blurred mean/std, a histogram equalisation and the raw tone, 3x supersampled, averaged to the grid */
@@ -57,7 +59,8 @@ let nameW100 = 0;
 function measureName() {
   if (nameW100) return nameW100;
   const c = document.createElement('canvas').getContext('2d'); c.font = '600 100px "Inter Tight", system-ui, sans-serif'; c.letterSpacing = '-3.5px';
-  return (nameW100 = c.measureText(NAME).width);
+  const w = c.measureText(NAME).width;
+  return document.fonts.check('600 100px "Inter Tight"') ? (nameW100 = w) : w;   /* a fallback font's width is not kept */
 }
 function geometry(W, H, plain) {
   const mobile = W <= 760, dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -110,9 +113,10 @@ function buildHero() {
     const R = r + oy, C = c + ox; if (!on(P.L[i], R, C)) continue;
     xs.push(C * cell); ys.push(R * cell); vs.push(P.L[i]); eyeF.push(eyeSet.has(R * gc + C) ? 1 : 0);
   }
-  const nm = rasterText(NAME, `600 ${g.fs}px "Inter Tight", system-ui, sans-serif`, `${-g.fs * 0.035}px`, g.cx, g.base, g.fs, 'center', measureName() * g.fs / 100, cell);
+  const nP = xs.length;
+  const nm = nameOn ? rasterText(NAME, `600 ${g.fs}px "Inter Tight", system-ui, sans-serif`, `${-g.fs * 0.035}px`, g.cx, g.base, g.fs, 'center', measureName() * g.fs / 100, cell) : [];
   for (let i = 0; i < nm.length; i += 2) { xs.push(nm[i] * cell); ys.push(nm[i + 1] * cell); vs.push(1); eyeF.push(0); }
-  const n = xs.length, h = { n, x0: Float32Array.from(xs), y0: Float32Array.from(ys), v: Float32Array.from(vs), eye: Uint8Array.from(eyeF),
+  const n = xs.length, h = { n, nP, x0: Float32Array.from(xs), y0: Float32Array.from(ys), v: Float32Array.from(vs), eye: Uint8Array.from(eyeF),
     hash: new Float32Array(n), d: new Float32Array(n), tx: new Float32Array(n), ty: new Float32Array(n), trow: new Int8Array(n).fill(-1),
     fi: new Float32Array(n), fv: new Float32Array(n), flick: new Float32Array(n), segs: [] };
   let seed = 11; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
@@ -235,7 +239,7 @@ function frame(now) {
       if (size < 0.4) continue;
       const vy = yv; if (blocks.length) { let hid = false; for (let q = 0; q < blocks.length; q += 3) if (vy > blocks[q] && vy < blocks[q + 1] && h.trow[i] !== blocks[q + 2]) { hid = true; break; } if (hid) continue; }
       if (vy < -cell || vy > H + cell || x < -cell || x > W + cell) continue;
-      if (p < 0.02) { const dv = clamp((dev * 1.4 - h.hash[(i * 7) % n] * 0.4) / 0.6); if (dv < 1) size *= dv; }
+      if (p < 0.02) { const dv = clamp(((i >= h.nP ? clamp((now - nameT) / 1200) : dev) * 1.4 - h.hash[(i * 7) % n] * 0.4) / 0.6); if (dv < 1) size *= dv; }
       if (blink && h.eye[i]) continue;
       let f = 0, ox = 0, oy = 0;
       const dx = x + cell / 2 - ptr.x, dy = vy + cell / 2 - ptr.y, d2 = dx * dx + dy * dy;
@@ -294,13 +298,19 @@ function wake() { if (!live || running || document.hidden) return; running = tru
 
 /* ------------------------------------------------------------------ boot */
 async function startLive() {
+  mark('start');
+  const fontP = document.fonts.load('600 100px "Inter Tight"').catch(() => {});
   const im = await IMG_P; if (!im) throw new Error('no portrait image');
-  IMG = im;
-  await Promise.race([Promise.all([document.fonts.load('600 100px "Inter Tight"')]).then(() => document.fonts.ready), new Promise(r => setTimeout(r, 3500))]).catch(() => {});
+  IMG = im; mark('image');
+  /* the portrait does not wait for the name's font: if it is not here within ~300 ms the name joins as soon as it lands */
+  await Promise.race([fontP, new Promise(r => setTimeout(r, 300))]);
+  nameOn = document.fonts.check('600 100px "Inter Tight"'); mark(nameOn ? 'font' : 'nofont');
   listEl = document.querySelector('.idx-list'); headEl = document.querySelector('.idx-head'); heroOv = document.querySelector('.hero-ov');
   if (!canvas.getContext('2d') || !listEl) throw new Error('no canvas');
   root.classList.add('pt', 'live'); live = true;
-  layout(); tDev = performance.now(); nextBlink = tDev + 5400;
+  layout(); tDev = nameT = performance.now(); nextBlink = tDev + 5400; mark('layout');
+  if (!nameOn) fontP.then(() => { if (document.fonts.check('600 100px "Inter Tight"')) { nameOn = true; nameW100 = 0; nameT = performance.now(); relayout(); } });
+  document.fonts.addEventListener('loadingdone', () => { clearTimeout(rt); rt = setTimeout(relayout, 80); });
   document.querySelectorAll('.idx-list > li').forEach(li => { li.style.opacity = 0; });
   headEl.style.opacity = 0;
   addEventListener('pointermove', e => { ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; ptr.touch = e.pointerType === 'touch'; wake(); });
@@ -310,15 +320,16 @@ async function startLive() {
   addEventListener('blur', () => { ptr.on = false; });
   addEventListener('scroll', wake, { passive: true });
   document.addEventListener('visibilitychange', () => { if (document.hidden) { running = false; cancelAnimationFrame(raf); } else wake(); });
+  var rt, lw = innerWidth, lh = innerHeight;
+  function relayout() { layout(); watch(); wake(); }
   const io = new IntersectionObserver(list => list.forEach(en => { const r = rowsData.find(x => x.li === en.target); if (r) { r.inView = en.isIntersecting; if (en.isIntersecting) wake(); } }), { threshold: 0.25 });
   const watch = () => rowsData.forEach(r => io.observe(r.li));
   watch();
-  let rt, lw = innerWidth, lh = innerHeight;
-  const relayout = () => { layout(); watch(); wake(); };
+
   addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (innerWidth === lw && Math.abs(innerHeight - lh) < 140) return; lw = innerWidth; lh = innerHeight; relayout(); }, 200); });
   addEventListener('sq:layout', () => { clearTimeout(rt); rt = setTimeout(relayout, 60); });
   window.__field = { get p() { return pS; }, T: () => T, blink: () => { blinkEnd = performance.now() + 120; }, rows: () => rowsData };
-  wake();
+  wake(); mark('firstframe');
 }
 let IMG = null;
 
