@@ -4,17 +4,18 @@
    What runs: the develop-in on load, the blink, the mouse effect (hover.js, mouse only) and one rAF-throttled scroll controller that writes
    CSS custom properties (--hp hero progress, --rule the bridge's dotted rule). Reduced motion / no canvas: drawn once, static, no listeners. */
 
-import { createHover } from './hover.js';
+import { createHover } from './hover.js?v=1f9a4f51';
+export const BUILD = '3cfa9f14';   /* set by scripts/stamp.mjs; must equal window.__BUILD in index.html */
 const root = document.documentElement;
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const smooth = v => { v = clamp(v); return v * v * (3 - 2 * v); };
 const ease = v => { v = clamp(v); return v < 0.5 ? 4 * v * v * v : 1 - Math.pow(-2 * v + 2, 3) / 2; };
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const FG = '#F2F0EB', NAME = 'Sibhimanyu';
-const SRC_W = 460, SRC_H = 560, CROP_Y = 40;               /* the crop of assets/portrait-src.webp (460x600) */
+const SRC_W = 460, SRC_H = 560, CROP_Y = 40;               /* the crop of assets/portrait-src.webp?v=75eeea64 (460x600) */
 const EYES = [[155, 173, 15, 5.5], [215, 177, 15, 5.5]];       /* in the crop: centre x, y, half width, half height */
 const canvas = document.getElementById('portrait'), flyCv = document.getElementById('fly');
-const IMG_P = new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = 'assets/portrait-src.webp'; });
+const IMG_P = new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = 'assets/portrait-src.webp?v=75eeea64'; });
 const mark = n => { try { performance.mark('hero-' + n); } catch (e) {} };
 let nameOn = true, nameT = 0;
 let g = null, hero = null, lastVP = null, live = false, running = false, raf = 0, tDev = 0, IMG = null, blinkT0 = -1e9, blinkDbl = false, blinkFreeze = null;
@@ -437,7 +438,8 @@ window.__portraitPNG = async cell => {
   return cv.toDataURL('image/png');
 };
 
-if (canvas) {
+if (canvas && window.__BUILD !== BUILD) { console.warn('[field] page and script builds differ; keeping the plain page'); window.__sqFallback && window.__sqFallback(); }
+else if (canvas) {
   if (root.classList.contains('rm')) startStatic();
   else startLive().catch(err => { console.warn('[field] falling back to the plain page:', err && err.message); window.__sqFallback && window.__sqFallback(); startStatic(); });
 }

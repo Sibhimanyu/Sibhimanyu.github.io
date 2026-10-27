@@ -18,9 +18,9 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <meta name="theme-color" content="#f7f6f2" />
-<link rel="preload" as="image" href="assets/portrait-src.webp" type="image/webp" fetchpriority="high" />
-<link rel="modulepreload" href="js/portrait.js" />
-<link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-tight-latin.woff2" crossorigin />
+<link rel="preload" as="image" href="assets/portrait-src.webp?v=75eeea64" type="image/webp" fetchpriority="high" />
+<link rel="modulepreload" href="js/portrait.js?v=8f1ed54e" />
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-tight-latin.woff2?v=83d548cd" crossorigin />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" />
@@ -33,6 +33,7 @@
   (function () {
     var r = document.documentElement;
     r.classList.add('js');
+    window.__BUILD="3cfa9f14"; // set by scripts/stamp.mjs; js/portrait.js?v=8f1ed54e must report the same build
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) r.classList.add('rm', 'nogl', 'fx'); else { r.classList.add('wp'); setTimeout(function () { if (!window.__wpOK) r.classList.remove('wp'); }, 3500); }
     // the plain hero stays hidden until the live field paints; if that has not happened in 2.5 s (modules failed, slow network) show it
     setTimeout(function () { r.classList.add('reveal'); }, 2500);
@@ -40,7 +41,7 @@
 </script>
 <style>
   /* Inter Tight (one variable file, latin) is declared here so nothing waits on a stylesheet for it */
-  @font-face { font-family:"Inter Tight"; font-style:normal; font-weight:100 900; font-display:swap; src:url(assets/fonts/inter-tight-latin.woff2) format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  @font-face { font-family:"Inter Tight"; font-style:normal; font-weight:100 900; font-display:swap; src:url(assets/fonts/inter-tight-latin.woff2?v=83d548cd) format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
   :root { --bg:#0A0A0A; --fg:#F2F0EB; --ac:#FF4D1F; --dim:rgba(242,240,235,.66); --faint:rgba(242,240,235,.42); --line:rgba(242,240,235,.16);
     --sans:"Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif; --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
     --pad:clamp(20px,3.1vw,44px); --cell:4px; --sq:3.6px; --ease:cubic-bezier(.16,1,.3,1); }
@@ -233,7 +234,7 @@
 </div>
 <main id="top">
   <section class="hero" aria-label="Introduction">
-    <img class="portrait-img" id="portrait-img" src="assets/portrait-glyphs.png" width="1068" height="1182" alt="Sibhimanyu, drawn in dots and crosses" />
+    <img class="portrait-img" id="portrait-img" src="assets/portrait-glyphs.png?v=717247df" width="1068" height="1182" alt="Sibhimanyu, drawn in dots and crosses" />
     <canvas id="portrait" role="img" aria-label="Sibhimanyu, drawn in dots and crosses"></canvas>
     <h1>Sibhimanyu</h1>
     <div class="hero-ov">
@@ -256,57 +257,57 @@
     </div>
     <p class="status mono" id="idx-status" role="status" aria-live="polite"></p>
     <ol class="idx-list">
-      <li data-group="agents" id="i-rasanai" data-shot="assets/rasanai-tall.jpg" style="--sk-ac:#9aa0ff">
-        <img class="mk" src="assets/rasanai-mark.svg" alt="" width="28" height="28">
+      <li data-group="agents" id="i-rasanai" data-shot="assets/rasanai-tall.jpg?v=f73fe352" style="--sk-ac:#9aa0ff">
+        <img class="mk" src="assets/rasanai-mark.svg?v=24cac058" alt="" width="28" height="28">
         <span class="n mono" aria-hidden="true">01</span>
         <div class="who"><h3><a href="https://sibhimanyu.github.io/rasanai/">RasanAI</a></h3><p class="mono">macOS · AI film</p></div>
         <p class="d">A Mac app that turns a sentence and your footage into a finished film. You make five calls; Claude directs the rest.</p>
         <p class="l"><a class="go" href="https://sibhimanyu.github.io/rasanai/">Visit site<span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/rasanai">GitHub</a></p>
       </li>
-      <li data-group="agents" id="i-flotilla" data-shot="assets/flotilla-tall.jpg" style="--sk-ac:#2bb5a6">
-        <img class="mk" src="assets/flotilla-mark.svg" alt="" width="28" height="28">
+      <li data-group="agents" id="i-flotilla" data-shot="assets/flotilla-tall.jpg?v=04949e23" style="--sk-ac:#2bb5a6">
+        <img class="mk" src="assets/flotilla-mark.svg?v=abff4633" alt="" width="28" height="28">
         <span class="n mono" aria-hidden="true">02</span>
         <div class="who"><h3><a href="https://sibhimanyu.github.io/flotilla/">Flotilla</a></h3><p class="mono">Web · multiplayer coding agents</p></div>
         <p class="d">Several AI coding agents build one app together, with tasks handed out, file ownership enforced and one live board.</p>
         <p class="l"><a class="go" href="https://sibhimanyu.github.io/flotilla/">Visit site<span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/multiplayer-agentic-builder">GitHub</a></p>
       </li>
-      <li data-group="agents" id="i-heresay" data-shot="assets/heresay-tall.jpg" style="--sk-ac:#2dd4bf">
-        <img class="mk" src="assets/heresay-mark.svg" alt="" width="28" height="28">
+      <li data-group="agents" id="i-heresay" data-shot="assets/heresay-tall.jpg?v=4acc09aa" style="--sk-ac:#2dd4bf">
+        <img class="mk" src="assets/heresay-mark.svg?v=7a4e858d" alt="" width="28" height="28">
         <span class="n mono" aria-hidden="true">03</span>
         <div class="who"><h3><a href="https://sibhimanyu.github.io/heresay/">Heresay</a></h3><p class="mono">Web, iOS, macOS · user feedback</p></div>
         <p class="d">In-app bug reports that reach your coding agent once your team accepts them.</p>
         <p class="l"><a class="go" href="https://sibhimanyu.github.io/heresay/">Visit site<span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/heresay">GitHub</a></p>
       </li>
-      <li data-group="agents" id="i-squeak" data-shot="assets/squeak-tall.jpg" style="--sk-ac:#ffda1a">
-        <img class="mk" src="assets/squeak-mark.png" alt="" width="28" height="28">
+      <li data-group="agents" id="i-squeak" data-shot="assets/squeak-tall.jpg?v=6846baf1" style="--sk-ac:#ffda1a">
+        <img class="mk" src="assets/squeak-mark.png?v=4fa187c8" alt="" width="28" height="28">
         <span class="n mono" aria-hidden="true">04</span>
         <div class="who"><h3><a href="https://sibhimanyu.github.io/squeak/">Squeak</a></h3><p class="mono">macOS, iPhone · agent pager</p></div>
         <p class="d">Watches every Claude Code and Codex session on your Mac and pages you when one needs you.</p>
         <p class="l"><a class="go" href="https://sibhimanyu.github.io/squeak/">Visit site<span aria-hidden="true">→</span></a><span class="note mono">Private for now</span></p>
       </li>
-      <li data-group="agents" id="i-imago" data-shot="assets/imago-tall.jpg" style="--sk-ac:#3ccf7a">
-        <img class="mk" src="assets/imago-mark.svg" alt="" width="28" height="28">
+      <li data-group="agents" id="i-imago" data-shot="assets/imago-tall.jpg?v=31c867ad" style="--sk-ac:#3ccf7a">
+        <img class="mk" src="assets/imago-mark.svg?v=0a0d5031" alt="" width="28" height="28">
         <span class="n mono" aria-hidden="true">05</span>
         <div class="who"><h3><a href="https://imago.onslate.in/">Imago</a></h3><p class="mono">Web · API explorer</p></div>
         <p class="d">Paste an API URL or a curl command and get a live interface drawn from the JSON&#x27;s shape.</p>
         <p class="l"><a class="go" href="https://imago.onslate.in/">Visit site<span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/imago">GitHub</a></p>
       </li>
-      <li data-group="places" id="i-greenroom" data-shot="assets/greenroom-tall.jpg" style="--sk-ac:#7bc653">
-        <img class="mk" src="assets/greenroom-mark.png" alt="" width="28" height="28">
+      <li data-group="places" id="i-greenroom" data-shot="assets/greenroom-tall.jpg?v=552c7fac" style="--sk-ac:#7bc653">
+        <img class="mk" src="assets/greenroom-mark.png?v=01a14066" alt="" width="28" height="28">
         <span class="n mono" aria-hidden="true">06</span>
         <div class="who"><h3><a href="https://sibhimanyu.github.io/greenroom/">Greenroom</a></h3><p class="mono">macOS · classroom setup</p></div>
         <p class="d">Starts a whole morning class in one click: OBS virtual camera, Zoom and a tiled layout.</p>
         <p class="l"><a class="go" href="https://sibhimanyu.github.io/greenroom/">Visit site<span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/greenroom">GitHub</a></p>
       </li>
-      <li data-group="places" id="i-abhishri" data-shot="assets/abhishri-tall.jpg" style="--sk-ac:#f26b65">
-        <img class="mk" src="assets/abhishri-mark.png" alt="" width="28" height="28">
+      <li data-group="places" id="i-abhishri" data-shot="assets/abhishri-tall.jpg?v=5fa9effc" style="--sk-ac:#f26b65">
+        <img class="mk" src="assets/abhishri-mark.png?v=35ee2a13" alt="" width="28" height="28">
         <span class="n mono" aria-hidden="true">07</span>
         <div class="who"><h3><a href="https://abhishri-academy.web.app/public-calendar">Abhishri Academy</a></h3><p class="mono">Web, iOS · school ERP</p></div>
         <p class="d">Attendance, fees and receipts for staff, an iOS app, and a portal for parents.</p>
         <p class="l"><a class="go" href="https://abhishri-academy.web.app/public-calendar">See the calendar<span aria-hidden="true">→</span></a><a href="https://github.com/Sibhimanyu/Abhishri-Engine">GitHub</a></p>
       </li>
-      <li data-group="places" id="i-snof" data-shot="assets/snof-shot.jpg" style="--sk-ac:#34c27a">
-        <img class="mk" src="assets/snof-mark.png" alt="" width="28" height="28">
+      <li data-group="places" id="i-snof" data-shot="assets/snof-shot.jpg?v=48242d6f" style="--sk-ac:#34c27a">
+        <img class="mk" src="assets/snof-mark.png?v=b3ebbf82" alt="" width="28" height="28">
         <span class="n mono" aria-hidden="true">08</span>
         <div class="who"><h3><a href="https://snof-live.web.app/">SNOF</a></h3><p class="mono">Web · farm dashboard</p></div>
         <p class="d">Every room, sensor and switch on the farm, live from Home Assistant.</p>
@@ -330,8 +331,8 @@
 </footer>
 
 <script id="proj" type="application/json">[{"name": "RasanAI", "tag": "macOS \u00b7 AI film", "desc": "A Mac app that turns a sentence and your footage into a finished film. You make five calls; Claude directs the rest.", "site": "https://sibhimanyu.github.io/rasanai/", "mark": "rasanai-mark.svg", "wide": false, "host": "sibhimanyu.github.io/rasanai"}, {"name": "Flotilla", "tag": "Web \u00b7 multiplayer coding agents", "desc": "Several AI coding agents build one app together, with tasks handed out, file ownership enforced and one live board.", "site": "https://sibhimanyu.github.io/flotilla/", "mark": "flotilla-mark.svg", "wide": false, "host": "sibhimanyu.github.io/flotilla"}, {"name": "Heresay", "tag": "Web, iOS, macOS \u00b7 user feedback", "desc": "In-app bug reports that reach your coding agent once your team accepts them.", "site": "https://sibhimanyu.github.io/heresay/", "mark": "heresay-mark.svg", "wide": false, "host": "sibhimanyu.github.io/heresay"}, {"name": "Squeak", "tag": "macOS, iPhone \u00b7 agent pager", "desc": "Watches every Claude Code and Codex session on your Mac and pages you when one needs you.", "site": "https://sibhimanyu.github.io/squeak/", "mark": "squeak-mark.png", "wide": false, "host": "sibhimanyu.github.io/squeak"}, {"name": "Imago", "tag": "Web \u00b7 API explorer", "desc": "Paste an API URL or a curl command and get a live interface drawn from the JSON's shape.", "site": "https://imago.onslate.in/", "mark": "imago-mark.svg", "wide": false, "host": "imago.onslate.in"}, {"name": "Greenroom", "tag": "macOS \u00b7 classroom setup", "desc": "Starts a whole morning class in one click: OBS virtual camera, Zoom and a tiled layout.", "site": "https://sibhimanyu.github.io/greenroom/", "mark": "greenroom-mark.png", "wide": false, "host": "sibhimanyu.github.io/greenroom"}, {"name": "Abhishri Academy", "tag": "Web, iOS \u00b7 school ERP", "desc": "Attendance, fees and receipts for staff, an iOS app, and a portal for parents.", "site": "https://abhishri-academy.web.app/public-calendar", "mark": "abhishri-mark.png", "wide": true, "host": "abhishri-academy.web.app/public-calendar"}, {"name": "SNOF", "tag": "Web \u00b7 farm dashboard", "desc": "Every room, sensor and switch on the farm, live from Home Assistant.", "site": "https://snof-live.web.app/", "mark": "snof-mark.png", "wide": false, "host": "snof-live.web.app"}]</script>
-<script src="js/ui.js" defer></script>
-<script type="module" src="js/portrait.js"></script>
-<script src="js/work.js" defer></script>
+<script src="js/ui.js?v=b5c2e673" defer></script>
+<script type="module" src="js/portrait.js?v=8f1ed54e"></script>
+<script src="js/work.js?v=73d507b4" defer></script>
 </body>
 </html>
