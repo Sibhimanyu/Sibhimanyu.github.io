@@ -37,7 +37,7 @@ function buildGrid(cols, rows, img, bleed) {
   const t = new Float32Array(n);
   for (let i = 0; i < n; i++) { if (a[i] < .5) continue; const w = Math.max(ma[i], 1e-3), mu = ml[i] / w, sd = Math.sqrt(Math.max(mq[i] / w - mu * mu, 1e-4));
     const loc = Math.min(1, Math.max(0, 0.5 + (l[i] - mu) / (sd * 2.6)));
-    t[i] = 0.5 * loc + 0.35 * cdf(l[i]) + 0.15 * l[i]; }
+    t[i] = 0.35 * loc + 0.3 * cdf(l[i]) + 0.35 * l[i]; }
   const L = new Float32Array(cols * rows), A = new Float32Array(cols * rows);
   for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) { let sl = 0, sa = 0; for (let v = 0; v < S; v++) for (let u = 0; u < S; u++) { const q = (j * S + v) * cw + i * S + u; sl += t[q] * a[q]; sa += a[q]; }
     const q = j * cols + i; A[q] = sa / (S * S); L[q] = sa > 0 ? sl / sa : 0;
@@ -54,7 +54,9 @@ function buildGrid(cols, rows, img, bleed) {
   });
   return { cols, rows, L, A, eyes };
 }
-const on = (L, r, c) => L > (BAYER[(r & 3) * 4 + (c & 3)] + 0.5) / 16;
+/* sized squares: tone plus an ordered offset, snapped to 4 sizes; the side is 0.92 cell * sqrt(q), 0 = nothing */
+const quant = (L, r, c) => Math.round(clamp(L + ((BAYER[(r & 3) * 4 + (c & 3)] + 0.5) / 16 - 0.5) * 0.25) * 4) / 4;
+const zOf = q => 0.92 * Math.sqrt(q);
 
 /* ------------------------------------------------------------------ geometry */
 let nameW100 = 0;
@@ -66,7 +68,7 @@ function measureName() {
 }
 function geometry(W, H, plain) {
   const mobile = W <= 760, dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const cols = mobile ? 100 : 165, rows = Math.round(cols * SRC_H / SRC_W), pad = Math.max(20, Math.min(44, W * 0.031));
+  const cols = mobile ? 100 : 150, rows = Math.round(cols * SRC_H / SRC_W), pad = Math.max(20, Math.min(44, W * 0.031));
   let w = plain ? (mobile ? Math.min(W * 0.62, 300) : Math.min(W * 0.4, 520)) : mobile ? Math.min(W * 0.78, H * 0.4 * cols / rows) : Math.min(W * 0.4, (H - 150) * cols / rows);
   const cellDev = Math.max(2, Math.round(w * dpr / cols)), cell = cellDev / dpr; w = cols * cell;
   const h = rows * cell, g = { W, H, dpr, mobile, cols, rows, cell, cellDev, sqDev: cellDev - Math.max(1, Math.round(0.6 * dpr)), w, h, pad };
@@ -108,17 +110,17 @@ const ptr = { x: -1e5, y: -1e5, on: false, touch: false }; let ptrK = 0;
 
 function buildHero() {
   const P = buildGrid(g.cols, g.rows, IMG, !g.mobile), cell = g.cell, ox = Math.round(g.x / cell), oy = Math.round(g.y / cell);
-  const gc = Math.ceil(g.W / cell) + 4, xs = [], ys = [], vs = [], eyeF = [];
+  const gc = Math.ceil(g.W / cell) + 4, xs = [], ys = [], vs = [], eyeF = [], zs = [];
   const eyeSet = new Set(); P.eyes.forEach(e => e.cells.forEach(([r, c]) => eyeSet.add((r + oy) * gc + c + ox)));
   for (let r = 0; r < P.rows; r++) for (let c = 0; c < P.cols; c++) {
     const i = r * P.cols + c; if (P.A[i] < 0.5) continue;
-    const R = r + oy, C = c + ox; if (!on(P.L[i], R, C)) continue;
-    xs.push(C * cell); ys.push(R * cell); vs.push(P.L[i]); eyeF.push(eyeSet.has(R * gc + C) ? 1 : 0);
+    const R = r + oy, C = c + ox, q = quant(P.L[i], R, C); if (q <= 0) continue;
+    xs.push(C * cell); ys.push(R * cell); zs.push(zOf(q)); vs.push(P.L[i]); eyeF.push(eyeSet.has(R * gc + C) ? 1 : 0);
   }
   const nP = xs.length;
   const nm = nameOn ? rasterText(NAME, `600 ${g.fs}px "Inter Tight", system-ui, sans-serif`, `${-g.fs * 0.035}px`, g.cx, g.base, g.fs, 'center', measureName() * g.fs / 100, cell) : [];
-  for (let i = 0; i < nm.length; i += 2) { xs.push(nm[i] * cell); ys.push(nm[i + 1] * cell); vs.push(1); eyeF.push(0); }
-  const n = xs.length, h = { n, nP, x0: Float32Array.from(xs), y0: Float32Array.from(ys), v: Float32Array.from(vs), eye: Uint8Array.from(eyeF),
+  for (let i = 0; i < nm.length; i += 2) { xs.push(nm[i] * cell); ys.push(nm[i + 1] * cell); zs.push(0.92); vs.push(1); eyeF.push(0); }
+  const n = xs.length, h = { n, nP, z: Float32Array.from(zs), x0: Float32Array.from(xs), y0: Float32Array.from(ys), v: Float32Array.from(vs), eye: Uint8Array.from(eyeF),
     hash: new Float32Array(n), d: new Float32Array(n), tx: new Float32Array(n), ty: new Float32Array(n), trow: new Int8Array(n).fill(-1),
     fi: new Float32Array(n), fv: new Float32Array(n), flick: new Float32Array(n), segs: [] };
   let seed = 11; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
@@ -149,7 +151,7 @@ function rowCells(li) {
 /* The Work section is held at its final on-screen position while the hand-over plays (it sits still under the pinned hero), so the
    glyph targets are exactly where the live DOM text is; it moves normally once the hand-over is done. */
 let shiftOn = '';
-function applyShift(sy) { const v = sy < T ? 'translate3d(0,' + (sy - T).toFixed(1) + 'px,0)' : ''; if (v !== shiftOn) { shiftOn = v; workEl.style.transform = v; } }
+function applyShift(sy) { const v = sy < T ? 'translate3d(0,' + (sy - T).toFixed(1) + 'px,0)' : ''; if (v !== shiftOn) { shiftOn = v; workEl.style.transform = v; workEl.style.pointerEvents = v ? 'none' : ''; } }
 function unshifted(fn) { const t = workEl.style.transform; workEl.style.transform = ''; try { return fn(); } finally { workEl.style.transform = t; } }
 const cellsFor = r => unshifted(() => r.isHead ? headCells() : rowCells(r.li));
 /* the heading, filter chips, count line and the list's top rule, as squares */
@@ -237,8 +239,8 @@ function fxPrepare() {
 function buildRest() {
   if (!rest) rest = document.createElement('canvas');
   rest.width = canvas.width; rest.height = canvas.height;
-  const c = rest.getContext('2d'), h = hero, dpr = g.dpr, sq = g.sqDev; c.fillStyle = FG; c.beginPath();
-  for (let i = 0; i < h.n; i++) c.rect(Math.round(h.x0[i] * dpr), Math.round(h.y0[i] * dpr), sq, sq);
+  const c = rest.getContext('2d'), h = hero, dpr = g.dpr, cd = g.cellDev; c.fillStyle = FG; c.beginPath();
+  for (let i = 0; i < h.n; i++) { const z = cd * h.z[i], o = (cd - z) / 2; c.rect(Math.round(h.x0[i] * dpr) + o, Math.round(h.y0[i] * dpr) + o, z, z); }
   c.fill(); restOK = true;
 }
 function addAct(i) { if (!inAct[i]) { inAct[i] = 1; act[actN++] = i; } }
@@ -293,14 +295,14 @@ function fastFrame(now, dt) {
   const lw = Math.max(1, cd * 0.2), half = cd * 0.42;
   for (let q = 0; q < X.length; q += 2) {
     const i = X[q], dropped = X[q + 1], x = h.x0[i], y = h.y0[i], ix = Math.round(x * dpr), iy = Math.round(y * dpr);
-    erase.rect(ix - 1, iy - 1, sq + 2, sq + 2);
+    erase.rect(ix - 1, iy - 1, cd + 2, cd + 2); const zs = cd * h.z[i], zo = (cd - zs) / 2;
     const mx0 = ix - cd * 4, my0 = iy - cd * 4, mx1 = ix + cd * 5, my1 = iy + cd * 5; if (mx0 < mnx) mnx = mx0; if (my0 < mny) mny = my0; if (mx1 > mxx) mxx = mx1; if (my1 > mxy) mxy = my1;
-    if (dropped) { sqs.rect(ix, iy, sq, sq); hasS = true; continue; }
+    if (dropped) { sqs.rect(ix + zo, iy + zo, zs, zs); hasS = true; continue; }
     if (blink && h.eye[i]) continue;
     const f = Math.max(f0[i], 0);
-    if (f < 0.02) { sqs.rect(ix, iy, sq, sq); hasS = true; continue; }
-    const hs = h.hash[i], ox = dirx[i] * f * cell * 1.8 * dpr, oy = diry[i] * f * cell * 1.8 * dpr, cx = ix + sq / 2 + ox, cy = iy + sq / 2 + oy;
-    if (f < 0.22) { const sz = sq * (1 - f * 3.2); if (sz > 0.5) { sqs.rect(cx - sz / 2, cy - sz / 2, sz, sz); hasS = true; } continue; }
+    if (f < 0.02) { sqs.rect(ix + zo, iy + zo, zs, zs); hasS = true; continue; }
+    const hs = h.hash[i], ox = dirx[i] * f * cell * 1.8 * dpr, oy = diry[i] * f * cell * 1.8 * dpr, cx = ix + cd / 2 + ox, cy = iy + cd / 2 + oy;
+    if (f < 0.22) { const sz = zs * (1 - f * 3.2); if (sz > 0.5) { sqs.rect(cx - sz / 2, cy - sz / 2, sz, sz); hasS = true; } continue; }
     const fs = Math.min(f, 1.2), sc = 1 + 0.8 * Math.min(fs, 1), rot = fs * (hs - 0.5) * 3.3, co = Math.cos(rot), si = Math.sin(rot), hh = half * sc;
     const score = h.v[i] * 0.7 + hs * 0.55, seg = (ax, ay, bx, by) => { lines.moveTo(cx + ax * co - ay * si, cy + ax * si + ay * co); lines.lineTo(cx + bx * co - by * si, cy + bx * si + by * co); hasL = true; };
     if (score > 1.0) { seg(-hh, -hh, hh, hh); seg(hh, -hh, -hh, hh); }
@@ -309,7 +311,7 @@ function fastFrame(now, dt) {
     else if (score > 0.4) { const r = hh * 0.85; fills.moveTo(cx + r * co, cy + r * si); fills.lineTo(cx - r * si, cy + r * co); fills.lineTo(cx - r * co, cy - r * si); fills.lineTo(cx + r * si, cy - r * co); fills.closePath(); hasF = true; }
     else { const r = hh * 0.42; fills.moveTo(cx + r, cy); fills.arc(cx, cy, r, 0, 6.2832); hasF = true; }
   }
-  if (blink) for (let q = 0; q < h.segs.length; q += 2) { const ix = Math.round(h.segs[q] * dpr), iy = Math.round(h.segs[q + 1] * dpr); lines.moveTo(ix, iy + sq / 2); lines.lineTo(ix + sq, iy + sq / 2); hasL = true; }
+  if (blink) for (let q = 0; q < h.segs.length; q += 2) { const ix = Math.round(h.segs[q] * dpr), iy = Math.round(h.segs[q + 1] * dpr); lines.moveTo(ix, iy + cd / 2); lines.lineTo(ix + cd, iy + cd / 2); hasL = true; }
   const cur = [Math.max(0, mnx), Math.max(0, mny), Math.min(canvas.width, mxx), Math.min(canvas.height, mxy)];
   if (mnx > mxx) cur[0] = cur[1] = cur[2] = cur[3] = 0;
   const U = prevU ? [Math.min(prevU[0], cur[0] || prevU[0]), Math.min(prevU[1], cur[1] || prevU[1]), Math.max(prevU[2], cur[2]), Math.max(prevU[3], cur[3])] : cur;
@@ -355,7 +357,7 @@ function frame(now) {
   if (p < 0.9999) {
     ctx.beginPath(); const glyphs = [];
     for (let i = 0; i < n; i++) {
-      let x = h.x0[i], yv = h.y0[i], size = sqDev, d = h.d[i];
+      let x = h.x0[i], yv = h.y0[i], size = cellDev * h.z[i], d = h.d[i];
       if (h.trow[i] !== -1) {
         /* along a curved path to the row target (neighbours bow the same way, so the squares move as streams) */
         const t = clamp((p - d) / LAND), e = ease(t);
@@ -386,7 +388,7 @@ function frame(now) {
       if (f > 0.25) { glyphs.push(x + cell / 2 + ox, vy + cell / 2 + oy, h.v[i], ((x / cell + yv / cell) | 0) & 1, f * (h.hash[i] - 0.5) * 4.4, Math.min(1, f * 1.4)); continue; }
       if (f > 0.02) size *= 1 - f * 1.6;
       if (size < 0.4) continue;
-      ctx.rect(Math.round((x + ox) * dpr) + (sqDev - size) / 2, Math.round((vy + oy) * dpr) + (sqDev - size) / 2, size, size);
+      ctx.rect(Math.round((x + ox) * dpr) + (cellDev - size) / 2, Math.round((vy + oy) * dpr) + (cellDev - size) / 2, size, size);
     }
     if (blink) for (let q = 0; q < h.segs.length; q += 2) glyphs.push(h.segs[q] + cell / 2, h.segs[q + 1] + cell / 2, 1, 2, 0, 1);
     ctx.fill();
@@ -473,7 +475,7 @@ async function startStatic() {
     const sg = geometry(innerWidth, innerHeight, true), P = buildGrid(sg.cols, sg.rows, im, false);
     canvas.width = sg.cols * sg.cellDev; canvas.height = sg.rows * sg.cellDev; canvas.style.width = sg.cols * sg.cell + 'px'; canvas.style.height = sg.rows * sg.cell + 'px';
     const c = canvas.getContext('2d'); c.fillStyle = FG;
-    for (let r = 0; r < P.rows; r++) for (let q = 0; q < P.cols; q++) { const i = r * P.cols + q; if (P.A[i] >= 0.5 && on(P.L[i], r, q)) c.fillRect(q * sg.cellDev, r * sg.cellDev, sg.sqDev, sg.sqDev); }
+    for (let r = 0; r < P.rows; r++) for (let q = 0; q < P.cols; q++) { const i = r * P.cols + q; if (P.A[i] < 0.5) continue; const qq = quant(P.L[i], r, q); if (qq <= 0) continue; const z = sg.cellDev * zOf(qq); c.fillRect(q * sg.cellDev + (sg.cellDev - z) / 2, r * sg.cellDev + (sg.cellDev - z) / 2, z, z); }
   };
   root.classList.add('pt'); draw();
   let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(draw, 150); });
@@ -481,9 +483,9 @@ async function startStatic() {
 
 /* a PNG of the 1-bit portrait for the no-JS <img>: window.__portraitPNG(cellPx) -> data URL */
 window.__portraitPNG = async cell => {
-  const im = await IMG_P, cols = 165, rows = Math.round(cols * SRC_H / SRC_W), P = buildGrid(cols, rows, im, true), cv = document.createElement('canvas');
+  const im = await IMG_P, cols = 150, rows = Math.round(cols * SRC_H / SRC_W), P = buildGrid(cols, rows, im, true), cv = document.createElement('canvas');
   cv.width = cols * cell; cv.height = rows * cell; const c = cv.getContext('2d'); c.fillStyle = '#0A0A0A'; c.fillRect(0, 0, cv.width, cv.height); c.fillStyle = FG;
-  for (let r = 0; r < rows; r++) for (let q = 0; q < cols; q++) { const i = r * cols + q; if (P.A[i] >= 0.5 && on(P.L[i], r, q)) c.fillRect(q * cell, r * cell, cell - 1, cell - 1); }
+  for (let r = 0; r < rows; r++) for (let q = 0; q < cols; q++) { const i = r * cols + q; if (P.A[i] < 0.5) continue; const qq = quant(P.L[i], r, q); if (qq <= 0) continue; const z = cell * zOf(qq); c.fillRect(q * cell + (cell - z) / 2, r * cell + (cell - z) / 2, z, z); }
   return cv.toDataURL('image/png');
 };
 
