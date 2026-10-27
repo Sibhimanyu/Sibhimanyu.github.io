@@ -2,7 +2,7 @@
    hero name -> 8 project screenshots (with a divider phrase) -> 8 index dots -> quiet drift.
    Everything is a progress value P: integer = a formed target, fraction = the scatter between two. */
 import * as THREE from 'three';
-import { portraitBox, setPortraitY, setScatter } from './portrait.js';
+import { portraitBox, setPortraitY, setScatter, setNameLayout, portraitLive } from './portrait.js';
 
 const root = document.documentElement;
 const $ = (s, c = document) => c.querySelector(s);
@@ -227,7 +227,7 @@ async function boot() {
     const d = x.getImageData(0, 0, W, H).data, idx = [];
     for (let i = 0; i < W * H; i++) if (d[i * 4] > 128) idx.push(i);
     if (!idx.length) throw new Error('empty text sample');
-    const t = newT(); t.fs = fs; t.base = y0;
+    const t = newT(); t.fs = fs; t.base = y0; t.cx = cxPx ?? W / 2;
     for (let i = 0; i < N; i++) {
       const p = idx[(Math.random() * idx.length) | 0];
       t.pos[i * 3] = (p % W) + Math.random() - W / 2; t.pos[i * 3 + 1] = H / 2 - ((p / W) | 0) - Math.random(); t.pos[i * 3 + 2] = (Math.random() - .5) * 8;
@@ -416,6 +416,7 @@ async function boot() {
       ? sampleText(['Sibhimanyu'], { frac: 0.9, maxFs: 1500, capTopPx: pb.y + pb.h + 24 })
       : sampleText(['Sibhimanyu'], { frac: 0.5, maxFs: 1500, wPx: pb.x - padX - 36, cxPx: (padX + pb.x - 36) / 2, cyPx: H * 0.45 });
     if (mobile) root.style.setProperty('--tagTop', Math.round(T[0].base + T[0].fs * 0.22 + 32) + 'px');
+    setNameLayout({ text: 'Sibhimanyu', fs: T[0].fs, cx: T[0].cx, base: T[0].base });
     T[10] = sampleDots();
     T[6] = sampleText(mobile ? ['a classroom,', 'a school', 'and a farm'] : ['a classroom, a school', 'and a farm'], { frac: mobile ? 0.84 : 0.7, maxFs: 220 });
     /* the projects' screenshots stream in behind the hero, in order; nothing waits for them, so a slow connection
@@ -542,7 +543,9 @@ async function boot() {
       }
     } else planes.forEach(pl => { pl.mesh.visible = false; });
     setScatter(state.hp);
-    u.uShow.value = Math.max(show, 1 - state.pv);
+    /* in the hero the name is drawn by the dot field (portrait.js); the particles take over from it as the hero scrolls away */
+    const heroHide = portraitLive() && state.p < 1 ? 1 - smooth(clamp((state.hp - 0.1) / 0.45)) : 0;
+    u.uShow.value = Math.max(show, 1 - state.pv, heroHide);
     u.uF.value = f; u.uT.value += dt; u.uVel.value = vel; u.uPtrK.value = ptrK;
     renderer.render(scene, camera);
   }
