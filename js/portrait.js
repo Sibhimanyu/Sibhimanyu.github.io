@@ -99,7 +99,7 @@ function rasterText(text, font, ls, x, base, fs, align, wEst, cell) {
 }
 
 /* ------------------------------------------------------------------ the field */
-let g = null, hero = null, rowsData = [], listEl = null, headEl = null, heroOv = null;
+let g = null, hero = null, rowsData = [], listEl = null, headEl = null, heroOv = null, workEl = null, statusEl = null;
 let live = false, running = false, raf = 0, tPrev = 0, tDev = 0, T = 1, pS = 0, pInit = false, cleared = false, lastHeroOp = -1, lastHeadOp = -1;
 let nextBlink = 0, blinkEnd = 0; const blocks = [], rv = new Float32Array(32); let headDoc = null;
 const ptr = { x: -1e5, y: -1e5, on: false, touch: false }; let ptrK = 0;
@@ -144,13 +144,36 @@ function rowCells(li) {
   return { xs, ys, vs, top: rect.top + sy, bottom: lr.bottom + sy, left: rect.left, width: rect.width, rtop: lr.top + sy };
 }
 
+/* The Work section is held at its final on-screen position while the hand-over plays (it sits still under the pinned hero), so the
+   glyph targets are exactly where the live DOM text is; it moves normally once the hand-over is done. */
+let shiftOn = '';
+function applyShift(sy) { const v = sy < T ? 'translate3d(0,' + (sy - T).toFixed(1) + 'px,0)' : ''; if (v !== shiftOn) { shiftOn = v; workEl.style.transform = v; } }
+function unshifted(fn) { const t = workEl.style.transform; workEl.style.transform = ''; try { return fn(); } finally { workEl.style.transform = t; } }
+const cellsFor = r => unshifted(() => r.isHead ? headCells() : rowCells(r.li));
+/* the heading, filter chips, count line and the list's top rule, as squares */
+function headCells() {
+  const sy = scrollY, cell = g.cell, xs = [], ys = [], vs = [], h2 = headEl.querySelector('h2'), cs = getComputedStyle(h2), rect = h2.getBoundingClientRect();
+  const probe = document.createElement('span'); probe.style.cssText = 'display:inline-block;width:0;height:0'; h2.appendChild(probe); const base = probe.getBoundingClientRect().bottom + sy; probe.remove();
+  const ls = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing, nm = rasterText(h2.textContent.trim(), `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`, ls, rect.left, base, parseFloat(cs.fontSize), 'left', rect.width + 4, cell);
+  for (let i = 0; i < nm.length; i += 2) { xs.push(nm[i] * cell); ys.push(nm[i + 1] * cell); vs.push(1); }
+  const bars = (el, dense) => { const rc = el.getBoundingClientRect(); if (rc.width < 6) return;
+    const r0 = Math.round((rc.top + sy + rc.height * 0.28) / cell), r1 = Math.round((rc.bottom + sy - rc.height * 0.28) / cell), c0 = Math.ceil(rc.left / cell), c1 = Math.floor(rc.right / cell);
+    for (let r = r0; r < r1; r++) for (let c = c0; c < c1; c++) if (dense || (r & 1) === (c & 1)) { xs.push(c * cell); ys.push(r * cell); vs.push(dense ? 1 : 0.45); } };
+  headEl.querySelectorAll('.chip').forEach(c => bars(c, c.getAttribute('aria-pressed') === 'true'));
+  if (statusEl) { const rg = document.createRange(); rg.selectNodeContents(statusEl); for (const rc of rg.getClientRects()) if (rc.width > 6) { const r0 = Math.round((rc.top + sy + rc.height * 0.3) / cell), r1 = Math.round((rc.bottom + sy - rc.height * 0.22) / cell), c0 = Math.ceil(rc.left / cell), c1 = Math.floor(rc.right / cell); for (let r = r0; r < r1; r++) for (let c = c0; c < c1; c++) if ((r & 1) === (c & 1)) { xs.push(c * cell); ys.push(r * cell); vs.push(0.45); } } }
+  const lr = listEl.getBoundingClientRect(), R = Math.round((lr.top + sy) / cell), C0 = Math.ceil(lr.left / cell), C1 = Math.floor(lr.right / cell);
+  for (let C = C0; C < C1; C++) { xs.push(C * cell); ys.push(R * cell); vs.push(1); }
+  const hr = headEl.getBoundingClientRect();
+  return { xs, ys, vs, top: hr.top + sy, bottom: lr.top + sy + 2, left: rect.left, width: rect.width, rtop: hr.top + sy };
+}
 function buildRows() {
   const lis = [...document.querySelectorAll('.idx-list > li')];
   const prev = new Map(rowsData.map(r => [r.li, r]));
-  rowsData = lis.map((li, i) => {
-    const old = prev.get(li), r = old || { li, i, state: 0, vis: 0, t0: 0, hash: null };
+  const list = [headEl, ...lis];
+  rowsData = list.map((li, i) => {
+    const old = prev.get(li), r = old || { li, i, state: 0, vis: 0, t0: 0, hash: null, isHead: i === 0 };
     r.i = i; r.cells = null; r.pDriven = false; r.px = null;
-    if (!li.hidden && li.offsetParent) { const c = rowCells(li); r.cells = c; const vt = c.top - T, vb = c.bottom - T; r.pDriven = vt > 56 && (g.mobile ? vt < g.H - 60 : vb < g.H - 20); }
+    if (!li.hidden && li.offsetParent) { const c = cellsFor(r); r.cells = c; const vt = c.top - T, vb = c.bottom - T; r.pDriven = vt > 56 && (g.mobile ? vt < g.H - 60 : vb < g.H - 20); }
     return r;
   });
 }
@@ -187,8 +210,7 @@ function layout() {
   const dpr = g.dpr;
   canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   if (g.tagTop) root.style.setProperty('--tagTop', g.tagTop + 'px'); else root.style.removeProperty('--tagTop');
-  hero = buildHero(); buildRows(); assign(); gridIdx = null; restOK = false; fastOn = false; prevU = null; FX.ring.length = 0; FX.trail.length = 0;
-  { const hr = headEl.getBoundingClientRect(); headDoc = [hr.top + scrollY, hr.bottom + scrollY]; }
+  hero = buildHero(); unshifted(buildRows); assign(); gridIdx = null; restOK = false; fastOn = false; prevU = null; FX.ring.length = 0; FX.trail.length = 0;
   cleared = false;
 }
 
@@ -226,7 +248,7 @@ function fastFrame(now, dt) {
   stats.calls = 0; dt = Math.min(dt, 0.033);
   if (!gridIdx) fxPrepare();
   if (!restOK) buildRest();
-  if (!fastOn) { fastOn = true; prevU = [0, 0, canvas.width, canvas.height]; heroOv.style.opacity = 1; headEl.style.opacity = 0; lastHeroOp = 1; lastHeadOp = 0; rowsData.forEach(r => { r.li.style.opacity = 0; r.vis = 0; }); }
+  if (!fastOn) { fastOn = true; prevU = [0, 0, canvas.width, canvas.height]; heroOv.style.opacity = 1; lastHeroOp = 1; rowsData.forEach(r => { r.li.style.opacity = 0; r.vis = 0; }); statusEl.style.opacity = 0; listEl.style.setProperty('--rv', 0); }
   ptrK += ((ptr.on ? 1 : 0) - ptrK) * Math.min(1, dt * 16);
   const px = ptr.x, py = ptr.y, R = ptr.touch ? FX.Rt : FX.R, sig = R * 0.42, s2 = 2 * sig * sig, R2 = R * R;
   /* a fast sweep throws a ring; the pointer leaves a short trail of influence */
@@ -304,7 +326,7 @@ const heroGone = () => false;
 function frame(now) {
   raf = 0; if (!running) return;
   const ctx = canvas.getContext('2d'), dt = Math.min((now - tPrev) / 1000 || 0.016, 0.05); tPrev = now;
-  const sy = scrollY, pT = clamp(sy / T);
+  const sy = scrollY, pT = clamp(sy / T); applyShift(sy);
   if (!pInit) { pS = pT; pInit = true; }
   /* the picture chases the scroll with a capped rate (a full hand-over takes at least ~1.4 s however fast the page is scrolled), both ways */
   { const diff = pT - pS, step = clamp(diff * Math.min(1, dt * 9), -dt / 1.4, dt / 1.4); pS = Math.abs(diff) < 0.0006 ? pT : pS + (Math.abs(step) < Math.abs(diff) ? step : diff); }
@@ -315,18 +337,16 @@ function frame(now) {
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = FG; ctx.strokeStyle = FG; ctx.lineCap = 'round'; ctx.lineWidth = Math.max(1, cellDev * 0.2);
   /* the page's own DOM follows the field: tagline and hint leave, the Work heading and each row take over once settled */
   const hop = Math.round((1 - smooth(p / 0.2)) * 100) / 100; if (hop !== lastHeroOp) { heroOv.style.opacity = hop; lastHeroOp = hop; }
-  const hdp = Math.round(smooth((p - 0.55) / 0.35) * 100) / 100; if (hdp !== lastHeadOp) { headEl.style.opacity = hdp; lastHeadOp = hdp; }
   /* a row's crisp text waits for its own squares (landed >= ~90%), top to bottom; rows without squares type on, but only once the hand-over is over */
   blocks.length = 0;
   rowsData.forEach(r => {
     if (!r.pDriven && p < 0.5 && r.state) { r.state = 0; }
-    if (!r.pDriven && r.inView && r.state === 0 && r.cells && p >= 0.97) { r.cells = rowCells(r.li); r.state = 1; r.t0 = now; }
+    if (!r.pDriven && r.inView && r.state === 0 && r.cells && p >= 0.97) { r.cells = cellsFor(r); r.state = 1; r.t0 = now; }
     let v = r.pDriven ? smooth((landed(r, p) - 0.9) / 0.1) : r.state === 2 ? 1 : r.state === 1 ? smooth(((now - r.t0) / 700 - 0.6) / 0.4) : 0;
     if (r.cells == null && !r.pDriven && !r.li.hidden) v = 1;
-    v = Math.round(v * 100) / 100; rv[r.i] = v; if (v !== r.vis) { r.vis = v; r.li.style.opacity = v; }
+    v = Math.round(v * 100) / 100; rv[r.i] = v; if (v !== r.vis) { r.vis = v; r.li.style.opacity = v; if (r.isHead) { statusEl.style.opacity = v; listEl.style.setProperty('--rv', v); } }
     if (v > 0.2 && r.cells) blocks.push(r.cells.rtop - sy - 4, r.cells.bottom - sy + 4, r.i);
   });
-  if (hdp > 0.2 && headDoc) blocks.push(headDoc[0] - sy - 4, headDoc[1] - sy + 4, -1);
   const h = hero, n = h.n, blink = now < blinkEnd;
   const R2 = ((ptr.touch ? 70 : 90) * 1.5) ** 2, sig2 = 2 * ((ptr.touch ? 70 : 90) / 2) ** 2;
   let springs = false;
@@ -415,14 +435,14 @@ async function startLive() {
   /* the portrait does not wait for the name's font: if it is not here within ~300 ms the name joins as soon as it lands */
   await Promise.race([fontP, new Promise(r => setTimeout(r, 300))]);
   nameOn = document.fonts.check('600 100px "Inter Tight"'); mark(nameOn ? 'font' : 'nofont');
-  listEl = document.querySelector('.idx-list'); headEl = document.querySelector('.idx-head'); heroOv = document.querySelector('.hero-ov');
+  listEl = document.querySelector('.idx-list'); headEl = document.querySelector('.idx-head'); workEl = document.querySelector('.work'); statusEl = document.getElementById('idx-status'); heroOv = document.querySelector('.hero-ov');
   if (!canvas.getContext('2d') || !listEl) throw new Error('no canvas');
   root.classList.add('pt', 'live'); live = true;
   layout(); tDev = nameT = performance.now(); nextBlink = tDev + 5400; mark('layout');
   if (!nameOn) fontP.then(() => { if (document.fonts.check('600 100px "Inter Tight"')) { nameOn = true; nameW100 = 0; nameT = performance.now(); relayout(); } });
   document.fonts.addEventListener('loadingdone', () => { clearTimeout(rt); rt = setTimeout(relayout, 80); });
   document.querySelectorAll('.idx-list > li').forEach(li => { li.style.opacity = 0; });
-  headEl.style.opacity = 0;
+  headEl.style.opacity = 0; statusEl.style.opacity = 0; listEl.style.setProperty('--rv', 0); listEl.style.setProperty('--rv', 0);
   addEventListener('pointermove', e => { ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; ptr.touch = e.pointerType === 'touch'; wake(); });
   if ('onpointerrawupdate' in window) addEventListener('pointerrawupdate', e => { ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; ptr.touch = e.pointerType === 'touch'; });
   addEventListener('pointerdown', e => { ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; ptr.touch = e.pointerType === 'touch'; fxRing(e.clientX, e.clientY, 1.1, 1100, 70, Math.hypot(innerWidth, innerHeight)); wake(); });
