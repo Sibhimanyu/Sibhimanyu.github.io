@@ -72,6 +72,13 @@
   .hero h1 { font-size:clamp(3.4rem,15.2vw,14rem); font-weight:600; letter-spacing:-.045em; line-height:.9; margin-bottom:clamp(20px,4vh,40px); }
   .tagline { font-size:clamp(1.25rem,2.2vw,1.9rem); font-weight:500; letter-spacing:-.018em; line-height:1.25; max-width:24ch; text-wrap:balance; }
   .hint, .hud, .rail { display:none; }
+  /* the glyph portrait: an <img> without JS, a canvas once portrait.js runs (html.pt) */
+  .portrait-img { width:min(62vw,340px); height:auto; margin:0 0 clamp(20px,4vh,36px); }
+  #portrait { display:none; margin:0 0 clamp(20px,4vh,36px); pointer-events:none; }
+  .pt #portrait { display:block; }
+  .pt .portrait-img { display:none; }
+  .gl #portrait { position:absolute; left:0; top:0; margin:0; }
+  @media (min-width:761px) { .portrait-img, #portrait { align-self:flex-end; } .portrait-img { width:min(34vw,380px); } }
   .proj { padding:clamp(48px,8vw,110px) var(--pad); border-top:1px solid var(--line); }
   .shot { display:none; }
   .divider { padding:clamp(72px,12vw,170px) var(--pad); border-top:1px solid var(--line); }
@@ -212,6 +219,8 @@
 <main id="top">
   <div id="stage">
     <section class="hero" aria-label="Introduction">
+      <img class="portrait-img" id="portrait-img" src="assets/portrait-glyphs.png" width="792" height="960" alt="Sibhimanyu, drawn in dots and crosses" />
+      <canvas id="portrait" role="img" aria-label="Sibhimanyu, drawn in dots and crosses"></canvas>
       <h1>Sibhimanyu</h1>
       <div class="hero-ov">
         <p class="tagline">AI agent tools, and apps for a classroom, a school and a farm.</p>
@@ -403,6 +412,7 @@
 <script src="js/ui.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
+<script type="module" src="js/portrait.js"></script>
 <script type="module" src="js/field.js"></script>
 </body>
 </html>

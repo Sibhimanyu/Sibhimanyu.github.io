@@ -2,6 +2,7 @@
    hero name -> 8 project screenshots (with a divider phrase) -> 8 index dots -> quiet drift.
    Everything is a progress value P: integer = a formed target, fraction = the scatter between two. */
 import * as THREE from 'three';
+import { portraitBox, setScatter } from './portrait.js';
 
 const root = document.documentElement;
 const $ = (s, c = document) => c.querySelector(s);
@@ -211,18 +212,18 @@ async function boot() {
   const newT = () => ({ pos: new Float32Array(N * 3), col: new Uint8Array(N * 3) });
   const grey = (c, g) => Math.min(255, Math.round(c * g));
 
-  function sampleText(lines, { frac, maxFs, cy = 0.5 }) {
+  function sampleText(lines, { frac, maxFs, cy = 0.5, cxPx = null, cyPx = null, wPx = null }) {
     const c = document.createElement('canvas'); c.width = W; c.height = H;
     const x = c.getContext('2d', { willReadFrequently: true });
     x.fillStyle = '#000'; x.fillRect(0, 0, W, H);
     const font = fs => `600 ${fs}px "Inter Tight", system-ui, sans-serif`;
     x.font = font(100); x.letterSpacing = '-3.5px';
     const wMax = Math.max(...lines.map(l => x.measureText(l).width));
-    const fs = Math.min(100 * frac * W / wMax, maxFs);
+    const fs = Math.min(100 * (wPx || frac * W) / wMax, maxFs);
     x.font = font(fs); x.letterSpacing = `${-fs * 0.035}px`;
     x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillStyle = '#fff';
-    const lh = fs * 1.06, y0 = H * cy - lh * (lines.length - 1) / 2 + fs * 0.26;
-    lines.forEach((l, i) => x.fillText(l, W / 2, y0 + i * lh));
+    const lh = fs * 1.06, y0 = (cyPx ?? H * cy) - lh * (lines.length - 1) / 2 + fs * 0.26;
+    lines.forEach((l, i) => x.fillText(l, cxPx ?? W / 2, y0 + i * lh));
     const d = x.getImageData(0, 0, W, H).data, idx = [];
     for (let i = 0; i < W * H; i++) if (d[i * 4] > 128) idx.push(i);
     if (!idx.length) throw new Error('empty text sample');
@@ -402,7 +403,11 @@ async function boot() {
     T.fill(null); planeInfo.length = 0;
     T[11] = sampleDrift();
     blank = { pos: T[11].pos, col: new Uint8Array(N * 3) };
-    T[0] = sampleText(['Sibhimanyu'], { frac: 0.86, maxFs: 1500 });
+    /* the name leaves room for the glyph portrait: to its left on a wide screen, below it on a phone */
+    const pb = portraitBox(W, H), padX = Math.max(20, Math.min(44, W * 0.031));
+    T[0] = mobile
+      ? sampleText(['Sibhimanyu'], { frac: 0.9, maxFs: 1500, cyPx: (pb.y + pb.h + H - 150) / 2 })
+      : sampleText(['Sibhimanyu'], { frac: 0.5, maxFs: 1500, wPx: pb.x - padX - 36, cxPx: (padX + pb.x - 36) / 2, cyPx: H * 0.45 });
     T[10] = sampleDots();
     T[6] = sampleText(mobile ? ['a classroom,', 'a school', 'and a farm'] : ['a classroom, a school', 'and a farm'], { frac: mobile ? 0.84 : 0.7, maxFs: 220 });
     /* the projects' screenshots stream in behind the hero, in order; nothing waits for them, so a slow connection
@@ -431,7 +436,7 @@ async function boot() {
   /* p walks the particle path below (0 hero, 1 RasanAI's letters, 2 drift, 3 divider phrase, 4 drift, 5 dots, 6 = index handoff via dr);
      S[j] is each project's own progress: arr arriving, cp copy in, k type -> band, sc page pan, ex leaving */
   const PATH = [0, 1, 11, 6, 11, 10, 11];
-  const state = { p: 0, h: 0, dr: 0, pv: 1 };      // pv: particles allowed to show (hero, the divider phrase, the index dots)
+  const state = { p: 0, h: 0, dr: 0, pv: 1, hp: 0 };      // pv: particles allowed to show (hero, the divider phrase, the index dots)
   const S = Array.from({ length: 8 }, () => ({ arr: 0, cp: 0, k: 0, sc: 0, ex: 0 }));
   const lastDot = Array.from({ length: 8 }, () => null);
   function updateDots() {
@@ -528,6 +533,7 @@ async function boot() {
         const sv = placeInst(I, a[0], a[1]); if (a[0] === 0 && state.p < 1) show = Math.max(show, sv);
       }
     } else planes.forEach(pl => { pl.mesh.visible = false; });
+    setScatter(state.hp);
     u.uShow.value = Math.max(show, 1 - state.pv);
     u.uF.value = f; u.uT.value += dt; u.uVel.value = vel; u.uPtrK.value = ptrK;
     renderer.render(scene, camera);
@@ -604,6 +610,7 @@ async function boot() {
       tl.to('.rail', { opacity: 0, duration: 0.25 }, TOTAL - 0.25);
       tl.set({}, {}, TOTAL);
       /* particles: hero -> RasanAI letters; (hidden) -> drift; Imago's exit -> the divider phrase; phrase -> drift as Greenroom arrives; SNOF's exit -> dots */
+      tl.to(state, { hp: 1, duration: 0.9 }, 0.3);
       tl.to(state, { p: 1, duration: MOVE }, H0)
         .to(state, { p: 2, duration: 0.5 }, TL.L[1] + 0.5)
         .to(state, { p: 3, duration: EXIT - 0.3 }, TL.ex0[4] + 0.6)
