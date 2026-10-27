@@ -8,6 +8,8 @@ const root = document.documentElement;
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const smooth = v => { v = clamp(v); return v * v * (3 - 2 * v); };
 const ease = v => { v = clamp(v); return v < 0.5 ? 4 * v * v * v : 1 - Math.pow(-2 * v + 2, 3) / 2; };
+export const heroCell = () => (g ? g.cell : 3.6);
+export { rasterText };
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const FG = '#F2F0EB', NAME = 'Sibhimanyu';
 const SRC_W = 460, SRC_H = 560, CROP_Y = 40;               /* the crop of assets/portrait-src.webp (460x600) */
