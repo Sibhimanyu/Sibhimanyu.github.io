@@ -14,7 +14,7 @@ export { rasterText };
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const FG = '#F2F0EB', NAME = 'Sibhimanyu';
 const SRC_W = 460, SRC_H = 560, CROP_Y = 40;               /* the crop of assets/portrait-src.webp (460x600) */
-const EYES = [[155, 173, 18, 8], [215, 177, 18, 8]];       /* in the crop: centre x, y, half width, half height */
+const EYES = [[155, 173, 15, 5.5], [215, 177, 15, 5.5]];       /* in the crop: centre x, y, half width, half height */
 const canvas = document.getElementById('portrait');
 const IMG_P = new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = 'assets/portrait-src.webp'; });
 const mark = n => { try { performance.mark('hero-' + n); } catch (e) {} };
@@ -51,7 +51,12 @@ function buildGrid(cols, rows, img, bleed) {
       const px = (c + 0.5) / cols * SRC_W, py = (r + 0.5) / rows * SRC_H;
       if (((px - ex) / rx) ** 2 + ((py - ey) / ry) ** 2 <= 1) { cells.push([r, c]); rmin = Math.min(rmin, r); rmax = Math.max(rmax, r); }
     }
-    return { cells, rmin, rmax };
+    let sk = 0, sn = 0;   /* mean tone of the skin just outside the eye: the lid is skin */
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const i = r * cols + c; if (A[i] < 0.5) continue;
+      const px = (c + 0.5) / cols * SRC_W, py = (r + 0.5) / rows * SRC_H, d = ((px - ex) / rx) ** 2 + ((py - ey) / ry) ** 2;
+      if (d > 1.15 && d <= 3) { sk += L[i]; sn++; } }
+    const colB = new Map(); cells.forEach(([r, c]) => colB.set(c, Math.max(colB.get(c) ?? -1, r)));   /* the bottom cell of each column = the lash line, curved with the ellipse */
+    return { cells, rmin, rmax, skin: sn ? sk / sn : 0.6, colB };
   });
   return { cols, rows, L, A, eyes };
 }
@@ -111,17 +116,17 @@ const ptr = { x: -1e5, y: -1e5, on: false, touch: false }; let ptrK = 0;
 
 function buildHero() {
   const P = buildGrid(g.cols, g.rows, IMG, !g.mobile), cell = g.cell, ox = Math.round(g.x / cell), oy = Math.round(g.y / cell);
-  const gc = Math.ceil(g.W / cell) + 4, xs = [], ys = [], vs = [], eyeF = [], eyeRow = [], eyeN = [], zs = [];
-  const eyeSet = new Map(); P.eyes.forEach((e, k) => e.cells.forEach(([r, c]) => eyeSet.set((r + oy) * gc + c + ox, [r - e.rmin, e.rmax - e.rmin + 1, k])));
+  const gc = Math.ceil(g.W / cell) + 4, xs = [], ys = [], vs = [], eyeF = [], eyeRow = [], eyeN = [], etz = [], zs = [];
+  const eyeSet = new Map(); P.eyes.forEach((e, k) => e.cells.forEach(([r, c]) => eyeSet.set((r + oy) * gc + c + ox, [r - e.rmin, e.rmax - e.rmin + 1, k, e.skin, e.colB.get(c) === r])));
   for (let r = 0; r < P.rows; r++) for (let c = 0; c < P.cols; c++) {
     const i = r * P.cols + c; if (P.A[i] < 0.5) continue;
-    const R = r + oy, C = c + ox, q = quant(P.L[i], R, C); if (q <= 0) continue;
-    xs.push(C * cell); ys.push(R * cell); zs.push(zOf(q)); vs.push(P.L[i]); const ev = eyeSet.get(R * gc + C); eyeF.push(ev ? 1 : 0); eyeRow.push(ev ? ev[0] : 0); eyeN.push(ev ? ev[1] : 1);
+    const R = r + oy, C = c + ox, q = quant(P.L[i], R, C), ev0 = eyeSet.get(R * gc + C); if (q <= 0 && !ev0) continue;
+    xs.push(C * cell); ys.push(R * cell); zs.push(zOf(q)); etz.push(ev0 ? zOf(quant(ev0[3], R, C)) * (ev0[4] ? 0.3 : 1) : 0); vs.push(P.L[i]); const ev = eyeSet.get(R * gc + C); eyeF.push(ev ? 1 : 0); eyeRow.push(ev ? ev[0] : 0); eyeN.push(ev ? ev[1] : 1);
   }
   const nP = xs.length;
   const nm = nameOn ? rasterText(NAME, `600 ${g.fs}px "Inter Tight", system-ui, sans-serif`, `${-g.fs * 0.035}px`, g.cx, g.base, g.fs, 'center', measureName() * g.fs / 100, cell) : [];
-  for (let i = 0; i < nm.length; i += 2) { xs.push(nm[i] * cell); ys.push(nm[i + 1] * cell); zs.push(0.92); vs.push(1); eyeF.push(0); eyeRow.push(0); eyeN.push(1); }
-  const n = xs.length, h = { n, nP, z: Float32Array.from(zs), x0: Float32Array.from(xs), y0: Float32Array.from(ys), v: Float32Array.from(vs), eye: Uint8Array.from(eyeF), erow: Uint8Array.from(eyeRow), enr: Uint8Array.from(eyeN), ecx: 0, ecy: 0,
+  for (let i = 0; i < nm.length; i += 2) { xs.push(nm[i] * cell); ys.push(nm[i + 1] * cell); zs.push(0.92); vs.push(1); eyeF.push(0); eyeRow.push(0); eyeN.push(1); etz.push(0); }
+  const n = xs.length, h = { n, nP, z: Float32Array.from(zs), x0: Float32Array.from(xs), y0: Float32Array.from(ys), v: Float32Array.from(vs), eye: Uint8Array.from(eyeF), erow: Uint8Array.from(eyeRow), etz: Float32Array.from(etz), enr: Uint8Array.from(eyeN), ecx: 0, ecy: 0,
     hash: new Float32Array(n), d: new Float32Array(n), tx: new Float32Array(n), ty: new Float32Array(n), trow: new Int8Array(n).fill(-1),
     fi: new Float32Array(n), fv: new Float32Array(n), flick: new Float32Array(n) };
   let seed = 11; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
@@ -266,11 +271,12 @@ function blinkTick(now) {
   if (t < BL_C) { bkMode = 1; bkV = t / BL_C; } else if (t < BL_C + BL_H) { bkMode = 2; bkV = 1; } else { bkMode = 3; bkV = (t - BL_C - BL_H) / BL_O; }
   return bkMode;
 }
-const blinkScale = i => {
+/* how closed this square's lid is (0 open, 1 closed): top rows first when closing, bottom rows first when reopening */
+const blinkK = i => {
   const row = hero.erow[i], nr = hero.enr[i];
-  if (bkMode === 1) return 1 - clamp(bkV * nr - row);
-  if (bkMode === 2) return 0;
-  const o = 1 - (1 - bkV) ** 3; return clamp(o * nr - (nr - 1 - row));
+  if (bkMode === 1) return clamp(bkV * nr - row);
+  if (bkMode === 2) return 1;
+  const o = 1 - (1 - bkV) ** 3; return 1 - clamp(o * nr - (nr - 1 - row));
 };
 function blinkSchedule(now) {
   if (blinkFreeze != null || now < nextBlink) return;
@@ -328,7 +334,7 @@ function fastFrame(now, dt) {
     erase.rect(ix - 1, iy - 1, cd + 2, cd + 2); const zs = cd * h.z[i], zo = (cd - zs) / 2;
     const mx0 = ix - cd * 4, my0 = iy - cd * 4, mx1 = ix + cd * 5, my1 = iy + cd * 5; if (mx0 < mnx) mnx = mx0; if (my0 < mny) mny = my0; if (mx1 > mxx) mxx = mx1; if (my1 > mxy) mxy = my1;
     if (dropped) { sqs.rect(ix + zo, iy + zo, zs, zs); hasS = true; continue; }
-    if (blink && h.eye[i]) { const ez = zs * blinkScale(i); if (ez > 0.4) { sqs.rect(ix + (cd - ez) / 2, iy + (cd - ez) / 2, ez, ez); hasS = true; } continue; }
+    if (blink && h.eye[i]) { const bk = blinkK(i), ez = cd * (h.z[i] * (1 - bk) + h.etz[i] * bk); if (ez > 0.4) { sqs.rect(ix + (cd - ez) / 2, iy + (cd - ez) / 2, ez, ez); hasS = true; } continue; }
     const f = Math.max(f0[i], 0);
     if (f < 0.02) { sqs.rect(ix + zo, iy + zo, zs, zs); hasS = true; continue; }
     const hs = h.hash[i], ox = dirx[i] * f * cell * 1.8 * dpr, oy = diry[i] * f * cell * 1.8 * dpr, cx = ix + cd / 2 + ox, cy = iy + cd / 2 + oy;
@@ -408,7 +414,7 @@ function frame(now) {
       if (nb) { for (let q = 0; q < nb; q += 4) if (yv > blocks[q] && yv < blocks[q + 1] && h.trow[i] !== blocks[q + 2]) size *= 1 - blocks[q + 3]; if (size < 0.4) continue; }
       if (yv < -cell || yv > H + cell || x < -cell || x > W + cell) continue;
       if (p < 0.02) { const dv = clamp(((i >= h.nP ? clamp((now - nameT) / 1200) : dev) * 1.4 - h.hash[(i * 7) % n] * 0.4) / 0.6); if (dv < 1) size *= dv; }
-      if (blink && h.eye[i]) { size *= blinkScale(i); if (size < 0.4) continue; }
+      if (blink && h.eye[i]) { { const bk = blinkK(i); size = cellDev * (h.z[i] * (1 - bk) + h.etz[i] * bk); } if (size < 0.4) continue; }
       const vy = yv;
       let f = 0, ox = 0, oy = 0;
       const dx = x + cell / 2 - ptr.x, dy = vy + cell / 2 - ptr.y, d2 = dx * dx + dy * dy;
