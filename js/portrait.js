@@ -295,7 +295,7 @@ function drawFly(q) {
     const px = Math.round(x * dpr) + off, py = Math.round(y * dpr) + off; if (py < -cd || py > hh) continue;
     (j === 0 && f.k[k] === 1 && e > 0.85 ? B : A).rect(px, py, size, size);
   }
-  ctx.globalAlpha = 1; ctx.fill(A); ctx.globalAlpha = 0.45; ctx.fill(B); ctx.globalAlpha = 1;
+  ctx.globalAlpha = 1; ctx.fill(A); ctx.globalAlpha = 0.45; ctx.fillStyle = '#D6CCEA'; ctx.fill(B); ctx.globalAlpha = 1;
   /* each part's DOM version, in place, as its squares land */
   for (let j = 1; j < ng; j++) { const o = Math.round(v[j] * 100) / 100; if (o !== f.vo[j]) { f.vo[j] = o; f.els[j].forEach(e => { e.style.opacity = o; }); } }
 }
