@@ -98,7 +98,7 @@ function rasterText(text, font, ls, x, base, fs, align, wEst, cell) {
 /* ------------------------------------------------------------------ the field */
 let g = null, hero = null, rowsData = [], listEl = null, headEl = null, heroOv = null;
 let live = false, running = false, raf = 0, tPrev = 0, tDev = 0, T = 1, pS = 0, pInit = false, cleared = false, lastHeroOp = -1, lastHeadOp = -1;
-let nextBlink = 0, blinkEnd = 0;
+let nextBlink = 0, blinkEnd = 0; const blocks = [], rv = new Float32Array(32); let headDoc = null;
 const ptr = { x: -1e5, y: -1e5, on: false, touch: false }; let ptrK = 0;
 
 function buildHero() {
@@ -137,7 +137,7 @@ function rowCells(li) {
       const r0 = Math.round((rc.top + sy + rc.height * 0.3) / cell), r1 = Math.round((rc.bottom + sy - rc.height * 0.22) / cell), c0 = Math.ceil(rc.left / cell), c1 = Math.floor(rc.right / cell);
       for (let r = r0; r < r1; r++) for (let c = c0; c < c1; c++) if ((r & 1) === (c & 1)) { xs.push(c * cell); ys.push(r * cell); vs.push(0.45); } } };
   bars(li.querySelector('.d')); bars(li.querySelector('.who p')); li.querySelectorAll('.l a, .l .note').forEach(bars);
-  return { xs, ys, vs, top: rect.top + sy, bottom: lr.bottom + sy, left: rect.left, width: rect.width };
+  return { xs, ys, vs, top: rect.top + sy, bottom: lr.bottom + sy, left: rect.left, width: rect.width, rtop: lr.top + sy };
 }
 
 function buildRows() {
@@ -166,7 +166,11 @@ function assign() {
     h.tx[si] = tx[ti]; h.ty[si] = ty[ti]; h.trow[si] = tr[ti]; h.d[si] = 0.04 + 0.2 * (tr[ti] / nr) + 0.1 * rnd();
   }
   for (let i = 0; i < n; i++) if (h.trow[i] < 0) h.d[i] = 0.02 + 0.3 * (h.y0[i] / g.H) + 0.1 * rnd();
+  /* when each row's squares land (progress values, sorted), so its crisp text can wait for them */
+  rowsData.forEach(r => { const a = []; for (let i = 0; i < n; i++) if (h.trow[i] === r.i) a.push(h.d[i] + LAND); r.land = Float32Array.from(a).sort(); });
 }
+const LAND = 0.58;
+const landed = (r, p) => { const a = r.land; if (!a || !a.length) return 1; let lo = 0, hi = a.length; while (lo < hi) { const m = (lo + hi) >> 1; if (a[m] <= p) lo = m + 1; else hi = m; } return lo / a.length; };
 
 function layout() {
   const W = innerWidth, H = innerHeight;
@@ -176,10 +180,10 @@ function layout() {
   canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   if (g.tagTop) root.style.setProperty('--tagTop', g.tagTop + 'px'); else root.style.removeProperty('--tagTop');
   hero = buildHero(); buildRows(); assign();
+  { const hr = headEl.getBoundingClientRect(); headDoc = [hr.top + scrollY, hr.bottom + scrollY]; }
   cleared = false;
 }
 
-const rowAlpha = i => 1 - smooth((pS - 0.88) / 0.12);
 
 function frame(now) {
   raf = 0; if (!running) return;
@@ -194,7 +198,17 @@ function frame(now) {
   /* the page's own DOM follows the field: tagline and hint leave, the Work heading and each row take over once settled */
   const hop = Math.round((1 - smooth(p / 0.2)) * 100) / 100; if (hop !== lastHeroOp) { heroOv.style.opacity = hop; lastHeroOp = hop; }
   const hdp = Math.round(smooth((p - 0.55) / 0.35) * 100) / 100; if (hdp !== lastHeadOp) { headEl.style.opacity = hdp; lastHeadOp = hdp; }
-  rowsData.forEach(r => { let v = r.state === 2 ? 1 : r.pDriven ? smooth((p - 0.86) / 0.14) : r.state === 1 ? smooth(((now - r.t0) / 700 - 0.6) / 0.4) : 0; if (r.state === 0 && !r.pDriven && r.cells == null) v = 1; v = Math.round(v * 100) / 100; if (v !== r.vis) { r.vis = v; r.li.style.opacity = v; } });
+  /* a row's crisp text waits for its own squares (landed >= ~90%), top to bottom; rows without squares type on, but only once the hand-over is over */
+  blocks.length = 0;
+  rowsData.forEach(r => {
+    if (!r.pDriven && p < 0.5 && r.state) { r.state = 0; }
+    if (!r.pDriven && r.inView && r.state === 0 && r.cells && p >= 0.97) { r.cells = rowCells(r.li); r.state = 1; r.t0 = now; }
+    let v = r.pDriven ? smooth((landed(r, p) - 0.9) / 0.1) : r.state === 2 ? 1 : r.state === 1 ? smooth(((now - r.t0) / 700 - 0.6) / 0.4) : 0;
+    if (r.cells == null && !r.pDriven && !r.li.hidden) v = 1;
+    v = Math.round(v * 100) / 100; rv[r.i] = v; if (v !== r.vis) { r.vis = v; r.li.style.opacity = v; }
+    if (v > 0.2 && r.cells) blocks.push(r.cells.rtop - sy - 4, r.cells.bottom - sy + 4, r.i);
+  });
+  if (hdp > 0.2 && headDoc) blocks.push(headDoc[0] - sy - 4, headDoc[1] - sy + 4, -1);
   const h = hero, n = h.n, blink = now < blinkEnd;
   const R2 = ((ptr.touch ? 70 : 90) * 1.5) ** 2, sig2 = 2 * ((ptr.touch ? 70 : 90) / 2) ** 2;
   let springs = false;
@@ -204,18 +218,19 @@ function frame(now) {
       let x = h.x0[i], yv = h.y0[i], size = sqDev, d = h.d[i];
       if (h.trow[i] >= 0) {
         /* along a curved path to the row target (neighbours bow the same way, so the squares move as streams) */
-        const t = clamp((p - d) / 0.58), e = ease(t);
+        const t = clamp((p - d) / LAND), e = ease(t);
         if (t > 0) {
           const gx = h.tx[i], gy = h.ty[i] - sy, dx = gx - x, dy = gy - yv, k = 0.3 * Math.sin(h.x0[i] * 0.005 + h.y0[i] * 0.004 + h.trow[i] * 1.1), u1 = 1 - e;
           const qx = x + dx * 0.5 - dy * k, qy = yv + dy * 0.5 + dx * k;
           x = u1 * u1 * x + 2 * u1 * e * qx + e * e * gx; yv = u1 * u1 * yv + 2 * u1 * e * qy + e * e * gy;
         }
-        if (t >= 1) size *= rowAlpha();
+        if (t >= 1) size *= 1 - rv[h.trow[i]];
       } else {
         const tt = clamp((p - d) / 0.55); if (tt > 0) { yv += tt * tt * (g.H * 1.4) * (0.7 + 0.6 * h.hash[i]); x += (h.hash[i] - 0.5) * 30 * tt; size *= 1 - smooth(tt * 1.08 - 0.08); }
       }
       if (size < 0.4) continue;
-      const vy = yv; if (vy < -cell || vy > H + cell || x < -cell || x > W + cell) continue;
+      const vy = yv; if (blocks.length) { let hid = false; for (let q = 0; q < blocks.length; q += 3) if (vy > blocks[q] && vy < blocks[q + 1] && h.trow[i] !== blocks[q + 2]) { hid = true; break; } if (hid) continue; }
+      if (vy < -cell || vy > H + cell || x < -cell || x > W + cell) continue;
       if (p < 0.02) { const dv = clamp((dev * 1.4 - h.hash[(i * 7) % n] * 0.4) / 0.6); if (dv < 1) size *= dv; }
       if (blink && h.eye[i]) continue;
       let f = 0, ox = 0, oy = 0;
@@ -291,10 +306,7 @@ async function startLive() {
   addEventListener('blur', () => { ptr.on = false; });
   addEventListener('scroll', wake, { passive: true });
   document.addEventListener('visibilitychange', () => { if (document.hidden) { running = false; cancelAnimationFrame(raf); } else wake(); });
-  const io = new IntersectionObserver(list => list.forEach(en => {
-    if (!en.isIntersecting) return; const r = rowsData.find(x => x.li === en.target); if (!r || r.state || r.pDriven || !r.cells) return;
-    r.cells = rowCells(r.li); r.state = 1; r.t0 = performance.now(); wake();
-  }), { threshold: 0.25 });
+  const io = new IntersectionObserver(list => list.forEach(en => { const r = rowsData.find(x => x.li === en.target); if (r) { r.inView = en.isIntersecting; if (en.isIntersecting) wake(); } }), { threshold: 0.25 });
   const watch = () => rowsData.forEach(r => io.observe(r.li));
   watch();
   let rt, lw = innerWidth, lh = innerHeight;
