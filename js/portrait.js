@@ -5,6 +5,7 @@
    section sits sticky at its final place under the fixed canvas (CSS), so targets are work-local numbers measured once per layout. Squares near the pointer turn into glyphs (x, - or |, a dot),
    rotate, push outward and spring back. Reduced motion / no canvas: the portrait is drawn once, static. */
 
+import { createFx } from './glyph-fx.js';
 const root = document.documentElement;
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const smooth = v => { v = clamp(v); return v * v * (3 - 2 * v); };
@@ -112,7 +113,7 @@ function rasterText(text, font, ls, x, base, fs, align, wEst, cell) {
 let wtop = 100, lastVP = null, g = null, hero = null, rowsData = [], listEl = null, headEl = null, heroOv = null, workEl = null, statusEl = null;
 let live = false, running = false, raf = 0, tPrev = 0, tDev = 0, T = 1, pS = 0, pInit = false, cleared = false, lastHeroOp = -1, lastHeadOp = -1;
 let nextBlink = 0, blinkT0 = -1e9, blinkDbl = false, blinkFreeze = null; const blocks = [], rv = new Float32Array(32); let headDoc = null;
-const ptr = { x: -1e5, y: -1e5, on: false, touch: false }; let ptrK = 0;
+const ptr = { x: -1e5, y: -1e5, on: false, touch: false };
 
 function buildHero() {
   const P = buildGrid(g.cols, g.rows, IMG, !g.mobile), cell = g.cell, ox = Math.round(g.x / cell), oy = Math.round(g.y / cell);
@@ -128,7 +129,7 @@ function buildHero() {
   for (let i = 0; i < nm.length; i += 2) { xs.push(nm[i] * cell); ys.push(nm[i + 1] * cell); zs.push(0.92); vs.push(1); eyeF.push(0); eyeRow.push(0); eyeN.push(1); etz.push(0); }
   const n = xs.length, h = { n, nP, z: Float32Array.from(zs), x0: Float32Array.from(xs), y0: Float32Array.from(ys), v: Float32Array.from(vs), eye: Uint8Array.from(eyeF), erow: Uint8Array.from(eyeRow), etz: Float32Array.from(etz), enr: Uint8Array.from(eyeN), ecx: 0, ecy: 0,
     hash: new Float32Array(n), d: new Float32Array(n), tx: new Float32Array(n), ty: new Float32Array(n), trow: new Int8Array(n).fill(-1),
-    fi: new Float32Array(n), fv: new Float32Array(n), flick: new Float32Array(n) };
+  };
   let seed = 11; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
   for (let i = 0; i < n; i++) h.hash[i] = rnd();
   { let sx = 0, sy2 = 0, k = 0; for (let i = 0; i < nP; i++) if (h.eye[i]) { sx += h.x0[i]; sy2 += h.y0[i]; k++; } if (k) { h.ecx = sx / k; h.ecy = sy2 / k; } else h.ecx = h.ecy = -1e5; }
@@ -219,6 +220,12 @@ function viewport() {
   const H = sv > 100 ? sv : ih;
   return { W: innerWidth, H, Hc: Math.max(H, lv > 100 ? lv : 0, ih) };
 }
+function makeFx() {
+  const h = hero, cd = g.cellDev;
+  eyeList = []; for (let i = 0; i < h.n; i++) if (h.eye[i]) eyeList.push(i);
+  fx = createFx({ canvas, xs: h.x0, ys: h.y0, zs: h.z, tone: h.v, cell: g.cell, dpr: g.dpr, cd, R: 90, Rt: 70,
+    sizeOf: (i, z) => { if (!h.eye[i] || !bkMode) return z; const k = blinkK(i); return z * (1 - k) + h.etz[i] * k; } });
+}
 function layout() {
   const vp = viewport(), W = vp.W, H = vp.H;
   g = geometry(W, H, false); T = Math.round(H * 1.5);   /* scroll distance the Work section stays pinned while the hand-over plays */
@@ -227,37 +234,16 @@ function layout() {
   const dpr = g.dpr;
   canvas.width = Math.round(W * dpr); canvas.height = Math.round(vp.Hc * dpr); canvas.style.width = W + 'px'; canvas.style.height = vp.Hc + 'px';
   if (g.tagTop) root.style.setProperty('--tagTop', g.tagTop + 'px'); else root.style.removeProperty('--tagTop');
-  hero = buildHero(); buildRows(); assign(); gridIdx = null; restOK = false; fastOn = false; prevU = null; FX.ring.length = 0; FX.trail.length = 0;
+  hero = buildHero(); buildRows(); assign(); fastOn = false; makeFx();
   cleared = false; lastVP = vp;
 }
 
-/* ------------------------------------------------------------------ hover effect at rest: dirty-rect rendering
-   The resting field (every square) is drawn ONCE into `rest`; a frame then touches only the cells that are active (under the
-   pointer or its trail, in a ripple ring, springing back, shimmering, blinking): it restores their bounding rect from `rest`,
-   punches out the active cells' squares in one path and draws them as squares or glyphs, batched per type. */
-const FX = { R: 160, Rt: 110, K: 520, C: 21, ring: [], trail: [], lastRing: 0, lastPX: -1e5, lastPY: -1e5 };
-let rest = null, restOK = false, fastOn = false, act = null, actN = 0, inAct = null, tgt = null, dirx = null, diry = null, gridIdx = null, gridC = 0, gridR = 0, eyeList = null, prevU = null, blinkOn = false;
+/* ------------------------------------------------------------------ the field at rest
+   The hover effect lives in glyph-fx.js (an active list, dirty rects over a bitmap of the resting field). At rest nothing runs on its own:
+   a frame is scheduled by the pointer, by a blink, or by the develop-in, and the loop stops when they are done. */
+let eyeList = null, fx = null, fastOn = false, blinkOn = false, blinkTimer = 0;
 const msLog = [];
 const stats = { calls: 0, active: 0 };
-
-function fxPrepare() {
-  const h = hero, n = h.n, cell = g.cell;
-  gridC = Math.ceil(g.W / cell) + 3; gridR = Math.ceil(g.H / cell) + 3; gridIdx = new Int32Array(gridC * gridR).fill(-1);
-  for (let i = 0; i < n; i++) { const C = Math.round(h.x0[i] / cell), R = Math.round(h.y0[i] / cell); if (C >= 0 && R >= 0 && C < gridC && R < gridR) gridIdx[R * gridC + C] = i; }
-  act = new Int32Array(n); inAct = new Uint8Array(n); tgt = new Float32Array(n); dirx = new Float32Array(n); diry = new Float32Array(n); actN = 0;
-  eyeList = []; for (let i = 0; i < n; i++) if (h.eye[i]) eyeList.push(i);
-  restOK = false; fastOn = false;
-}
-function buildRest() {
-  if (!rest) rest = document.createElement('canvas');
-  rest.width = canvas.width; rest.height = canvas.height;
-  const c = rest.getContext('2d'), h = hero, dpr = g.dpr, cd = g.cellDev; c.fillStyle = FG; c.beginPath();
-  for (let i = 0; i < h.n; i++) { const z = cd * h.z[i], o = (cd - z) / 2; c.rect(Math.round(h.x0[i] * dpr) + o, Math.round(h.y0[i] * dpr) + o, z, z); }
-  c.fill(); restOK = true;
-}
-function addAct(i) { if (!inAct[i]) { inAct[i] = 1; act[actN++] = i; } }
-function setT(i, v, dx, dy) { if (v > tgt[i]) { tgt[i] = v; const l = Math.hypot(dx, dy) + 0.001; dirx[i] = dx / l; diry[i] = dy / l; } addAct(i); }
-function fxRing(x, y, amp, speed, w, max) { FX.ring.push({ x, y, t0: performance.now(), amp, speed, w, max }); if (FX.ring.length > 6) FX.ring.shift(); }
 
 /* Blink: an eyelid, not a flash. The eye's squares shrink to nothing from the top row down (70 ms), hold (40 ms), then reopen bottom-up
    (110 ms, ease-out). Every 3-7 s, one in six is a double blink; none is started while the pointer is near the face. */
@@ -278,87 +264,22 @@ const blinkK = i => {
   if (bkMode === 2) return 1;
   const o = 1 - (1 - bkV) ** 3; return 1 - clamp(o * nr - (nr - 1 - row));
 };
-function blinkSchedule(now) {
-  if (blinkFreeze != null || now < nextBlink) return;
-  if (ptr.on && Math.hypot(ptr.x - hero.ecx, ptr.y - hero.ecy) < 280) { nextBlink = now + 500; return; }
-  blinkT0 = now; blinkDbl = Math.random() < 1 / 6; nextBlink = now + 3000 + Math.random() * 4000;
+/* a frame at rest: only the cells the pointer or a blink touches are redrawn; returns true while something is still moving */
+function restFrame(now) {
+  if (!fx) return false;
+  if (!fastOn) { fastOn = true; fx.full(); heroOv.style.opacity = 1; lastHeroOp = 1; rowsData.forEach(r => { r.li.style.opacity = 0; r.vis = 0; }); statusEl.style.opacity = 0; listEl.style.setProperty('--rv', 0); }
+  const blink = blinkTick(now) > 0; if (blink || blinkOn) for (let q = 0; q < eyeList.length; q++) fx.force(eyeList[q]); blinkOn = blink;
+  const busy = fx.step(now); stats.calls = fx.calls;
+  return busy || blink;
 }
-
-function fastFrame(now, dt) {
-  const ctx = canvas.getContext('2d'), h = hero, cell = g.cell, dpr = g.dpr, cd = g.cellDev, sq = g.sqDev, W = g.W, H = g.H;
-  stats.calls = 0; dt = Math.min(dt, 0.033);
-  if (!gridIdx) fxPrepare();
-  if (!restOK) buildRest();
-  if (!fastOn) { fastOn = true; prevU = [0, 0, canvas.width, canvas.height]; heroOv.style.opacity = 1; lastHeroOp = 1; rowsData.forEach(r => { r.li.style.opacity = 0; r.vis = 0; }); statusEl.style.opacity = 0; listEl.style.setProperty('--rv', 0); }
-  ptrK += ((ptr.on ? 1 : 0) - ptrK) * Math.min(1, dt * 16);
-  const px = ptr.x, py = ptr.y, R = ptr.touch ? FX.Rt : FX.R, sig = R * 0.42, s2 = 2 * sig * sig, R2 = R * R;
-  /* a fast sweep throws a ring; the pointer leaves a short trail of influence */
-  if (ptr.on && FX.lastPX > -1e4) {
-    const mv = Math.hypot(px - FX.lastPX, py - FX.lastPY), sp = mv / dt;
-    if (sp > 1500 && now - FX.lastRing > 220) { FX.lastRing = now; fxRing(px, py, 0.5, 560, 46, 380); }
-    if (mv > cell * 2) { FX.trail.push(px, py, now); }
-  }
-  FX.lastPX = ptr.on ? px : -1e5; FX.lastPY = py;
-  { let k = 0; const t = FX.trail; for (let q = 0; q < t.length; q += 3) if (now - t[q + 2] < 260) { t[k++] = t[q]; t[k++] = t[q + 1]; t[k++] = t[q + 2]; } t.length = Math.min(k, 60); }
-  /* targets */
-  const gx0 = (x, r) => Math.max(0, Math.floor((x - r) / cell)), gx1 = (x, r) => Math.min(gridC - 1, Math.ceil((x + r) / cell));
-  const around = (cx, cy, r, fn) => { const r0 = Math.max(0, Math.floor((cy - r) / cell)), r1 = Math.min(gridR - 1, Math.ceil((cy + r) / cell)), c0 = gx0(cx, r), c1 = gx1(cx, r);
-    for (let rr = r0; rr <= r1; rr++) for (let cc = c0; cc <= c1; cc++) { const i = gridIdx[rr * gridC + cc]; if (i < 0) continue; const dx = cc * cell + cell / 2 - cx, dy = rr * cell + cell / 2 - cy, d2 = dx * dx + dy * dy; if (d2 < r * r) fn(i, dx, dy, d2); } };
-  if (ptrK > 0.01) around(px, py, R, (i, dx, dy, d2) => setT(i, 1.3 * Math.exp(-d2 / s2) * ptrK, dx, dy));
-  for (let q = 0; q < FX.trail.length; q += 3) { const a = 1 - (now - FX.trail[q + 2]) / 260, tr = R * 0.6, ts = 2 * (tr * 0.45) ** 2; around(FX.trail[q], FX.trail[q + 1], tr, (i, dx, dy, d2) => setT(i, 0.9 * a * a * Math.exp(-d2 / ts), dx, dy)); }
-  for (let k = FX.ring.length - 1; k >= 0; k--) {
-    const rg = FX.ring[k], r = (now - rg.t0) / 1000 * rg.speed; if (r > rg.max) { FX.ring.splice(k, 1); continue; }
-    const life = Math.pow(1 - r / rg.max, 1.4), band = rg.w * 1.8; around(rg.x, rg.y, r + band, (i, dx, dy, d2) => { const d = Math.sqrt(d2), e = (d - r) / rg.w; if (e > -1.8 && e < 1.8) setT(i, rg.amp * life * Math.exp(-e * e * 1.6), dx, dy); });
-  }
-  /* shimmer and blink */
-  { const nf = dt * 22 + (Math.random() < (dt * 22) % 1 ? 1 : 0); for (let q = 0; q < nf; q++) { const j = (Math.random() * h.n) | 0; h.flick[j] = 1; addAct(j); } }
-  blinkSchedule(now); const blink = blinkTick(now) > 0; if (blink || blinkOn) for (let q = 0; q < eyeList.length; q++) addAct(eyeList[q]); blinkOn = blink;
-  /* springs: snappy, a little overshoot */
-  const X = [], GL = []; let mnx = 1e9, mny = 1e9, mxx = -1e9, mxy = -1e9, k2 = 0;
-  const f0 = h.fi, v0 = h.fv, K = FX.K, C = FX.C;
-  for (let q = 0; q < actN; q++) {
-    const i = act[q]; let t = tgt[i]; tgt[i] = 0;
-    if (h.flick[i] > 0) { if (h.flick[i] * 0.9 > t) { t = h.flick[i] * 0.9; dirx[i] = 0; diry[i] = 0; } h.flick[i] = Math.max(0, h.flick[i] - dt * 5); }
-    v0[i] += ((t - f0[i]) * K - v0[i] * C) * dt; f0[i] += v0[i] * dt;
-    const eyeHide = blink && h.eye[i];
-    if (t === 0 && Math.abs(f0[i]) < 0.01 && Math.abs(v0[i]) < 0.05 && !eyeHide && h.flick[i] === 0 && !blinkOn) { f0[i] = v0[i] = 0; inAct[i] = 0; /* drawn as a plain square once more below, then dropped */ X.push(i, 1); continue; }
-    act[k2++] = i; X.push(i, 0);
-  }
-  actN = k2;
-  stats.active = actN;
-  /* draw */
-  const erase = new Path2D(), sqs = new Path2D(), lines = new Path2D(), fills = new Path2D(); let hasL = false, hasF = false, hasS = false;
-  const lw = Math.max(1, cd * 0.2), half = cd * 0.42;
-  for (let q = 0; q < X.length; q += 2) {
-    const i = X[q], dropped = X[q + 1], x = h.x0[i], y = h.y0[i], ix = Math.round(x * dpr), iy = Math.round(y * dpr);
-    erase.rect(ix - 1, iy - 1, cd + 2, cd + 2); const zs = cd * h.z[i], zo = (cd - zs) / 2;
-    const mx0 = ix - cd * 4, my0 = iy - cd * 4, mx1 = ix + cd * 5, my1 = iy + cd * 5; if (mx0 < mnx) mnx = mx0; if (my0 < mny) mny = my0; if (mx1 > mxx) mxx = mx1; if (my1 > mxy) mxy = my1;
-    if (dropped) { sqs.rect(ix + zo, iy + zo, zs, zs); hasS = true; continue; }
-    if (blink && h.eye[i]) { const bk = blinkK(i), ez = cd * (h.z[i] * (1 - bk) + h.etz[i] * bk); if (ez > 0.4) { sqs.rect(ix + (cd - ez) / 2, iy + (cd - ez) / 2, ez, ez); hasS = true; } continue; }
-    const f = Math.max(f0[i], 0);
-    if (f < 0.02) { sqs.rect(ix + zo, iy + zo, zs, zs); hasS = true; continue; }
-    const hs = h.hash[i], ox = dirx[i] * f * cell * 1.8 * dpr, oy = diry[i] * f * cell * 1.8 * dpr, cx = ix + cd / 2 + ox, cy = iy + cd / 2 + oy;
-    if (f < 0.22) { const sz = zs * (1 - f * 3.2); if (sz > 0.5) { sqs.rect(cx - sz / 2, cy - sz / 2, sz, sz); hasS = true; } continue; }
-    const fs = Math.min(f, 1.2), sc = 1 + 0.8 * Math.min(fs, 1), rot = fs * (hs - 0.5) * 3.3, co = Math.cos(rot), si = Math.sin(rot), hh = half * sc;
-    const score = h.v[i] * 0.7 + hs * 0.55, seg = (ax, ay, bx, by) => { lines.moveTo(cx + ax * co - ay * si, cy + ax * si + ay * co); lines.lineTo(cx + bx * co - by * si, cy + bx * si + by * co); hasL = true; };
-    if (score > 1.0) { seg(-hh, -hh, hh, hh); seg(hh, -hh, -hh, hh); }
-    else if (score > 0.82) { seg(-hh * 1.15, 0, hh * 1.15, 0); seg(0, -hh * 1.15, 0, hh * 1.15); }
-    else if (score > 0.55) { if (((x / cell + y / cell) | 0) & 1) seg(-hh * 1.1, 0, hh * 1.1, 0); else seg(0, -hh * 1.1, 0, hh * 1.1); }
-    else if (score > 0.4) { const r = hh * 0.85; fills.moveTo(cx + r * co, cy + r * si); fills.lineTo(cx - r * si, cy + r * co); fills.lineTo(cx - r * co, cy - r * si); fills.lineTo(cx + r * si, cy - r * co); fills.closePath(); hasF = true; }
-    else { const r = hh * 0.42; fills.moveTo(cx + r, cy); fills.arc(cx, cy, r, 0, 6.2832); hasF = true; }
-  }
-  const cur = [Math.max(0, mnx), Math.max(0, mny), Math.min(canvas.width, mxx), Math.min(canvas.height, mxy)];
-  if (mnx > mxx) cur[0] = cur[1] = cur[2] = cur[3] = 0;
-  const U = prevU ? [Math.min(prevU[0], cur[0] || prevU[0]), Math.min(prevU[1], cur[1] || prevU[1]), Math.max(prevU[2], cur[2]), Math.max(prevU[3], cur[3])] : cur;
-  prevU = mnx > mxx ? null : cur;
-  const ux = Math.floor(U[0]), uy = Math.floor(U[1]), uw = Math.ceil(U[2]) - ux, uh = Math.ceil(U[3]) - uy;
-  if (uw > 0 && uh > 0) {
-    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(ux, uy, uw, uh); ctx.drawImage(rest, ux, uy, uw, uh, ux, uy, uw, uh); stats.calls += 2;
-    if (X.length) { ctx.globalCompositeOperation = 'destination-out'; ctx.fill(erase); ctx.globalCompositeOperation = 'source-over'; stats.calls++; }
-    ctx.fillStyle = FG; ctx.strokeStyle = FG; ctx.lineWidth = lw; ctx.lineCap = 'round';
-    if (hasS) { ctx.fill(sqs); stats.calls++; } if (hasF) { ctx.fill(fills); stats.calls++; } if (hasL) { ctx.stroke(lines); stats.calls++; }
-  }
-  return true;
+/* blinks are timer-driven, not frame-driven: nothing wakes the page between them */
+function scheduleBlink(ms) {
+  clearTimeout(blinkTimer);
+  blinkTimer = setTimeout(() => {
+    if (!live || !hero) return;
+    if (pS > 0.05 || document.hidden || (ptr.on && Math.hypot(ptr.x - hero.ecx, ptr.y - hero.ecy) < 280)) { scheduleBlink(700); return; }
+    blinkT0 = performance.now(); blinkDbl = Math.random() < 1 / 6; wake(); scheduleBlink(3000 + Math.random() * 4000);
+  }, ms);
 }
 
 let wy = 0, handed = false;
@@ -372,9 +293,8 @@ function frame(now) {
   /* the picture chases the scroll, rate-capped (a whole hand-over takes at least ~1.2 s however fast the page is scrolled), both ways */
   { const diff = pT - pS, step = clamp(diff * Math.min(1, dt * 9), -dt / 1.2, dt / 1.2); pS = Math.abs(diff) < 0.0006 ? pT : pS + (Math.abs(step) < Math.abs(diff) ? step : diff); }
   const p = pS, dpr = g.dpr, cellDev = g.cellDev, sqDev = g.sqDev, cell = g.cell, W = g.W, H = g.H, dev = clamp((now - tDev) / 1200);
-  if (p < 0.0005 && dev >= 1 && now - nameT > 1300) { fastFrame(now, dt); msLog.push(performance.now() - t0); if (msLog.length > 4000) msLog.shift(); raf = requestAnimationFrame(frame); return; }
+  if (p < 0.0005 && dev >= 1 && now - nameT > 1300) { const busy = restFrame(now); msLog.push(performance.now() - t0); if (msLog.length > 4000) msLog.shift(); if (busy) raf = requestAnimationFrame(frame); else running = false; return; }
   if (fastOn) { fastOn = false; }
-  ptrK += ((ptr.on ? 1 : 0) - ptrK) * Math.min(1, dt * 10);
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = FG; ctx.strokeStyle = FG; ctx.lineCap = 'round'; ctx.lineWidth = Math.max(1, cellDev * 0.2);
   /* the page's own DOM follows the field: tagline and hint leave, the Work heading and each row take over as their squares land */
   const hop = Math.round((1 - smooth(p / 0.2)) * 100) / 100; if (hop !== lastHeroOp) { heroOv.style.opacity = hop; lastHeroOp = hop; }
@@ -391,10 +311,8 @@ function frame(now) {
     if (v > 0.02 && r.cells && r.pDriven) blocks.push(r.cells.rtop + wy - 4, r.cells.bottom + wy + 4, r.i, v);
   });
   const h = hero, n = h.n, blink = blinkTick(now) > 0;
-  const R2 = ((ptr.touch ? 70 : 90) * 1.5) ** 2, sig2 = 2 * ((ptr.touch ? 70 : 90) / 2) ** 2;
-  let springs = false;
   if (p < 0.9999) {
-    ctx.beginPath(); const glyphs = [], nb = blocks.length;
+    ctx.beginPath(); const nb = blocks.length;
     for (let i = 0; i < n; i++) {
       let x = h.x0[i], yv = h.y0[i], size = cellDev * h.z[i], d = h.d[i];
       if (h.trow[i] !== -1) {
@@ -415,41 +333,10 @@ function frame(now) {
       if (yv < -cell || yv > H + cell || x < -cell || x > W + cell) continue;
       if (p < 0.02) { const dv = clamp(((i >= h.nP ? clamp((now - nameT) / 1200) : dev) * 1.4 - h.hash[(i * 7) % n] * 0.4) / 0.6); if (dv < 1) size *= dv; }
       if (blink && h.eye[i]) { { const bk = blinkK(i); size = cellDev * (h.z[i] * (1 - bk) + h.etz[i] * bk); } if (size < 0.4) continue; }
-      const vy = yv;
-      let f = 0, ox = 0, oy = 0;
-      const dx = x + cell / 2 - ptr.x, dy = vy + cell / 2 - ptr.y, d2 = dx * dx + dy * dy;
-      let target = 0; if (ptrK > 0.01 && d2 < R2 && p < 0.05) target = Math.exp(-d2 / sig2) * ptrK;
-      if (target > 0 || h.fi[i] !== 0 || h.fv[i] !== 0) {
-        h.fv[i] += ((target - h.fi[i]) * 170 - h.fv[i] * 17) * dt; h.fi[i] += h.fv[i] * dt;
-        if (target === 0 && Math.abs(h.fi[i]) < 0.004 && Math.abs(h.fv[i]) < 0.02) h.fi[i] = h.fv[i] = 0; else springs = true;
-      }
-      f = Math.max(h.fi[i], 0);
-      if (h.flick[i] > 0) { f = Math.max(f, h.flick[i] * 0.9); h.flick[i] = Math.max(0, h.flick[i] - dt * 6); springs = true; }
-      if (f > 0.02) { const dl = Math.sqrt(d2) + 0.001; ox = dx / dl * h.fi[i] * cell * 1.6; oy = dy / dl * h.fi[i] * cell * 1.6; }
-      if (f > 0.25) { glyphs.push(x + cell / 2 + ox, vy + cell / 2 + oy, h.v[i], ((x / cell + yv / cell) | 0) & 1, f * (h.hash[i] - 0.5) * 4.4, Math.min(1, f * 1.4)); continue; }
-      if (f > 0.02) size *= 1 - f * 1.6;
-      if (size < 0.4) continue;
-      ctx.rect(Math.round((x + ox) * dpr) + (cellDev - size) / 2, Math.round((vy + oy) * dpr) + (cellDev - size) / 2, size, size);
+      ctx.rect(Math.round(x * dpr) + (cellDev - size) / 2, Math.round(yv * dpr) + (cellDev - size) / 2, size, size);
     }
     ctx.fill();
-    if (glyphs.length) {
-      ctx.beginPath();
-      for (let q = 0; q < glyphs.length; q += 6) {
-        const cx = glyphs[q] * dpr, cy = glyphs[q + 1] * dpr, v = glyphs[q + 2], kind = glyphs[q + 3], rot = glyphs[q + 4], sz = glyphs[q + 5], hh = cellDev * 0.42 * sz, co = Math.cos(rot), si = Math.sin(rot);
-        const seg = (ax, ay, bx, by) => { ctx.moveTo(cx + ax * co - ay * si, cy + ax * si + ay * co); ctx.lineTo(cx + bx * co - by * si, cy + bx * si + by * co); };
-        if (kind === 2) seg(-cellDev * 0.5, 0, cellDev * 0.5, 0);
-        else if (v > 0.62) { seg(-hh, -hh, hh, hh); seg(hh, -hh, -hh, hh); }
-        else if (v > 0.32) { if (kind) seg(-hh, 0, hh, 0); else seg(0, -hh, 0, hh); }
-        else { ctx.moveTo(cx + hh * 0.4, cy); ctx.arc(cx, cy, hh * 0.4, 0, 6.2832); }
-      }
-      ctx.stroke(); ctx.fill();
-    }
-    /* shimmer and blink, only while the hero is at rest */
-    if (p < 0.05) {
-      const nf = dt * 24 + (Math.random() < (dt * 24) % 1 ? 1 : 0); for (let q = 0; q < nf; q++) h.flick[(Math.random() * n) | 0] = 1;
-      if (dev >= 1) blinkSchedule(now);
-    }
-  } else if (!cleared) cleared = true;
+    } else if (!cleared) cleared = true;
   /* rows whose names were not part of the hand-over type on when they scroll into view */
   let typing = false;
   rowsData.forEach(r => {
@@ -465,7 +352,7 @@ function frame(now) {
     ctx.fill();
   });
   msLog.push(performance.now() - t0); if (msLog.length > 4000) msLog.shift();
-  const idle = p >= 0.9999 && !typing && !springs && ptrK < 0.01 && pT === pS;
+  const idle = (p >= 0.9999 || (p < 0.0005 && dev >= 1 && now - nameT > 1300)) && !typing && pT === pS;
   if (idle) { running = false; return; }
   raf = requestAnimationFrame(frame);
 }
@@ -483,17 +370,19 @@ async function startLive() {
   listEl = document.querySelector('.idx-list'); headEl = document.querySelector('.idx-head'); workEl = document.querySelector('.work'); statusEl = document.getElementById('idx-status'); heroOv = document.querySelector('.hero-ov');
   if (!canvas.getContext('2d') || !listEl) throw new Error('no canvas');
   root.classList.add('pt', 'live'); live = true;
-  layout(); tDev = nameT = performance.now(); nextBlink = tDev + 5400; mark('layout');
+  layout(); tDev = nameT = performance.now(); scheduleBlink(5400); mark('layout');
   if (!nameOn) fontP.then(() => { if (document.fonts.check('600 100px "Inter Tight"')) { nameOn = true; nameW100 = 0; nameT = performance.now(); relayout(); } });
   document.fonts.addEventListener('loadingdone', () => { clearTimeout(rt); rt = setTimeout(relayout, 80); });
   document.querySelectorAll('.idx-list > li').forEach(li => { li.style.opacity = 0; });
   headEl.style.opacity = 0; statusEl.style.opacity = 0; listEl.style.setProperty('--rv', 0); listEl.style.setProperty('--rv', 0);
-  addEventListener('pointermove', e => { ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; ptr.touch = e.pointerType === 'touch'; wake(); });
-  if ('onpointerrawupdate' in window) addEventListener('pointerrawupdate', e => { ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; ptr.touch = e.pointerType === 'touch'; });
-  addEventListener('pointerdown', e => { ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; ptr.touch = e.pointerType === 'touch'; fxRing(e.clientX, e.clientY, 1.1, 1100, 70, Math.hypot(innerWidth, innerHeight)); wake(); });
-  ['pointerup', 'pointercancel'].forEach(t => addEventListener(t, e => { if (e.pointerType === 'touch') ptr.on = false; }));
-  document.addEventListener('pointerleave', () => { ptr.on = false; });
-  addEventListener('blur', () => { ptr.on = false; });
+  /* one pointermove listener, one update per frame (the effect reads the latest position when its frame runs) */
+  const aim = e => { ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; ptr.touch = e.pointerType === 'touch'; if (fx) fx.move(ptr.x, ptr.y, ptr.touch); wake(); };
+  addEventListener('pointermove', aim);
+  addEventListener('pointerdown', e => { if (e.pointerType === 'touch') aim(e); });
+  const away = () => { ptr.on = false; if (fx) fx.leave(); wake(); };
+  ['pointerup', 'pointercancel'].forEach(t => addEventListener(t, e => { if (e.pointerType === 'touch') away(); }));
+  document.addEventListener('pointerleave', away);
+  addEventListener('blur', away);
   addEventListener('scroll', wake, { passive: true });
   document.addEventListener('visibilitychange', () => { if (document.hidden) { running = false; cancelAnimationFrame(raf); } else wake(); });
   var rt;
@@ -510,7 +399,7 @@ async function startLive() {
   workEl.addEventListener('focusin', () => { if (scrollY < T - 2) toWork(false); });
   if (location.hash === '#work' && scrollY < T) toWork(false);
   addEventListener('sq:layout', () => { clearTimeout(rt); rt = setTimeout(relayout, 60); });
-  window.__field = { stats, get p() { return pS; }, T: () => T, blink: () => { blinkFreeze = null; blinkDbl = false; blinkT0 = performance.now(); }, blinkFreeze: ms => { blinkFreeze = ms; }, ms: msLog, wy: () => wy, eyes: () => [hero.ecx, hero.ecy, g.cell], rows: () => rowsData };
+  window.__field = { stats, get p() { return pS; }, T: () => T, blink: () => { blinkFreeze = null; blinkDbl = false; blinkT0 = performance.now(); wake(); }, blinkFreeze: ms => { blinkFreeze = ms; wake(); }, ms: msLog, wy: () => wy, eyes: () => [hero.ecx, hero.ecy, g.cell], rows: () => rowsData };
   wake(); mark('firstframe');
 }
 let IMG = null;
