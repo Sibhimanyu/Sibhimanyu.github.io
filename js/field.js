@@ -2,7 +2,7 @@
    hero name -> 8 project screenshots (with a divider phrase) -> 8 index dots -> quiet drift.
    Everything is a progress value P: integer = a formed target, fraction = the scatter between two. */
 import * as THREE from 'three';
-import { portraitBox, setScatter } from './portrait.js';
+import { portraitBox, setPortraitY, setScatter } from './portrait.js';
 
 const root = document.documentElement;
 const $ = (s, c = document) => c.querySelector(s);
@@ -212,7 +212,7 @@ async function boot() {
   const newT = () => ({ pos: new Float32Array(N * 3), col: new Uint8Array(N * 3) });
   const grey = (c, g) => Math.min(255, Math.round(c * g));
 
-  function sampleText(lines, { frac, maxFs, cy = 0.5, cxPx = null, cyPx = null, wPx = null }) {
+  function sampleText(lines, { frac, maxFs, cy = 0.5, cxPx = null, cyPx = null, wPx = null, capTopPx = null }) {
     const c = document.createElement('canvas'); c.width = W; c.height = H;
     const x = c.getContext('2d', { willReadFrequently: true });
     x.fillStyle = '#000'; x.fillRect(0, 0, W, H);
@@ -222,12 +222,12 @@ async function boot() {
     const fs = Math.min(100 * (wPx || frac * W) / wMax, maxFs);
     x.font = font(fs); x.letterSpacing = `${-fs * 0.035}px`;
     x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillStyle = '#fff';
-    const lh = fs * 1.06, y0 = (cyPx ?? H * cy) - lh * (lines.length - 1) / 2 + fs * 0.26;
+    const lh = fs * 1.06, y0 = capTopPx !== null ? capTopPx + fs * 0.727 : (cyPx ?? H * cy) - lh * (lines.length - 1) / 2 + fs * 0.26;
     lines.forEach((l, i) => x.fillText(l, cxPx ?? W / 2, y0 + i * lh));
     const d = x.getImageData(0, 0, W, H).data, idx = [];
     for (let i = 0; i < W * H; i++) if (d[i * 4] > 128) idx.push(i);
     if (!idx.length) throw new Error('empty text sample');
-    const t = newT();
+    const t = newT(); t.fs = fs; t.base = y0;
     for (let i = 0; i < N; i++) {
       const p = idx[(Math.random() * idx.length) | 0];
       t.pos[i * 3] = (p % W) + Math.random() - W / 2; t.pos[i * 3 + 1] = H / 2 - ((p / W) | 0) - Math.random(); t.pos[i * 3 + 2] = (Math.random() - .5) * 8;
@@ -404,10 +404,18 @@ async function boot() {
     T[11] = sampleDrift();
     blank = { pos: T[11].pos, col: new Uint8Array(N * 3) };
     /* the name leaves room for the glyph portrait: to its left on a wide screen, below it on a phone */
-    const pb = portraitBox(W, H), padX = Math.max(20, Math.min(44, W * 0.031));
+    const padX = Math.max(20, Math.min(44, W * 0.031));
+    let pb = portraitBox(W, H);
+    if (mobile) {
+      /* one centred group: portrait, the name 24px under it, the tagline 32px under that, the scroll cue below */
+      const fs = sampleText(['Sibhimanyu'], { frac: 0.9, maxFs: 1500, capTopPx: 0 }).fs;
+      const tagH = 46, groupH = pb.h + 24 + fs * 0.727 + fs * 0.22 + 32 + tagH, lo = 76, hi = H - 104;
+      setPortraitY(Math.round(lo + Math.max(0, (hi - lo - groupH) * 0.45))); pb = portraitBox(W, H);
+    }
     T[0] = mobile
-      ? sampleText(['Sibhimanyu'], { frac: 0.9, maxFs: 1500, cyPx: (pb.y + pb.h + H - 150) / 2 })
+      ? sampleText(['Sibhimanyu'], { frac: 0.9, maxFs: 1500, capTopPx: pb.y + pb.h + 24 })
       : sampleText(['Sibhimanyu'], { frac: 0.5, maxFs: 1500, wPx: pb.x - padX - 36, cxPx: (padX + pb.x - 36) / 2, cyPx: H * 0.45 });
+    if (mobile) root.style.setProperty('--tagTop', Math.round(T[0].base + T[0].fs * 0.22 + 32) + 'px');
     T[10] = sampleDots();
     T[6] = sampleText(mobile ? ['a classroom,', 'a school', 'and a farm'] : ['a classroom, a school', 'and a farm'], { frac: mobile ? 0.84 : 0.7, maxFs: 220 });
     /* the projects' screenshots stream in behind the hero, in order; nothing waits for them, so a slow connection

@@ -10,18 +10,20 @@ const FG = '#F2F0EB', AC = '#FF4D1F';
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const SRC_W = 660, SRC_H = 800;
 
+let mobileY = null;
+export function setPortraitY(y) { mobileY = y; if (live && box && box.mobile && root.classList.contains('gl')) { box.y = y; canvas.style.top = y + 'px'; } }
 /* where the portrait sits, in CSS px of the viewport (plain = in the document flow, size only) */
 export function portraitBox(W, H, plain = false) {
   const mobile = W <= 760;
-  const cols = mobile ? 52 : 66, rows = Math.round(cols * SRC_H / SRC_W);
+  const cols = mobile ? 40 : 66, rows = Math.round(cols * SRC_H / SRC_W);
   const pad = Math.max(20, Math.min(44, W * 0.031));
   let w, x = 0, y = 0;
   if (plain) w = mobile ? Math.min(W * 0.62, 300) : Math.min(W * 0.34, 380);
-  else if (mobile) w = Math.min(W * 0.6, H * 0.36 * cols / rows);
+  else if (mobile) w = Math.min(W * 0.64, H * 0.36 * cols / rows);
   else w = Math.min(W * 0.4, (H - 150) * cols / rows);
   const h = w * rows / cols;
   if (!plain) {
-    if (mobile) { x = (W - w) / 2; y = Math.max(72, H * 0.095); }
+    if (mobile) { x = (W - w) / 2; y = mobileY ?? Math.max(72, H * 0.095); }
     else { x = W - pad - w; y = 70 + (H - 70 - 30 - h) / 2; }
   }
   return { x, y, w, h, cols, rows, cell: w / cols, mobile };
@@ -89,24 +91,27 @@ export function drawCartoon(c, eyeMaskOnly = false) {
       c.fillStyle = gr(0.38); c.beginPath(); c.ellipse(x + (x < 330 ? 3 : -3), y + 4, 9, 18, 0, 0, 7); c.fill();
     });
     /* face: light, shaded softly on one side */
-    facePath(c); c.fillStyle = gr(0.96); c.fill();
+    facePath(c); c.fillStyle = gr(0.8); c.fill();
     c.save(); facePath(c); c.clip();
     const gl = c.createLinearGradient(180, 0, 482, 0);
-    gl.addColorStop(0, 'rgba(0,0,0,0)'); gl.addColorStop(0.62, 'rgba(0,0,0,0)'); gl.addColorStop(1, 'rgba(0,0,0,0.3)');
+    gl.addColorStop(0, 'rgba(0,0,0,0)'); gl.addColorStop(0.45, 'rgba(0,0,0,0)'); gl.addColorStop(1, 'rgba(0,0,0,0.4)');
     c.fillStyle = gl; c.fillRect(150, 150, 360, 400);
-    const gb = c.createLinearGradient(0, 470, 0, 550); gb.addColorStop(0, 'rgba(0,0,0,0)'); gb.addColorStop(1, 'rgba(0,0,0,0.1)');
+    const gb = c.createLinearGradient(0, 470, 0, 550); gb.addColorStop(0, 'rgba(0,0,0,0)'); gb.addColorStop(1, 'rgba(0,0,0,0.15)');
     c.fillStyle = gb; c.fillRect(150, 470, 360, 90);
+    const lit = c.createRadialGradient(262, 420, 10, 262, 420, 150); lit.addColorStop(0, 'rgba(255,255,255,0.3)'); lit.addColorStop(1, 'rgba(255,255,255,0)');
+    c.fillStyle = lit; c.fillRect(150, 250, 360, 320);
     c.restore();
     /* hair: a cluster of overlapping curls, sparse and dark, with a lighter rim on each so the curls read */
-    const back = [[170, 300, 48], [490, 300, 44], [150, 240, 52], [505, 245, 46], [185, 175, 62], [470, 175, 58], [215, 100, 68], [300, 72, 68], [392, 92, 62], [470, 132, 58]];
-    const mid = [[150, 200, 50], [178, 262, 44], [500, 205, 46], [490, 266, 40], [240, 158, 58], [335, 138, 60], [430, 152, 56], [205, 205, 50]];
-    const front = [[255, 226, 40], [310, 212, 42], [368, 218, 42], [425, 232, 38], [214, 262, 34], [460, 262, 32], [194, 320, 28], [470, 322, 26], [196, 292, 24]];
+    const back = [[250, 148, 48], [322, 118, 56], [398, 114, 60], [466, 146, 54], [504, 202, 38], [208, 192, 40], [300, 168, 58], [404, 172, 60]];
+    const mid = [[222, 232, 32], [474, 228, 40], [252, 200, 42], [350, 188, 50], [444, 194, 44], [504, 254, 24]];
+    const front = [[262, 238, 25], [314, 232, 27], [364, 240, 25], [418, 246, 23], [228, 264, 20], [454, 270, 19]];
     [...back, ...mid, ...front].forEach(([x, y, r]) => {
-      c.fillStyle = gr(0.38); c.beginPath(); c.arc(x, y, r, 0, 7); c.fill();
-      c.lineCap = 'round'; c.strokeStyle = gr(0.68); c.lineWidth = 5;
-      c.beginPath(); c.arc(x, y, r - 5, Math.PI * 0.92, Math.PI * 1.62); c.stroke();
-      c.strokeStyle = gr(0.2); c.lineWidth = 4;
-      c.beginPath(); c.arc(x + r * 0.12, y + r * 0.1, r * 0.46, Math.PI * 1.0, Math.PI * 1.75); c.stroke();
+      c.fillStyle = gr(0.3); c.beginPath(); c.arc(x, y, r, 0, 7); c.fill();
+      c.lineCap = 'round'; c.strokeStyle = gr(0.78); c.lineWidth = 6;
+      c.beginPath(); c.arc(x, y, r - 6, Math.PI * 0.9, Math.PI * 1.7); c.stroke();
+      c.strokeStyle = gr(0.14); c.lineWidth = 5;
+      c.beginPath(); c.arc(x + r * 0.1, y + r * 0.12, r * 0.48, Math.PI * 1.0, Math.PI * 1.8); c.stroke();
+      if (r > 36) { c.strokeStyle = gr(0.6); c.lineWidth = 5; c.beginPath(); c.arc(x - r * 0.05, y + r * 0.1, r * 0.3, Math.PI * 0.2, Math.PI * 1.1); c.stroke(); }
     });
     /* brows: short, thick */
     c.lineCap = 'round'; c.strokeStyle = gr(0.1); c.lineWidth = 18;
@@ -118,14 +123,10 @@ export function drawCartoon(c, eyeMaskOnly = false) {
     EYES.forEach(([x, y]) => { c.beginPath(); c.ellipse(x - 7, y - 13, 8.5, 10, 0, 0, 7); c.fill(); });
     /* nose and cheeks */
     c.strokeStyle = gr(0.6); c.lineWidth = 6; c.beginPath(); c.moveTo(322, 412); c.quadraticCurveTo(334, 424, 348, 414); c.stroke();
-    c.strokeStyle = gr(0.7); c.lineWidth = 5;
-    c.beginPath(); c.arc(252, 452, 22, -0.3, 0.9); c.stroke();
-    c.beginPath(); c.arc(412, 452, 22, Math.PI - 0.9, Math.PI + 0.3); c.stroke();
-    /* open smile: dark, teeth on top */
+        /* open smile: dark, teeth on top */
     const mouth = () => { c.beginPath(); c.moveTo(262, 446); c.bezierCurveTo(300, 436, 360, 436, 400, 446); c.bezierCurveTo(394, 498, 358, 514, 331, 514); c.bezierCurveTo(306, 514, 268, 498, 262, 446); c.closePath(); };
     mouth(); c.fillStyle = gr(0.05); c.fill(); c.strokeStyle = gr(0.05); c.lineWidth = 9; c.lineJoin = 'round'; c.stroke();
-    c.save(); mouth(); c.clip(); c.fillStyle = gr(0.97); c.fillRect(262, 449, 138, 24);
-    c.fillStyle = gr(0.5); c.beginPath(); c.ellipse(331, 512, 36, 18, 0, 0, 7); c.fill(); c.restore();
+    c.save(); mouth(); c.clip(); c.fillStyle = gr(1); c.fillRect(262, 451, 138, 15); c.restore();
   });
 }
 

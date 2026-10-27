@@ -197,8 +197,8 @@
   .gl .idx-list li { background:linear-gradient(90deg, rgba(10,10,10,.5), rgba(10,10,10,.5)); }
 
   @media (max-width:760px) {
-    .gl .tagline { left:20px; bottom:64px; font-size:18px; max-width:260px; }
-    .gl .hint { display:none; }
+    .gl .tagline { left:20px; right:20px; top:var(--tagTop, 60%); bottom:auto; font-size:18px; max-width:none; text-align:center; text-wrap:balance; }
+    .gl .hint { bottom:38px; left:0; right:0; transform:none; text-align:center; }
     .gl .rail { left:20px; right:20px; }
   }
   @media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto !important; } .tagline, .hint { animation:none !important; } }
