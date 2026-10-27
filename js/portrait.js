@@ -18,7 +18,7 @@ export function setPortraitY(y) { mobileY = y; if (live && box && box.mobile && 
 /* where the portrait sits, in CSS px of the viewport (plain = in the document flow, size only) */
 export function portraitBox(W, H, plain = false) {
   const mobile = W <= 760;
-  const cols = mobile ? 80 : 150, rows = Math.round(cols * SRC_H / SRC_W);
+  const cols = mobile ? 100 : 165, rows = Math.round(cols * SRC_H / SRC_W);
   const pad = Math.max(20, Math.min(44, W * 0.031));
   let w, x = 0, y = 0;
   if (plain) w = mobile ? Math.min(W * 0.62, 300) : Math.min(W * 0.4, 520);
@@ -60,7 +60,7 @@ function buildGrid(cols, rows, img, bleed = false) {
   const L = new Float32Array(cols * rows), A = new Float32Array(cols * rows);
   for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) { let sl = 0, sa = 0; for (let v = 0; v < S; v++) for (let u = 0; u < S; u++) { const q = (j * S + v) * cw + i * S + u; sl += t[q] * a[q]; sa += a[q]; }
     const q = j * cols + i; A[q] = sa / (S * S); L[q] = sa > 0 ? sl / sa : 0;
-    const ex = Math.min(i / (cols * 0.3), (cols - 1 - i) / (cols * 0.1), bleed ? 9 : (rows - 1 - j) / (rows * 0.12));
+    const ex = Math.min(i / (cols * 0.15), (cols - 1 - i) / (cols * 0.15), bleed ? 9 : (rows - 1 - j) / (rows * 0.15));
     if (ex < 1) { const e = smooth(ex); L[q] *= e; if (e < 0.04) A[q] = 0; } }
   const m = cols * rows, hash = new Float32Array(m), ang = new Float32Array(m), thr = new Float32Array(m), vis = new Uint8Array(m);
   let seed = 7; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
@@ -107,7 +107,7 @@ function layout() {
 /* one frame. 1-bit ordered dither: a cell is a solid square (0.62 of the cell) when its tone beats the Bayer 4x4 threshold.
    dev = develop progress 0..1, sc = scatter 0..1, interactive = false draws the plain static render */
 function draw(dev, sc, t, interactive, blinking, cv = canvas, c2 = ctx, grid = G) {
-  const { cols, rows, n, L, hash, ang, thr, list } = grid, cw = cv.width / cols, chh = cv.height / rows, sq = cw * 0.62;
+  const { cols, rows, n, L, hash, ang, thr, list } = grid, cw = cv.width / cols, chh = cv.height / rows, sq = cw - 0.6 * dpr;
   c2.setTransform(1, 0, 0, 1, 0, 0); c2.clearRect(0, 0, cv.width, cv.height);
   c2.fillStyle = FG; c2.strokeStyle = FG; c2.lineCap = 'round'; c2.lineWidth = Math.max(1, cw * 0.2);
   const blinkMid = blinking ? new Map() : null;
@@ -163,7 +163,7 @@ function buildScreen(cols, rows, cell) {
     const d = x.getImageData(0, 0, cv.width, cv.height).data, W3 = cv.width;
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
       let s = 0; for (let v = 0; v < S; v++) for (let u = 0; u < S; u++) s += d[((r * S + v) * W3 + c * S + u) * 4 + 3];
-      const cov = s / (S * S * 255); if (cov > 0.3) { const q = r * cols + c; L[q] = cov > 0.7 ? 1 : cov; A[q] = 1; }
+      const cov = s / (S * S * 255); if (cov > 0.3) { const q = r * cols + c; L[q] = 1; A[q] = 1; }
     }
   }
   const hash = new Float32Array(n), ang = new Float32Array(n), thr = new Float32Array(n), vis = new Uint8Array(n);
@@ -235,7 +235,7 @@ async function startStatic() {
 
 /* a PNG of the halftone for the no-JS <img>: window.__portraitPNG(cellPx) -> data URL */
 window.__portraitPNG = async cell => {
-  const im = await IMG_P, cols = 150, rows = Math.round(cols * SRC_H / SRC_W), g = buildGrid(cols, rows, im, true), cv = document.createElement('canvas');
+  const im = await IMG_P, cols = 165, rows = Math.round(cols * SRC_H / SRC_W), g = buildGrid(cols, rows, im, true), cv = document.createElement('canvas');
   cv.width = cols * cell; cv.height = rows * cell; const c = cv.getContext('2d'); c.fillStyle = '#0A0A0A'; c.fillRect(0, 0, cv.width, cv.height);
   draw(1, 0, 0, false, false, cv, c, g); const o = document.createElement('canvas'); o.width = cv.width; o.height = cv.height;
   const oc = o.getContext('2d'); oc.fillStyle = '#0A0A0A'; oc.fillRect(0, 0, o.width, o.height); oc.drawImage(cv, 0, 0);
