@@ -19,7 +19,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <meta name="theme-color" content="#f7f6f2" />
 <link rel="preload" as="image" href="assets/portrait-src.webp?v=75eeea64" type="image/webp" fetchpriority="high" />
-<link rel="modulepreload" href="js/portrait.js?v=869a3b1c" />
+<link rel="modulepreload" href="js/portrait.js?v=d61a2e87" />
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-tight-latin.woff2?v=83d548cd" crossorigin />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -33,7 +33,7 @@
   (function () {
     var r = document.documentElement;
     r.classList.add('js');
-    window.__BUILD="0a0797eb"; // set by scripts/stamp.mjs; js/portrait.js?v=869a3b1c must report the same build
+    window.__BUILD="9ebd9f0b"; // set by scripts/stamp.mjs; js/portrait.js?v=d61a2e87 must report the same build
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) r.classList.add('rm', 'nogl', 'fx'); else { r.classList.add('wp'); setTimeout(function () { if (!window.__wpOK) r.classList.remove('wp'); }, 3500); }
     // the plain hero stays hidden until the live field paints; if that has not happened in 2.5 s (modules failed, slow network) show it
     setTimeout(function () { r.classList.add('reveal'); }, 2500);
@@ -101,7 +101,7 @@
      While the hero's squares are arriving, the fly canvas draws these same dots (portrait.js) and --rule is 0; once landed --rule is 1 and this takes over. */
   .rule { display:block; width:100%; height:var(--sq,3.6px); margin-bottom:clamp(24px,3.4vw,48px); background:linear-gradient(90deg,var(--fg) var(--sq,3.6px),transparent 0) 0 0 / var(--cell,4px) 100% repeat-x; opacity:.45; clip-path:inset(0 calc((1 - var(--rule,1)) * 50%)); }
   [data-q] { transition:none !important; }
-  #fly { position:fixed; left:0; top:0; z-index:2; pointer-events:none; display:none; }
+  #fly { position:fixed; left:0; top:0; z-index:2; pointer-events:none; display:none; will-change:transform; contain:strict; }
   .live #fly { display:block; }
   .chip[aria-pressed="true"] { font-weight:700; }
   .idx-head h2:focus { outline:none; }
@@ -168,7 +168,7 @@
   .st .eyebrow, .st .tagline, .st .hint { display:block; position:absolute; }
   .st .eyebrow { left:var(--pad); top:var(--eyeTop,26%); font-size:clamp(11px,.84vw,14px); line-height:1; letter-spacing:.2em; text-transform:uppercase; color:rgba(242,240,235,.5); white-space:nowrap; animation:rise 1.2s var(--ease) .9s backwards; }
   .st .tagline { left:var(--pad); top:var(--tagTop,58%); max-width:none; font-size:clamp(17px,1.44vw,24px); font-weight:400; line-height:1.33; letter-spacing:-.012em; text-wrap:wrap; color:rgba(242,240,235,.94); animation:rise 1.2s var(--ease) 1.1s backwards; pointer-events:auto; }
-  .st .hint { opacity:calc(1 - var(--hq,0)); isolation:isolate; left:0; width:87%; bottom:5.5%; text-align:center; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:rgba(242,240,235,.78); text-shadow:0 0 6px #0A0A0A, 0 0 12px #0A0A0A; animation:rise 1.2s var(--ease) 1.5s backwards; }
+  .st .hint { isolation:isolate; left:0; width:87%; bottom:5.5%; text-align:center; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:rgba(242,240,235,.78); text-shadow:0 0 6px #0A0A0A, 0 0 12px #0A0A0A; animation:rise 1.2s var(--ease) 1.5s backwards; }
   .hint .arr { display:block; position:relative; width:1px; height:56px; margin:14px auto 0; background:rgba(242,240,235,.8); animation:nudge 2.4s ease-in-out 2.5s infinite; }
   .hint .arr::after { content:""; position:absolute; left:-3.5px; bottom:0; width:7px; height:7px; border-right:1px solid rgba(242,240,235,.8); border-bottom:1px solid rgba(242,240,235,.8); transform:translateY(-1px) rotate(45deg) scale(.9); transform-origin:center; }
   @keyframes rise { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
@@ -179,8 +179,8 @@
   /* Pinned stage (live only): the hero is a stable-height screen whose canvas and copy are FIXED; Work starts at its final screen position (--wtop) with its
      top rule, is sticky there for --pin px of scroll (the .stage-tail spacer ends the pin) and then scrolls on from exactly that spot, so nothing jumps.
      portrait.js only writes custom properties (--hd the hero's dissolve, --hq the cue's) and draws the arriving squares, as a function of scroll. */
-  .live #portrait { position:fixed; opacity:calc(1 - var(--hd,0)); }
-  .live .hero-ov { position:fixed; left:0; top:0; width:100%; height:var(--H,100svh); opacity:calc(1 - var(--hd,0)); }
+  .live #portrait { position:fixed; will-change:opacity; }
+  .live .hero-ov { position:fixed; left:0; top:0; width:100%; height:var(--H,100svh); will-change:opacity; }
   .hgone #portrait, .hgone .hero-ov { visibility:hidden; }
   .live .work-run { position:relative; margin-top:calc(var(--wtop,58svh) - var(--H,100svh)); }
   .live .work { position:sticky; top:var(--wtop,58svh); z-index:2; padding-top:0; }
@@ -194,6 +194,9 @@
   @media (hover:none), (pointer:coarse) { .live #thumb.on { display:none; } }
   @media (max-width:760px) {
     .dk { display:none; }
+    /* nothing translucent or masked over the moving canvases on a phone: a backdrop blur and a mask are re-rendered every scroll frame (the portrait already fades out its own bottom edge) */
+    .nav { background:rgba(10,10,10,.97); -webkit-backdrop-filter:none; backdrop-filter:none; }
+    .st #portrait { -webkit-mask-image:none; mask-image:none; }
     .st .eyebrow { font-size:12px; }
     .st .tagline { left:var(--pad); max-width:min(62vw,320px); font-size:17px; line-height:1.3; }
     .st .hint { left:0; width:100%; bottom:26px; }
@@ -220,7 +223,7 @@
 <canvas id="thumb" aria-hidden="true"></canvas>
 <canvas id="fly" aria-hidden="true"></canvas>
 <header class="nav">
-  <a class="brand" href="#top" aria-label="Sibhimanyu, back to top">s.</a>
+  <a class="brand" href="#top" aria-label="Sibhimanyu, home">Sibhi</a>
   <nav aria-label="Sections"><ul>
     <li><a href="#work" id="nav-work">Work</a></li>
     <li><a href="https://github.com/Sibhimanyu">GitHub</a></li>
@@ -333,7 +336,7 @@
 
 <script id="proj" type="application/json">[{"name": "RasanAI", "tag": "macOS \u00b7 AI film", "desc": "A Mac app that turns a sentence and your footage into a finished film. You make five calls; Claude directs the rest.", "site": "https://sibhimanyu.github.io/rasanai/", "mark": "rasanai-mark.svg", "wide": false, "host": "sibhimanyu.github.io/rasanai"}, {"name": "Flotilla", "tag": "Web \u00b7 multiplayer coding agents", "desc": "Several AI coding agents build one app together, with tasks handed out, file ownership enforced and one live board.", "site": "https://sibhimanyu.github.io/flotilla/", "mark": "flotilla-mark.svg", "wide": false, "host": "sibhimanyu.github.io/flotilla"}, {"name": "Heresay", "tag": "Web, iOS, macOS \u00b7 user feedback", "desc": "In-app bug reports that reach your coding agent once your team accepts them.", "site": "https://sibhimanyu.github.io/heresay/", "mark": "heresay-mark.svg", "wide": false, "host": "sibhimanyu.github.io/heresay"}, {"name": "Squeak", "tag": "macOS, iPhone \u00b7 agent pager", "desc": "Watches every Claude Code and Codex session on your Mac and pages you when one needs you.", "site": "https://sibhimanyu.github.io/squeak/", "mark": "squeak-mark.png", "wide": false, "host": "sibhimanyu.github.io/squeak"}, {"name": "Imago", "tag": "Web \u00b7 API explorer", "desc": "Paste an API URL or a curl command and get a live interface drawn from the JSON's shape.", "site": "https://imago.onslate.in/", "mark": "imago-mark.svg", "wide": false, "host": "imago.onslate.in"}, {"name": "Greenroom", "tag": "macOS \u00b7 classroom setup", "desc": "Starts a whole morning class in one click: OBS virtual camera, Zoom and a tiled layout.", "site": "https://sibhimanyu.github.io/greenroom/", "mark": "greenroom-mark.png", "wide": false, "host": "sibhimanyu.github.io/greenroom"}, {"name": "Abhishri Academy", "tag": "Web, iOS \u00b7 school ERP", "desc": "Attendance, fees and receipts for staff, an iOS app, and a portal for parents.", "site": "https://abhishri-academy.web.app/public-calendar", "mark": "abhishri-mark.png", "wide": true, "host": "abhishri-academy.web.app/public-calendar"}, {"name": "SNOF", "tag": "Web \u00b7 farm dashboard", "desc": "Every room, sensor and switch on the farm, live from Home Assistant.", "site": "https://snof-live.web.app/", "mark": "snof-mark.png", "wide": false, "host": "snof-live.web.app"}]</script>
 <script src="js/ui.js?v=b5c2e673" defer></script>
-<script type="module" src="js/portrait.js?v=869a3b1c"></script>
+<script type="module" src="js/portrait.js?v=d61a2e87"></script>
 <script type="module" src="js/footer-fx.js?v=2c3ad8d0"></script>
 <script src="js/work.js?v=73d507b4" defer></script>
 </body>

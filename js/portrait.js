@@ -5,7 +5,7 @@
    CSS custom properties (--hp hero progress, --rule the bridge's dotted rule). Reduced motion / no canvas: drawn once, static, no listeners. */
 
 import { createHover } from './hover.js?v=574a5883';
-export const BUILD = '0a0797eb';   /* set by scripts/stamp.mjs; must equal window.__BUILD in index.html */
+export const BUILD = '9ebd9f0b';   /* set by scripts/stamp.mjs; must equal window.__BUILD in index.html */
 const root = document.documentElement;
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const smooth = v => { v = clamp(v); return v * v * (3 - 2 * v); };
@@ -77,7 +77,8 @@ function measureName() {
   return document.fonts.check('600 100px "Inter Tight"') ? (nameW100 = w) : w;   /* a fallback font's width is not kept */
 }
 function geometry(W, H, Hc) {
-  const mobile = W <= 760, dpr = Math.min(window.devicePixelRatio || 1, 2), pad = Math.max(20, Math.min(44, W * 0.031));
+  const mobile = W <= 760, dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 2),   /* a phone's canvases are capped at 1.5: 44% fewer pixels to upload and composite each frame */
+     pad = Math.max(20, Math.min(44, W * 0.031));
   const cell0 = mobile ? 2 : Math.max(3, Math.round(W / 420)), cellDev = Math.max(2, Math.round(cell0 * dpr)), cell = cellDev / dpr;
   const w0 = mobile ? W * 1.06 : W * 0.47, cols = Math.round(w0 / cell), rows = Math.round(cols * SRC_H / SRC_W), w = cols * cell, h = rows * cell;
   const g = { W, H, Hc, dpr, mobile, cols, rows, cell, cellDev, sqDev: cellDev - Math.max(1, Math.round(0.6 * dpr)), w, h, pad };
@@ -183,7 +184,7 @@ function viewport() {
 /* ------------------------------------------------------------------ the field */
 let fly = null, flyOn = false, isCut = false, cutBmp = null, T = 1, wtop = 100, hd = -1, hq = -1, wOn = false, wHand = false;
 let eyeList = null, fx = null, fastOn = false, blinkOn = false, blinkTimer = 0, bkMode = 0, bkV = 0, bridgeEl = null, hp = -1, rule = -1, sRaf = 0, dpr0 = 1;
-const stats = { calls: 0 };
+const stats = { calls: 0 }, heroOv = document.querySelector('.hero-ov') || {style: {}}, hintEl = document.querySelector('.hero-ov .hint');   /* opacities are written on the elements: a custom property on :root re-styles the whole page every frame */
 const setVar = (k, v) => root.style.setProperty(k, v);
 
 function makeFx() {
@@ -240,7 +241,7 @@ function workTargets() {
   }
   return Gs;
 }
-const FLY_MAX = () => g.mobile ? 14000 : 20000;
+const FLY_MAX = () => g.mobile ? 3600 : 20000;
 function buildFly() {
   fly = null; document.querySelectorAll('[data-q]').forEach(e => { e.removeAttribute('data-q'); e.style.opacity = ''; });
   const rule = document.querySelector('.work .rule'); if (!rule || !hero) return;
@@ -277,15 +278,21 @@ function buildFly() {
     L[f] = a + (b - a) * (0.1 + 0.9 * rnd()); S[f] = Math.max(0, L[f] - (0.16 + 0.1 * r1)); JX[f] = (r1 - 0.5) * cell * 10;
   }
   Gs.forEach((o, j) => { if (j === 0) return; o.els.forEach(e => e.setAttribute('data-q', '1')); });
-  fly = { n: nf, x0: X0, y0: Y0, z0: Z0, tx: TX, ty: TY, tz: TZ, g: GR, k: KD, s: S, l: L, jx: JX, isD, ng, win, els: Gs.map(o => o.els), v: new Float32Array(ng), vo: new Float32Array(ng).fill(-1) };
+  /* sort the flyers by when they are gone (landed spare: l; part j's: its crossfade end b+.04; the rule: its end +.02), so a frame draws one
+     contiguous tail [first, n) and never visits a flyer that has already landed; all per-flyer parameters are typed arrays, built here once */
+  const DT = new Float32Array(nf); for (let f = 0; f < nf; f++) DT[f] = KD[f] === 0 ? L[f] : GR[f] === 0 ? win(0)[1] + 0.02 : win(GR[f])[1] + 0.04;
+  const ord = Array.from({ length: nf }, (_, f) => f).sort((p, q) => DT[p] - DT[q]), pm = A => { const o = new A.constructor(nf); for (let f = 0; f < nf; f++) o[f] = A[ord[f]]; return o; };
+  fly = { n: nf, x0: pm(X0), y0: pm(Y0), z0: pm(Z0), tx: pm(TX), ty: pm(TY), tz: pm(TZ), g: pm(GR), k: pm(KD), s: pm(S), l: pm(L), jx: pm(JX), dt: pm(DT), bx: new Float32Array(3 * nf), isD, ng, win, els: Gs.map(o => o.els), v: new Float32Array(ng), vo: new Float32Array(ng).fill(-1) };
 }
 const crisp = (f, j, q) => { const b = f.win(j)[1]; return smooth((q - (b - 0.04)) / 0.08); };
 function drawFly(q) {
-  const f = fly, ctx = flyCv.getContext('2d'), dpr = g.dpr, cd = g.cellDev, hh = flyCv.height, ng = f.ng, v = f.v;
+  const f = fly, ctx = flyCv.getContext('2d'), dpr = g.dpr, cd = g.cellDev, hh = flyCv.height, ng = f.ng, v = f.v, dt = f.dt, bx = f.bx;
   for (let j = 0; j < ng; j++) v[j] = crisp(f, j, q);
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, flyCv.width, hh); ctx.fillStyle = FG;
-  const A = new Path2D(), B = new Path2D(), ruleDone = q >= f.win(0)[1] + 0.02;
-  for (let k = 0; k < f.n; k++) {
+  /* the flyers are sorted by when they are gone: binary search the first one still on screen, and draw only [first, n) */
+  let lo = 0, hi = f.n; while (lo < hi) { const m = (lo + hi) >> 1; if (dt[m] <= q) lo = m + 1; else hi = m; }
+  const ruleDone = q >= f.win(0)[1] + 0.02; let nb = 0; ctx.beginPath();
+  for (let k = lo; k < f.n; k++) {
     const j = f.g[k], d = f.l[k] - f.s[k], t = (q - f.s[k]) / d, e = t <= 0 ? 0 : t >= 1 ? 1 : flyEase(t), base = cd * f.z0[k];
     let size;
     if (f.k[k] === 0) size = base * (1 - smooth((e - 0.75) / 0.25));
@@ -294,9 +301,10 @@ function drawFly(q) {
     const up = f.y0[k] > f.ty[k], ey = up ? 1 - (1 - e) * (1 - e) : e * e * (3 - 2 * e);
     const x = f.x0[k] + (f.tx[k] - f.x0[k]) * e + f.jx[k] * (up ? 0.25 : 1) * Math.sin(Math.PI * e), y = f.y0[k] + (f.ty[k] - f.y0[k]) * ey, off = (cd - size) / 2 * (j === 0 && f.k[k] === 1 ? 1 - e : 1);
     const px = Math.round(x * dpr) + off, py = Math.round(y * dpr) + off; if (py < -cd || py > hh) continue;
-    (j === 0 && f.k[k] === 1 && e > 0.85 ? B : A).rect(px, py, size, size);
+    if (j === 0 && f.k[k] === 1 && e > 0.85) { bx[nb++] = px; bx[nb++] = py; bx[nb++] = size; } else ctx.rect(px, py, size, size);   /* the rule's last dots land at 45% */
   }
-  ctx.globalAlpha = 1; ctx.fill(A); ctx.globalAlpha = 0.45; ctx.fill(B); ctx.globalAlpha = 1;
+  ctx.fill();
+  if (nb) { ctx.globalAlpha = 0.45; ctx.beginPath(); for (let i = 0; i < nb; i += 3) ctx.rect(bx[i], bx[i + 1], bx[i + 2], bx[i + 2]); ctx.fill(); ctx.globalAlpha = 1; }
   /* each part's DOM version, in place, as its squares land */
   for (let j = 1; j < ng; j++) { const o = Math.round(v[j] * 100) / 100; if (o !== f.vo[j]) { f.vo[j] = o; f.els[j].forEach(e => { e.style.opacity = o; }); } }
 }
@@ -367,8 +375,8 @@ function wake() { if (!live || running || document.hidden) return; running = tru
 const msLog = [];
 function onScroll() {
   sRaf = 0; const t0 = performance.now(), y = scrollY, q = clamp(y / T);
-  const d = Math.round(smooth((q - 0.04) / 0.34) * 100) / 100; if (d !== hd) { hd = d; setVar('--hd', d); root.classList.toggle('hgone', d >= 1); }
-  const c = Math.round(clamp(q * 10) * 100) / 100; if (c !== hq) { hq = c; setVar('--hq', c); }
+  const d = Math.round(smooth((q - 0.04) / 0.34) * 100) / 100; if (d !== hd) { hd = d; heroOv.style.opacity = canvas.style.opacity = 1 - d; root.classList.toggle('hgone', d >= 1); }
+  const c = Math.round(clamp(q * 10) * 100) / 100; if (c !== hq) { hq = c; if (hintEl) hintEl.style.opacity = 1 - c; }
   setCut(!!fly && q > 0);
   if (fly && q > 0 && q < 1) { drawFly(q); flyOn = true; } else if (flyOn || (fly && fly.vo[1] !== (q >= 1 ? 1 : 0))) { clearFly(q); flyOn = false; }
   const r = !fly || (q >= fly.win(0)[1] + 0.02) ? 1 : 0; if (r !== rule) { rule = r; setVar('--rule', r); }
