@@ -180,7 +180,7 @@ function viewport() {
 }
 
 /* ------------------------------------------------------------------ the field */
-let fly = null, flyOn = false, isCut = false, cutBmp = null, s0 = 0, s1 = 1;
+let fly = null, flyOn = false, isCut = false, cutBmp = null, T = 1, wtop = 100, hd = -1, hq = -1, wOn = false;
 let eyeList = null, fx = null, fastOn = false, blinkOn = false, blinkTimer = 0, bkMode = 0, bkV = 0, bridgeEl = null, hp = -1, rule = -1, sRaf = 0, dpr0 = 1;
 const stats = { calls: 0 };
 const setVar = (k, v) => root.style.setProperty(k, v);
@@ -192,7 +192,8 @@ function makeFx() {
     sizeOf: (i, z) => { if (!h.eye[i] || !bkMode) return z; const k = blinkK(i); return z * (1 - k) + h.etz[i] * k; } });
 }
 function layout() {
-  const vp = viewport(); g = geometry(vp.W, vp.H, vp.H);
+  const vp = viewport(); g = geometry(vp.W, vp.H, vp.H); T = Math.round(vp.H * 1.1); wtop = Math.round(vp.H * 0.58);
+  setVar('--pin', T + 'px'); setVar('--wtop', wtop + 'px');
   setVar('--H', vp.H + 'px'); setVar('--tagTop', g.tagTop + 'px'); setVar('--eyeTop', g.eyeTop + 'px'); setVar('--cell', g.cell + 'px'); setVar('--sq', (g.sqDev / g.dpr) + 'px');
   canvas.width = Math.round(vp.W * g.dpr); canvas.height = Math.round(vp.H * g.dpr); canvas.style.width = vp.W + 'px'; canvas.style.height = vp.H + 'px';
   hero = buildHero(); fastOn = false; makeFx(); lastVP = vp;
@@ -208,23 +209,22 @@ function layout() {
 const flyEase = v => v < 0.5 ? 4 * v * v * v : 1 - Math.pow(-2 * v + 2, 3) / 2;
 function buildFly() {
   fly = null; const rule = document.querySelector('.work .rule'); if (!rule || !hero) return;
-  const rc = rule.getBoundingClientRect(), cell = g.cell, left = rc.left, Ty = rc.top + scrollY, nd = Math.floor(rc.width / cell);
+  const rc = rule.getBoundingClientRect(), cell = g.cell, left = rc.left, Ty = wtop, nd = Math.floor(rc.width / cell);
   if (nd < 8) return;
   const h = hero, n = h.n, cx = left + nd * cell / 2, isD = new Uint8Array(n), pick = new Int32Array(nd).fill(-1);
   for (let i = 0; i < n; i++) { if (h.eye[i] || h.z[i] <= 0 || hash2(i, 77) >= 0.2) continue; isD[i] = 1;
     const c = clamp(Math.round((h.x0[i] - left) / cell), 0, nd - 1); if (pick[c] < 0 || hash2(i, 5) < hash2(pick[c], 5)) pick[c] = i; }
   const X0 = [], Y0 = [], Z = [], TX = [], S = [], L = [], JX = [], K = [], IDX = [];
   const add = (i, c, kind) => {   /* kind 0 dissolves on arrival, 1 stays as the dot, 2 grows from nothing */
-    const r1 = hash2(i + 11, c), r2 = hash2(i + 23, c + 3), tx = left + c * cell, cr = Math.abs(tx + cell / 2 - cx) / (nd * cell / 2), Lk = 0.5 + 0.45 * cr, dur = 0.42 + 0.12 * r1;
+    const r1 = hash2(i + 11, c), r2 = hash2(i + 23, c + 3), tx = left + c * cell, cr = Math.abs(tx + cell / 2 - cx) / (nd * cell / 2), Lk = 0.4 + 0.5 * cr, dur = 0.42 + 0.12 * r1;
     X0.push(kind === 2 ? tx : h.x0[i]); Y0.push(kind === 2 ? g.H * (0.25 + 0.5 * r1) : h.y0[i]); Z.push(kind === 2 ? 0 : h.z[i]); TX.push(tx);
     S.push(Math.max(0, Lk - dur) + 0.04 * r2); L.push(Lk); JX.push((r2 - 0.5) * cell * 12); K.push(kind); IDX.push(i); };
   for (let i = 0; i < n; i++) if (isD[i]) { const c = clamp(Math.round((h.x0[i] - left) / cell), 0, nd - 1); add(i, c, pick[c] === i ? 1 : 0); }
   for (let c = 0; c < nd; c++) if (pick[c] < 0) add(n + c, c, 2);
-  const H = g.H, s0v = 0.08 * H; s0 = s0v; s1 = Math.max(s0v + 0.45 * H, Ty - 0.55 * innerHeight);
   fly = { n: X0.length, x0: Float32Array.from(X0), y0: Float32Array.from(Y0), z: Float32Array.from(Z), tx: Float32Array.from(TX), ty: Ty, s: Float32Array.from(S), l: Float32Array.from(L), jx: Float32Array.from(JX), k: Uint8Array.from(K), isD };
 }
 function drawFly(p) {
-  const f = fly, ctx = flyCv.getContext('2d'), dpr = g.dpr, cd = g.cellDev, sq = g.sqDev, sy = scrollY, hh = flyCv.height;
+  const f = fly, ctx = flyCv.getContext('2d'), dpr = g.dpr, cd = g.cellDev, sq = g.sqDev, hh = flyCv.height;
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, flyCv.width, hh); ctx.fillStyle = FG;
   const A = new Path2D(), B = new Path2D(), C = new Path2D();
   for (let k = 0; k < f.n; k++) {
@@ -232,7 +232,7 @@ function drawFly(p) {
     const size = kind === 2 ? sq * smooth(e / 0.5) : kind === 1 ? base + (sq - base) * smooth((e - 0.6) / 0.4) : base * (1 - smooth((e - 0.7) / 0.3));
     if (size < 0.4) continue;
     const x = f.x0[k] + (f.tx[k] - f.x0[k]) * e + f.jx[k] * Math.sin(Math.PI * e), y = f.y0[k] + (f.ty - f.y0[k]) * e, off = (cd - size) / 2 * (1 - e);
-    const px = Math.round(x * dpr) + off, py = Math.round((y - sy) * dpr) + off; if (py < -cd || py > hh) continue;
+    const px = Math.round(x * dpr) + off, py = Math.round(y * dpr) + off; if (py < -cd || py > hh) continue;
     (e < 0.7 ? A : e < 0.9 ? B : C).rect(px, py, size, size);
   }
   ctx.globalAlpha = 1; ctx.fill(A); ctx.globalAlpha = 0.75; ctx.fill(B); ctx.globalAlpha = 0.45; ctx.fill(C); ctx.globalAlpha = 1;
@@ -269,7 +269,7 @@ function scheduleBlink(ms) {
   clearTimeout(blinkTimer);
   blinkTimer = setTimeout(() => {
     if (!live || !hero) return;
-    if (isCut || document.hidden || (ptr.on && Math.hypot(ptr.x - hero.ecx, ptr.y + scrollY - hero.ecy) < 280)) { scheduleBlink(700); return; }
+    if (isCut || document.hidden || (ptr.on && Math.hypot(ptr.x - hero.ecx, ptr.y - hero.ecy) < 280)) { scheduleBlink(700); return; }
     blinkT0 = performance.now(); blinkDbl = Math.random() < 1 / 6; wake(); scheduleBlink(3000 + Math.random() * 4000);
   }, ms);
 }
@@ -298,13 +298,14 @@ function wake() { if (!live || running || document.hidden) return; running = tru
 /* the scroll controller: one rAF-throttled pass writing --hp (how far the hero has gone: the cue fades first, the tagline only a little) and
    --rule (the dotted rule between hero and Work grows from the centre over ~280 px of scroll). Nothing else follows the scroll. */
 function onScroll() {
-  sRaf = 0; const y = scrollY, h = g ? g.H : innerHeight;
-  const p = Math.round(clamp(y / h) * 200) / 200; if (p !== hp) { hp = p; setVar('--hp', p); }
-  const q = fly ? clamp((y - s0) / (s1 - s0)) : 0;
-  setCut(q > 0);
+  sRaf = 0; const y = scrollY, q = clamp(y / T);
+  const d = Math.round(smooth((q - 0.05) / 0.6) * 100) / 100; if (d !== hd) { hd = d; setVar('--hd', d); root.classList.toggle('hgone', d >= 1); }
+  const c = Math.round(clamp(q * 8) * 100) / 100; if (c !== hq) { hq = c; setVar('--hq', c); }
+  setCut(!!fly && q > 0);
   if (fly && q > 0 && q < 1) { drawFly(q); flyOn = true; } else if (flyOn) { clearFly(); flyOn = false; }
-  const r = q >= 1 || !fly ? 1 : 0; if (r !== rule) { rule = r; setVar('--rule', r); }
-  if (ptr.on && fx && !isCut) { fx.move(ptr.x, ptr.y + y); wake(); }
+  const r = q >= 1 || !fly ? 1 : 0; if (r !== rule) { rule = r; setVar('--rule', r); root.classList.toggle('handed', r === 1); }
+  const on = q >= 0.92; if (on !== wOn) { wOn = on; root.classList.toggle('wi', on); if (!on) root.classList.remove('wi0'); }
+  if (ptr.on && fx && !isCut) { fx.move(ptr.x, ptr.y); wake(); }
 }
 
 /* ------------------------------------------------------------------ boot */
@@ -318,20 +319,24 @@ async function startLive() {
   bridgeEl = document.querySelector('.bridge');
   if (!canvas.getContext('2d')) throw new Error('no canvas');
   root.classList.add('pt', 'st', 'live'); live = true;
-  layout(); tDev = nameT = performance.now(); if (scrollY > 0) tDev = nameT -= 5000; scheduleBlink(5400); onScroll();
+  layout(); tDev = nameT = performance.now();
+  /* a #work deep link lands on the finished Work (the stage's end); the browser's own fragment jump can come late, so it is held until the person scrolls */
+  let hashLand = location.hash === '#work'; if (hashLand) { scrollTo(0, T); ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(t => addEventListener(t, () => { hashLand = false; }, { once: true, passive: true })); setTimeout(() => { hashLand = false; }, 2500); }
+  if (scrollY > 0) tDev = nameT -= 5000; scheduleBlink(5400); onScroll();
   let rt;
-  const relayout = () => { layout(); nameT = tDev = performance.now() - 5000; isCut = false; hp = rule = -1; onScroll(); wake(); };
+  const relayout = () => { layout(); nameT = tDev = performance.now() - 5000; isCut = false; hd = hq = rule = -1; onScroll(); wake(); };
   if (!nameOn) fontP.then(() => { if (document.fonts.check('600 100px "Inter Tight"')) { nameOn = true; nameW100 = 0; layout(); nameT = performance.now(); wake(); } });
   document.fonts.addEventListener('loadingdone', () => { clearTimeout(rt); rt = setTimeout(relayout, 80); });
   addEventListener('load', () => { clearTimeout(rt); rt = setTimeout(relayout, 30); });
   /* the mouse effect: mouse only (touch does nothing), one position per frame */
-  addEventListener('pointermove', e => { if (e.pointerType === 'touch') return; ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; if (fx && !isCut) { fx.move(ptr.x, ptr.y + scrollY); wake(); } });
+  addEventListener('pointermove', e => { if (e.pointerType === 'touch') return; ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; if (fx && !isCut) { fx.move(ptr.x, ptr.y); wake(); } });
   const away = () => { ptr.on = false; if (fx) fx.leave(); wake(); };
   document.addEventListener('pointerleave', away); addEventListener('blur', away);
-  addEventListener('scroll', () => { if (!sRaf) sRaf = requestAnimationFrame(onScroll); }, { passive: true });
+  addEventListener('scroll', () => { if (hashLand && Math.abs(scrollY - T) > 2) scrollTo(0, T); if (!sRaf) sRaf = requestAnimationFrame(onScroll); }, { passive: true });
   document.addEventListener('visibilitychange', () => { if (document.hidden) { running = false; cancelAnimationFrame(raf); } else wake(); });
   /* only a change of width or of the stage's own (small-viewport) height re-lays out: a phone's address bar moves innerHeight, never svh */
   addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { const v = viewport(); if (lastVP && v.W === lastVP.W && Math.abs(v.H - lastVP.H) < 2) return; relayout(); }, 200); });
+  window.__pin = { T: () => T, wtop: () => wtop };
   window.__field = { stats, blink: () => { blinkFreeze = null; blinkDbl = false; blinkT0 = performance.now(); wake(); }, eyes: () => [hero.ecx, hero.ecy, g.cell] };
   wake();
 }

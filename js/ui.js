@@ -35,7 +35,8 @@
   function toWork(e) {
     if (!work) return;
     if (e) { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); }
-    enter(true); work.scrollIntoView({ behavior: 'auto', block: 'start' });
+    enter(true);
+    if (root.classList.contains('live') && window.__pin) scrollTo(0, window.__pin.T()); else work.scrollIntoView({ behavior: 'auto', block: 'start' });
     try { history.replaceState(null, '', '#work'); } catch (_) {}
     if (h2) h2.focus({ preventScroll: true });
   }
@@ -46,10 +47,18 @@
     else {
       var wio = new IntersectionObserver(function (l) {
         if (!l.some(function (x) { return x.isIntersecting; })) return;
+        if (root.classList.contains('live')) { wio.disconnect(); return; }   /* the pinned stage reveals Work itself, by scroll */
         wio.disconnect(); enter(work.getBoundingClientRect().top < innerHeight * 0.4);
       }, { rootMargin: '0px 0px -12% 0px' });
       wio.observe(work);
     }
+    /* pinned stage: tabbing into Work, or Space / Page Down from the hero, lands on the finished Work */
+    work.addEventListener('focusin', function () { if (root.classList.contains('live') && window.__pin && scrollY < window.__pin.T() - 2) { enter(true); scrollTo(0, window.__pin.T()); } });
+    document.addEventListener('keydown', function (e) {
+      if (!root.classList.contains('live') || !window.__pin || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      var t = e.target, tag = t && t.tagName; if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON' || (t && t.isContentEditable)) return;
+      if ((e.key === ' ' || e.key === 'PageDown') && scrollY < window.__pin.T() - 2) { e.preventDefault(); enter(true); scrollTo(0, window.__pin.T()); }
+    });
     if (location.hash === '#work') { enter(true); addEventListener('load', function () { if (h2) h2.focus({ preventScroll: true }); }); }
   }
 
