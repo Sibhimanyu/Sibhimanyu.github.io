@@ -1,4 +1,4 @@
-/* Plain-page behaviour: index filter, and the fade-in fallback (reduced motion / no WebGL). No dependencies. */
+/* Plain-page behaviour: index filter, and the fade-in fallback (reduced motion / no canvas). No dependencies. */
 (function () {
   var root = document.documentElement;
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
@@ -32,7 +32,7 @@
 
   /* ---- Fallback: static screenshots with fades ---- */
   function fallback() {
-    if (root.classList.contains('gl')) return;
+    if (root.classList.contains('live')) return;
     root.classList.add('nogl', 'fx');
     var els = $$('.rv');
     if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); return; }
@@ -43,5 +43,5 @@
   }
   window.__sqFallback = fallback;
   if (root.classList.contains('rm')) fallback();
-  /* no timeout: a slow connection only delays the motion; field.js calls the fallback itself if WebGL or GSAP fail */
+  /* portrait.js calls the fallback itself if the live field cannot start */
 })();

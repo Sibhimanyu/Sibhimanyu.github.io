@@ -1,49 +1,26 @@
-/* The hero portrait: a toy-like cartoon of the site owner, drawn in code, then read back as a coarse grid of glyphs
-   (empty, dot, big dot, segment, cross, square) with an ordered dither, and drawn on a 2D canvas.
-   It reacts to the pointer, shimmers, blinks, "develops" on load, and scatters away as the hero scrolls into the first project.
-   field.js imports portraitBox (so the name leaves room for it) and setScatter (scroll). Reduced motion / no WebGL: drawn once, static. */
+/* The hero and its hand-over to the Work list: one canvas of 1-bit squares.
+   At rest it is the name and a portrait of the site owner (a photo, cut out, tone-mapped and ordered-dithered).
+   Scrolling away, the squares rain down and re-gather as the project names of the Work list, row rules included;
+   the DOM rows take over once they have settled. Squares near the pointer turn into glyphs (x, - or |, a dot),
+   rotate, push outward and spring back. Reduced motion / no canvas: the portrait is drawn once, static. */
 
 const root = document.documentElement;
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const smooth = v => { v = clamp(v); return v * v * (3 - 2 * v); };
-const FG = '#F2F0EB', AC = '#FF4D1F';
+const ease = v => { v = clamp(v); return v < 0.5 ? 4 * v * v * v : 1 - Math.pow(-2 * v + 2, 3) / 2; };
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-const SRC_W = 460, SRC_H = 516;   /* the crop of assets/portrait-src.png (460x600): full width, top 86% */
-
-let mobileY = null, NAME = null;
-/* field.js hands over where it lays the name, so the dots draw the same letters in the same place */
-export function setNameLayout(n) { NAME = n; if (live) { G = null; layout(); gone = false; wake(); } }
-export const portraitLive = () => live;
-export function setPortraitY(y) { mobileY = y; if (live && box && box.mobile && root.classList.contains('gl')) { box.y = y; canvas.style.top = y + 'px'; } }
-/* where the portrait sits, in CSS px of the viewport (plain = in the document flow, size only) */
-export function portraitBox(W, H, plain = false) {
-  const mobile = W <= 760;
-  const cols = mobile ? 100 : 165, rows = Math.round(cols * SRC_H / SRC_W);
-  const pad = Math.max(20, Math.min(44, W * 0.031));
-  let w, x = 0, y = 0;
-  if (plain) w = mobile ? Math.min(W * 0.62, 300) : Math.min(W * 0.4, 520);
-  else if (mobile) w = Math.min(W * 0.78, H * 0.4 * cols / rows);
-  else w = Math.min(W * 0.4, (H - 150) * cols / rows);
-  const h = w * rows / cols;
-  if (!plain) {
-    if (mobile) { x = (W - w) / 2; y = mobileY ?? Math.max(72, H * 0.095); }
-    else { x = W - pad - w; y = Math.max(70, H - h); }
-  }
-  return { x, y, w, h, cols, rows, cell: w / cols, mobile };
-}
-
-/* ------------------------------------------------------------------ the photo (cut out with Apple Vision, cropped, greyscale + alpha) */
+const FG = '#F2F0EB', NAME = 'Sibhimanyu';
+const SRC_W = 460, SRC_H = 560, CROP_Y = 40;               /* the crop of assets/portrait-src.png (460x600) */
+const EYES = [[155, 173, 18, 8], [215, 177, 18, 8]];       /* in the crop: centre x, y, half width, half height */
+const canvas = document.getElementById('portrait');
 const IMG_P = new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = 'assets/portrait-src.png'; });
-let IMG = null;
-/* the eyes, in the crop's pixels (435 x 516): centre x, y, half width, half height */
-const EYES = [[143, 208, 18, 8], [212, 216, 18, 8]];
 
-/* the tone mapping approved in tone-test.html, copied as is: local contrast against a box-blurred mean/std,
-   a histogram equalisation and the raw tone, 3x supersampled, then averaged down to the grid */
-function buildGrid(cols, rows, img, bleed = false) {
-  const sx = 0, sy = 0, sw = img.width, sh = Math.round(img.height * 0.86);
-  const S = 3, cw = cols * S, ch = rows * S, tmp = document.createElement('canvas'); tmp.width = cw; tmp.height = ch;
-  const x = tmp.getContext('2d', { willReadFrequently: true }); x.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
+/* ------------------------------------------------------------------ tone mapping (the approved panel B) */
+/* local contrast against a box-blurred mean/std, a histogram equalisation and the raw tone, 3x supersampled, averaged to the grid */
+function buildGrid(cols, rows, img, bleed) {
+  const k = img.height / 600, sy = CROP_Y * k, sh = Math.round(SRC_H * k), S = 3, cw = cols * S, ch = rows * S;
+  const tmp = document.createElement('canvas'); tmp.width = cw; tmp.height = ch;
+  const x = tmp.getContext('2d', { willReadFrequently: true }); x.drawImage(img, 0, sy, img.width, sh, 0, 0, cw, ch);
   const d = x.getImageData(0, 0, cw, ch).data, n = cw * ch, l = new Float32Array(n), a = new Float32Array(n);
   for (let i = 0; i < n; i++) { l[i] = (0.3 * d[i * 4] + 0.59 * d[i * 4 + 1] + 0.11 * d[i * 4 + 2]) / 255; a[i] = d[i * 4 + 3] / 255; }
   const R = Math.round(cw / 14), blur = src => { const t = new Float32Array(n), o = new Float32Array(n);
@@ -60,194 +37,288 @@ function buildGrid(cols, rows, img, bleed = false) {
   const L = new Float32Array(cols * rows), A = new Float32Array(cols * rows);
   for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) { let sl = 0, sa = 0; for (let v = 0; v < S; v++) for (let u = 0; u < S; u++) { const q = (j * S + v) * cw + i * S + u; sl += t[q] * a[q]; sa += a[q]; }
     const q = j * cols + i; A[q] = sa / (S * S); L[q] = sa > 0 ? sl / sa : 0;
-    const ex = Math.min(i / (cols * 0.15), (cols - 1 - i) / (cols * 0.15), bleed ? 9 : (rows - 1 - j) / (rows * 0.15));
+    /* the photo's own side edges (the shoulders run off the frame) taper into the page; the bottom bleeds off the screen */
+    const ex = Math.min(i / (cols * 0.1), (cols - 1 - i) / (cols * 0.1), bleed ? 9 : (rows - 1 - j) / (rows * 0.12));
     if (ex < 1) { const e = smooth(ex); L[q] *= e; if (e < 0.04) A[q] = 0; } }
-  const m = cols * rows, hash = new Float32Array(m), ang = new Float32Array(m), thr = new Float32Array(m), vis = new Uint8Array(m);
-  let seed = 7; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
-  for (let i = 0; i < m; i++) { hash[i] = rnd(); ang[i] = rnd() * 6.2832; thr[i] = rnd(); vis[i] = A[i] >= .5 ? 1 : 0; }
-  const list = Uint32Array.from({ length: m }, (_, i) => i).filter(i => vis[i]);
   const eyes = EYES.map(([ex, ey, rx, ry]) => {
-    const list = []; let rmin = 1e9, rmax = -1;
+    const cells = []; let rmin = 1e9, rmax = -1;
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
       const px = (c + 0.5) / cols * SRC_W, py = (r + 0.5) / rows * SRC_H;
-      if (((px - ex) / rx) ** 2 + ((py - ey) / ry) ** 2 <= 1 && vis[r * cols + c]) { list.push(r * cols + c); rmin = Math.min(rmin, r); rmax = Math.max(rmax, r); }
+      if (((px - ex) / rx) ** 2 + ((py - ey) / ry) ** 2 <= 1) { cells.push([r, c]); rmin = Math.min(rmin, r); rmax = Math.max(rmax, r); }
     }
-    return { list, mid: Math.round((rmin + rmax) / 2) };
+    return { cells, mid: Math.round((rmin + rmax) / 2) };
   });
-  return { cols, rows, n: m, L, A, vis, hash, ang, thr, eyes, list };
+  return { cols, rows, L, A, eyes };
 }
-/* the halftone radius for brightness v, in cells (the test's rule); under 0.35px the dot is skipped */
+const on = (L, r, c) => L > (BAYER[(r & 3) * 4 + (c & 3)] + 0.5) / 16;
 
+/* ------------------------------------------------------------------ geometry */
+let nameW100 = 0;
+function measureName() {
+  if (nameW100) return nameW100;
+  const c = document.createElement('canvas').getContext('2d'); c.font = '600 100px "Inter Tight", system-ui, sans-serif'; c.letterSpacing = '-3.5px';
+  return (nameW100 = c.measureText(NAME).width);
+}
+function geometry(W, H, plain) {
+  const mobile = W <= 760, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const cols = mobile ? 100 : 165, rows = Math.round(cols * SRC_H / SRC_W), pad = Math.max(20, Math.min(44, W * 0.031));
+  let w = plain ? (mobile ? Math.min(W * 0.62, 300) : Math.min(W * 0.4, 520)) : mobile ? Math.min(W * 0.78, H * 0.4 * cols / rows) : Math.min(W * 0.4, (H - 150) * cols / rows);
+  const cellDev = Math.max(2, Math.round(w * dpr / cols)), cell = cellDev / dpr; w = cols * cell;
+  const h = rows * cell, g = { W, H, dpr, mobile, cols, rows, cell, cellDev, sqDev: cellDev - Math.max(1, Math.round(0.6 * dpr)), w, h, pad };
+  if (plain) return g;
+  const wMax = measureName();
+  if (mobile) {
+    const fs = Math.min(100 * W * 0.9 / wMax, 1500), tagH = 46, groupH = h + 24 + fs * 0.727 + fs * 0.22 + 32 + tagH, lo = 76, hi = H - 104;
+    g.x = (W - w) / 2; g.y = Math.round(lo + Math.max(0, (hi - lo - groupH) * 0.45));
+    Object.assign(g, { fs, cx: W / 2, base: g.y + h + 24 + fs * 0.727 });
+    g.tagTop = Math.round(g.base + fs * 0.22 + 32);
+  } else {
+    g.x = W - pad - w; g.y = Math.max(70, H - h);
+    const wPx = g.x - pad - 36, fs = Math.min(100 * wPx / wMax, 1500);
+    Object.assign(g, { fs, cx: (pad + g.x - 36) / 2, base: H * 0.45 + fs * 0.26 });
+  }
+  return g;
+}
 
-const canvas = document.getElementById('portrait');
-let G = null, box = null, dpr = 1, ctx = null;
-let live = false, started = false, staticDone = false;
-let scatter = 0, running = false, raf = 0, gone = false, tPrev = 0, tStart = 0;
-let fi, fv, flick, blinkAt = 0, blinkEnd = 0, nextBlink = 0, ptr = { x: -1e5, y: -1e5, on: false, touch: false }, ptrK = 0;
+/* text as ON cells of the page-wide cell grid (cell (C,R) covers x C*cell.., doc y R*cell..): coverage above 0.3 is a square */
+function rasterText(text, font, ls, x, base, fs, align, wEst, cell) {
+  const S = 3, pad = cell * 2, left = align === 'center' ? x - wEst / 2 : x;
+  const C0 = Math.floor((left - pad) / cell), C1 = Math.ceil((left + wEst + pad) / cell), R0 = Math.floor((base - fs * 1.05) / cell), R1 = Math.ceil((base + fs * 0.4) / cell);
+  const cw = (C1 - C0) * S, ch = (R1 - R0) * S, cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
+  const c = cv.getContext('2d', { willReadFrequently: true }), k = S / cell;
+  c.setTransform(k, 0, 0, k, -C0 * S, -R0 * S); c.font = font; c.letterSpacing = ls; c.textAlign = align === 'center' ? 'center' : 'left'; c.textBaseline = 'alphabetic'; c.fillStyle = '#fff'; c.fillText(text, x, base);
+  const d = c.getImageData(0, 0, cw, ch).data, out = [];
+  for (let r = 0; r < R1 - R0; r++) for (let q = 0; q < C1 - C0; q++) {
+    let s = 0; for (let v = 0; v < S; v++) for (let u = 0; u < S; u++) s += d[((r * S + v) * cw + q * S + u) * 4 + 3];
+    if (s / (S * S * 255) > 0.3) out.push(C0 + q, R0 + r);
+  }
+  return out;
+}
+
+/* ------------------------------------------------------------------ the field */
+let g = null, hero = null, rowsData = [], listEl = null, headEl = null, heroOv = null;
+let live = false, running = false, raf = 0, tPrev = 0, tDev = 0, T = 1, pS = 0, cleared = false, lastHeroOp = -1, lastHeadOp = -1;
+let nextBlink = 0, blinkEnd = 0;
+const ptr = { x: -1e5, y: -1e5, on: false, touch: false }; let ptrK = 0;
+
+function buildHero() {
+  const P = buildGrid(g.cols, g.rows, IMG, !g.mobile), cell = g.cell, ox = Math.round(g.x / cell), oy = Math.round(g.y / cell);
+  const gc = Math.ceil(g.W / cell) + 4, xs = [], ys = [], vs = [], eyeF = [];
+  const eyeSet = new Set(); P.eyes.forEach(e => e.cells.forEach(([r, c]) => eyeSet.add((r + oy) * gc + c + ox)));
+  for (let r = 0; r < P.rows; r++) for (let c = 0; c < P.cols; c++) {
+    const i = r * P.cols + c; if (P.A[i] < 0.5) continue;
+    const R = r + oy, C = c + ox; if (!on(P.L[i], R, C)) continue;
+    xs.push(C * cell); ys.push(R * cell); vs.push(P.L[i]); eyeF.push(eyeSet.has(R * gc + C) ? 1 : 0);
+  }
+  const nm = rasterText(NAME, `600 ${g.fs}px "Inter Tight", system-ui, sans-serif`, `${-g.fs * 0.035}px`, g.cx, g.base, g.fs, 'center', measureName() * g.fs / 100, cell);
+  for (let i = 0; i < nm.length; i += 2) { xs.push(nm[i] * cell); ys.push(nm[i + 1] * cell); vs.push(1); eyeF.push(0); }
+  const n = xs.length, h = { n, x0: Float32Array.from(xs), y0: Float32Array.from(ys), v: Float32Array.from(vs), eye: Uint8Array.from(eyeF),
+    hash: new Float32Array(n), d: new Float32Array(n), tx: new Float32Array(n), ty: new Float32Array(n), trow: new Int8Array(n).fill(-1),
+    fi: new Float32Array(n), fv: new Float32Array(n), flick: new Float32Array(n), segs: [] };
+  let seed = 11; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  for (let i = 0; i < n; i++) h.hash[i] = rnd();
+  P.eyes.forEach(e => { let c0 = 1e9, c1 = -1; e.cells.forEach(([r, c]) => { if (r === e.mid) { c0 = Math.min(c0, c); c1 = Math.max(c1, c); } }); for (let c = c0; c <= c1; c++) h.segs.push((c + ox) * cell, (e.mid + oy) * cell); });
+  return h;
+}
+
+/* a project row: its name and its bottom rule as ON cells, in document coordinates */
+function rowCells(li) {
+  const a = li.querySelector('.who a'), cell = g.cell, sy = scrollY, rect = a.getBoundingClientRect(), cs = getComputedStyle(a);
+  const probe = document.createElement('span'); probe.style.cssText = 'display:inline-block;width:0;height:0'; a.appendChild(probe);
+  const base = probe.getBoundingClientRect().bottom + sy; probe.remove();
+  const fs = parseFloat(cs.fontSize), font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`, ls = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing;
+  const nm = rasterText(a.textContent.trim(), font, ls, rect.left, base, fs, 'left', rect.width + 4, cell), xs = [], ys = [], vs = [];
+  for (let i = 0; i < nm.length; i += 2) { xs.push(nm[i] * cell); ys.push(nm[i + 1] * cell); vs.push(1); }
+  const lr = li.getBoundingClientRect(), R = Math.round((lr.bottom + sy - 1) / cell), C0 = Math.ceil(lr.left / cell), C1 = Math.floor(lr.right / cell);
+  for (let C = C0; C < C1; C++) { xs.push(C * cell); ys.push(R * cell); vs.push(0.5); }
+  /* the row's text, as bars of 50% dither where each line sits: the squares gather there too, then the real text fades in over them */
+  const bars = el => { if (!el) return; const rg = document.createRange(); rg.selectNodeContents(el);
+    for (const rc of rg.getClientRects()) { if (rc.width < 6) continue;
+      const r0 = Math.round((rc.top + sy + rc.height * 0.3) / cell), r1 = Math.round((rc.bottom + sy - rc.height * 0.22) / cell), c0 = Math.ceil(rc.left / cell), c1 = Math.floor(rc.right / cell);
+      for (let r = r0; r < r1; r++) for (let c = c0; c < c1; c++) if ((r & 1) === (c & 1)) { xs.push(c * cell); ys.push(r * cell); vs.push(0.45); } } };
+  bars(li.querySelector('.d')); bars(li.querySelector('.who p')); li.querySelectorAll('.l a, .l .note').forEach(bars);
+  return { xs, ys, vs, top: rect.top + sy, bottom: lr.bottom + sy, left: rect.left, width: rect.width };
+}
+
+function buildRows() {
+  const lis = [...document.querySelectorAll('.idx-list > li')];
+  const prev = new Map(rowsData.map(r => [r.li, r]));
+  rowsData = lis.map((li, i) => {
+    const old = prev.get(li), r = old || { li, i, state: 0, vis: 0, t0: 0, hash: null };
+    r.i = i; r.cells = null; r.pDriven = false; r.px = null;
+    if (!li.hidden && li.offsetParent) { const c = rowCells(li); r.cells = c; const vt = c.top - T, vb = c.bottom - T; r.pDriven = vt > 56 && vb < g.H - 20; }
+    return r;
+  });
+}
+
+/* source squares (hero) -> target squares (rows), matched left to right so each name gathers from the column above it */
+function assign() {
+  const h = hero, n = h.n; h.trow.fill(-1);
+  const tx = [], ty = [], tr = [];
+  rowsData.forEach(r => { if (!r.cells || !r.pDriven) return; const c = r.cells; for (let k = 0; k < c.xs.length; k++) { tx.push(c.xs[k]); ty.push(c.ys[k]); tr.push(r.i); } });
+  const nt = tx.length; if (!nt) return;
+  const so = Uint32Array.from({ length: n }, (_, i) => i).sort((a, b) => h.x0[a] - h.x0[b] || h.hash[a] - h.hash[b]);
+  const to = Uint32Array.from({ length: nt }, (_, i) => i).sort((a, b) => tx[a] - tx[b] || ty[a] - ty[b]);
+  const nr = Math.max(1, rowsData.length - 1);
+  let seed = 5; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  for (let k = 0; k < nt; k++) {
+    const si = so[Math.min(n - 1, Math.floor((k + 0.5) * n / nt))], ti = to[k];
+    h.tx[si] = tx[ti]; h.ty[si] = ty[ti]; h.trow[si] = tr[ti]; h.d[si] = 0.04 + 0.2 * (tr[ti] / nr) + 0.1 * rnd();
+  }
+  for (let i = 0; i < n; i++) if (h.trow[i] < 0) h.d[i] = 0.02 + 0.3 * (h.y0[i] / g.H) + 0.1 * rnd();
+}
 
 function layout() {
-  const gl = root.classList.contains('gl');
-  box = portraitBox(innerWidth, innerHeight, !gl);
-  dpr = Math.min(window.devicePixelRatio || 1, 2);
-  ctx = canvas.getContext('2d');
-  if (gl) {
-    /* one screen: the whole hero is a single dot field holding the name and the portrait, so the pointer acts the same on both */
-    const cell = box.cell, cols = Math.ceil(innerWidth / cell), rows = Math.ceil(innerHeight / cell);
-    canvas.width = Math.round(cols * cell * dpr); canvas.height = Math.round(rows * cell * dpr);
-    canvas.style.width = cols * cell + 'px'; canvas.style.height = rows * cell + 'px'; canvas.style.left = '0px'; canvas.style.top = '0px';
-    G = buildScreen(cols, rows, cell);
-  } else {
-    canvas.width = Math.round(box.w * dpr); canvas.height = Math.round(box.h * dpr);
-    canvas.style.width = box.w + 'px'; canvas.style.height = box.h + 'px'; canvas.style.left = canvas.style.top = '';
-    if (!G || G.cols !== box.cols || G.screen) G = buildGrid(box.cols, box.rows, IMG);
-  }
-  fi = new Float32Array(G.n); fv = new Float32Array(G.n); flick = new Float32Array(G.n);
+  const W = innerWidth, H = innerHeight;
+  g = geometry(W, H, false); T = Math.round(H * 0.95);
+  const dpr = g.dpr;
+  canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  if (g.tagTop) root.style.setProperty('--tagTop', g.tagTop + 'px'); else root.style.removeProperty('--tagTop');
+  hero = buildHero(); buildRows(); assign();
+  cleared = false;
 }
 
-/* one frame. 1-bit ordered dither: a cell is a solid square (0.62 of the cell) when its tone beats the Bayer 4x4 threshold.
-   dev = develop progress 0..1, sc = scatter 0..1, interactive = false draws the plain static render */
-function draw(dev, sc, t, interactive, blinking, cv = canvas, c2 = ctx, grid = G) {
-  const { cols, rows, n, L, hash, ang, thr, list } = grid, cw = cv.width / cols, chh = cv.height / rows, sq = cw - 0.6 * dpr;
-  c2.setTransform(1, 0, 0, 1, 0, 0); c2.clearRect(0, 0, cv.width, cv.height);
-  c2.fillStyle = FG; c2.strokeStyle = FG; c2.lineCap = 'round'; c2.lineWidth = Math.max(1, cw * 0.2);
-  const blinkMid = blinking ? new Map() : null;
-  if (blinking) grid.eyes.forEach(e => e.list.forEach(i => blinkMid.set(i, Math.floor(i / cols) === e.mid)));
-  c2.globalAlpha = sc > 0 ? 1 - sc : 1;
-  c2.beginPath();
-  const glyphs = [];
-  for (let q = 0; q < list.length; q++) {
-    const i = list[q], c = i % cols, r = (i / cols) | 0, v = L[i];
-    const on = v > (BAYER[(r & 3) * 4 + (c & 3)] + 0.5) / 16;
-    let size = sq, ox = 0, oy = 0, f = 0;
-    if (interactive) {
-      const dv = clamp((dev * 1.4 - thr[i] * 0.4) / 0.6); if (dv < 1) size *= dv;
-      f = Math.max(fi[i], 0); if (flick[i] > 0.01) f = Math.max(f, flick[i] * 0.9);
-      if (f > 0.02 && ptr.cx > -1e4) { const dx = c + 0.5 - ptr.cx, dy = r + 0.5 - ptr.cy, dl = Math.hypot(dx, dy) + 0.001; ox = dx / dl * fi[i] * cw * 1.6; oy = dy / dl * fi[i] * chh * 1.6; }
-      if (sc > 0) { const k = clamp(sc * 1.5 - hash[i] * 0.5); if (k > 0) { const dd = (60 + 300 * hash[(i * 7) % n]) * dpr * k; ox += Math.cos(ang[i]) * dd; oy += Math.sin(ang[i]) * dd - 40 * k * dpr; size *= 1 - k * 0.6; } }
-    }
-    if (blinkMid && blinkMid.has(i)) { if (blinkMid.get(i)) glyphs.push([(c + 0.5) * cw, (r + 0.5) * chh, 1, 1, 0, 1]); continue; }
-    const cx = (c + 0.5) * cw + ox, cy = (r + 0.5) * chh + oy;
-    if (f > 0.25 && (on || (v > 0.3 && f > 0.5))) { glyphs.push([cx, cy, v, ((c + r) & 1) ? 3 : 2, f * (hash[i] - 0.5) * 4.4, Math.min(1, f * 1.4)]); continue; }
-    if (!on || size < 0.3) continue;
-    if (f > 0.02) size *= 1 - f * 1.6;
-    c2.rect(cx - size / 2, cy - size / 2, size, size);
-  }
-  c2.fill();
-  if (glyphs.length) {
-    c2.beginPath();
-    for (const [cx, cy, v, kind, rot, sz] of glyphs) {
-      const h = cw * 0.4 * sz, co = Math.cos(rot), si = Math.sin(rot), seg = (ax, ay, bx, by) => { c2.moveTo(cx + ax * co - ay * si, cy + ax * si + ay * co); c2.lineTo(cx + bx * co - by * si, cy + bx * si + by * co); };
-      if (kind === 1) seg(-cw * 0.45, 0, cw * 0.45, 0);
-      else if (v > 0.62) { seg(-h, -h, h, h); seg(h, -h, -h, h); }
-      else if (v > 0.32) { if (kind === 3) seg(-h, 0, h, 0); else seg(0, -h, 0, h); }
-      else { c2.moveTo(cx + h * 0.4, cy); c2.arc(cx, cy, h * 0.4, 0, 6.2832); }
-    }
-    c2.stroke(); c2.fill();
-  }
-  c2.globalAlpha = 1;
-}
+const rowAlpha = i => 1 - smooth((pS - 0.88) / 0.12);
 
-/* the portrait grid placed on a screen-sized grid, plus the name rasterised at the same cell size */
-function buildScreen(cols, rows, cell) {
-  const P = buildGrid(box.cols, box.rows, IMG, !box.mobile), ox = Math.round(box.x / cell), oy = Math.round(box.y / cell);
-  const n = cols * rows, L = new Float32Array(n), A = new Float32Array(n);
-  for (let r = 0; r < P.rows; r++) for (let c = 0; c < P.cols; c++) {
-    const R = r + oy, C = c + ox; if (R < 0 || R >= rows || C < 0 || C >= cols) continue;
-    const q = R * cols + C, p = r * P.cols + c; if (P.A[p] >= 0.5) { L[q] = P.L[p]; A[q] = 1; }
-  }
-  if (NAME) {
-    const S = 3, cv = document.createElement('canvas'); cv.width = cols * S; cv.height = rows * S;
-    const x = cv.getContext('2d', { willReadFrequently: true }), k = S / cell;
-    x.scale(k, k); x.font = `600 ${NAME.fs}px "Inter Tight", system-ui, sans-serif`; x.letterSpacing = `${-NAME.fs * 0.035}px`;
-    x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillStyle = '#fff'; x.fillText(NAME.text, NAME.cx, NAME.base);
-    const d = x.getImageData(0, 0, cv.width, cv.height).data, W3 = cv.width;
-    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-      let s = 0; for (let v = 0; v < S; v++) for (let u = 0; u < S; u++) s += d[((r * S + v) * W3 + c * S + u) * 4 + 3];
-      const cov = s / (S * S * 255); if (cov > 0.3) { const q = r * cols + c; L[q] = 1; A[q] = 1; }
-    }
-  }
-  const hash = new Float32Array(n), ang = new Float32Array(n), thr = new Float32Array(n), vis = new Uint8Array(n);
-  let seed = 7; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
-  for (let i = 0; i < n; i++) { hash[i] = rnd(); ang[i] = rnd() * 6.2832; thr[i] = rnd(); vis[i] = A[i] >= 0.5 ? 1 : 0; }
-  const eyes = P.eyes.map(e => {
-    const list = e.list.map(p => (((p / P.cols) | 0) + oy) * cols + (p % P.cols) + ox).filter(q => q >= 0 && q < n);
-    return { list, mid: e.mid + oy };
-  });
-  return { cols, rows, n, L, A, vis, hash, ang, thr, eyes, screen: true, list: Uint32Array.from({ length: n }, (_, i) => i).filter(i => vis[i]) };
-}
-
-function drawStatic() { draw(1, 0, 0, false, false); }
-
-function tick(now) {
+function frame(now) {
   raf = 0; if (!running) return;
-  const dt = Math.min((now - tPrev) / 1000 || 0.016, 0.05); tPrev = now;
-  if (scatter >= 0.999) { if (!gone) { ctx.clearRect(0, 0, canvas.width, canvas.height); gone = true; } running = false; return; }
-  gone = false;
-  const dev = clamp((now - tStart) / 1200);
-  /* pointer, in cell units */
-  const rc = canvas.getBoundingClientRect(), k = box.cell;
-  ptr.cx = (ptr.x - rc.left) / (rc.width / G.cols); ptr.cy = (ptr.y - rc.top) / (rc.height / G.rows);
+  const ctx = canvas.getContext('2d'), dt = Math.min((now - tPrev) / 1000 || 0.016, 0.05); tPrev = now;
+  const sy = scrollY, pT = clamp(sy / T); pS += (pT - pS) * Math.min(1, dt * 14); if (Math.abs(pT - pS) < 0.0004) pS = pT;
+  const p = pS, dpr = g.dpr, cellDev = g.cellDev, sqDev = g.sqDev, cell = g.cell, W = g.W, H = g.H, dev = clamp((now - tDev) / 1200);
   ptrK += ((ptr.on ? 1 : 0) - ptrK) * Math.min(1, dt * 10);
-  const sig = ((ptr.touch ? 70 : 90) / 2) / box.cell, s2 = 2 * sig * sig, n = G.n, cols = G.cols;
-  const r0 = Math.max(0, Math.floor(ptr.cy - sig * 3.2)), r1 = Math.min(G.rows - 1, Math.ceil(ptr.cy + sig * 3.2));
-  const lst = G.list;
-  for (let q = 0; q < lst.length; q++) {
-    const i = lst[q], c = i % cols, r = (i / cols) | 0;
-    let target = 0;
-    if (ptrK > 0.01 && r >= r0 && r <= r1) { const dx = c + 0.5 - ptr.cx, dy = r + 0.5 - ptr.cy; target = Math.exp(-(dx * dx + dy * dy) / s2) * ptrK; }
-    if (target === 0 && fi[i] === 0 && fv[i] === 0) { if (flick[i] > 0) flick[i] = Math.max(0, flick[i] - dt * 6); continue; }
-    fv[i] += ((target - fi[i]) * 170 - fv[i] * 17) * dt; fi[i] += fv[i] * dt;
-    if (target === 0 && Math.abs(fi[i]) < 0.004 && Math.abs(fv[i]) < 0.02) fi[i] = fv[i] = 0;
-    if (flick[i] > 0) flick[i] = Math.max(0, flick[i] - dt * 6);
-  }
-  /* shimmer: a few cells flick to a neighbouring glyph */
-  const nf = dt * 26 + (Math.random() < (dt * 26) % 1 ? 1 : 0);
-  for (let q = 0; q < nf; q++) { const j = lst[(Math.random() * lst.length) | 0]; flick[j] = 1; }
-  /* blink every 4-7 s */
-  if (now > nextBlink && dev >= 1) { blinkAt = now; blinkEnd = now + 120; nextBlink = now + 4000 + Math.random() * 3000; }
-  draw(dev, scatter, now, true, now >= blinkAt && now < blinkEnd);
-  raf = requestAnimationFrame(tick);
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = FG; ctx.strokeStyle = FG; ctx.lineCap = 'round'; ctx.lineWidth = Math.max(1, cellDev * 0.2);
+  /* the page's own DOM follows the field: tagline and hint leave, the Work heading and each row take over once settled */
+  const hop = Math.round((1 - smooth(p / 0.3)) * 100) / 100; if (hop !== lastHeroOp) { heroOv.style.opacity = hop; lastHeroOp = hop; }
+  const hdp = Math.round(smooth((p - 0.55) / 0.35) * 100) / 100; if (hdp !== lastHeadOp) { headEl.style.opacity = hdp; lastHeadOp = hdp; }
+  rowsData.forEach(r => { let v = r.state === 2 ? 1 : r.pDriven ? smooth((p - 0.86) / 0.14) : r.state === 1 ? smooth(((now - r.t0) / 700 - 0.6) / 0.4) : 0; if (r.state === 0 && !r.pDriven && r.cells == null) v = 1; v = Math.round(v * 100) / 100; if (v !== r.vis) { r.vis = v; r.li.style.opacity = v; } });
+  const h = hero, n = h.n, blink = now < blinkEnd;
+  const R2 = ((ptr.touch ? 70 : 90) * 1.5) ** 2, sig2 = 2 * ((ptr.touch ? 70 : 90) / 2) ** 2;
+  let springs = false;
+  if (p < 0.9999) {
+    ctx.beginPath(); const glyphs = [];
+    for (let i = 0; i < n; i++) {
+      let x = h.x0[i], yd = h.y0[i], size = sqDev, d = h.d[i];
+      if (h.trow[i] >= 0) {
+        const t = clamp((p - d) / 0.58), e = ease(t);
+        x += (h.tx[i] - x) * e + Math.sin(t * Math.PI) * (h.hash[i] - 0.5) * 24; yd += (h.ty[i] - yd) * e;
+        if (t >= 1) size *= rowAlpha();
+      } else {
+        const tt = clamp((p - d) / 0.55); if (tt > 0) { yd += tt * tt * (g.H * 1.6) * (0.7 + 0.6 * h.hash[i]); x += (h.hash[i] - 0.5) * 30 * tt; size *= 1 - smooth(tt * 1.08 - 0.08); }
+      }
+      if (size < 0.4) continue;
+      const vy = yd - sy; if (vy < -cell || vy > H + cell || x < -cell || x > W + cell) continue;
+      if (p < 0.02) { const dv = clamp((dev * 1.4 - h.hash[(i * 7) % n] * 0.4) / 0.6); if (dv < 1) size *= dv; }
+      if (blink && h.eye[i]) continue;
+      let f = 0, ox = 0, oy = 0;
+      const dx = x + cell / 2 - ptr.x, dy = vy + cell / 2 - ptr.y, d2 = dx * dx + dy * dy;
+      let target = 0; if (ptrK > 0.01 && d2 < R2) target = Math.exp(-d2 / sig2) * ptrK;
+      if (target > 0 || h.fi[i] !== 0 || h.fv[i] !== 0) {
+        h.fv[i] += ((target - h.fi[i]) * 170 - h.fv[i] * 17) * dt; h.fi[i] += h.fv[i] * dt;
+        if (target === 0 && Math.abs(h.fi[i]) < 0.004 && Math.abs(h.fv[i]) < 0.02) h.fi[i] = h.fv[i] = 0; else springs = true;
+      }
+      f = Math.max(h.fi[i], 0);
+      if (h.flick[i] > 0) { f = Math.max(f, h.flick[i] * 0.9); h.flick[i] = Math.max(0, h.flick[i] - dt * 6); springs = true; }
+      if (f > 0.02) { const dl = Math.sqrt(d2) + 0.001; ox = dx / dl * h.fi[i] * cell * 1.6; oy = dy / dl * h.fi[i] * cell * 1.6; }
+      if (f > 0.25) { glyphs.push(x + cell / 2 + ox, vy + cell / 2 + oy, h.v[i], ((x / cell + yd / cell) | 0) & 1, f * (h.hash[i] - 0.5) * 4.4, Math.min(1, f * 1.4)); continue; }
+      if (f > 0.02) size *= 1 - f * 1.6;
+      if (size < 0.4) continue;
+      ctx.rect(Math.round((x + ox) * dpr) + (sqDev - size) / 2, Math.round((vy + oy) * dpr) + (sqDev - size) / 2, size, size);
+    }
+    if (blink) for (let q = 0; q < h.segs.length; q += 2) glyphs.push(h.segs[q] + cell / 2, h.segs[q + 1] - sy + cell / 2, 1, 2, 0, 1);
+    ctx.fill();
+    if (glyphs.length) {
+      ctx.beginPath();
+      for (let q = 0; q < glyphs.length; q += 6) {
+        const cx = glyphs[q] * dpr, cy = glyphs[q + 1] * dpr, v = glyphs[q + 2], kind = glyphs[q + 3], rot = glyphs[q + 4], sz = glyphs[q + 5], hh = cellDev * 0.42 * sz, co = Math.cos(rot), si = Math.sin(rot);
+        const seg = (ax, ay, bx, by) => { ctx.moveTo(cx + ax * co - ay * si, cy + ax * si + ay * co); ctx.lineTo(cx + bx * co - by * si, cy + bx * si + by * co); };
+        if (kind === 2) seg(-cellDev * 0.5, 0, cellDev * 0.5, 0);
+        else if (v > 0.62) { seg(-hh, -hh, hh, hh); seg(hh, -hh, -hh, hh); }
+        else if (v > 0.32) { if (kind) seg(-hh, 0, hh, 0); else seg(0, -hh, 0, hh); }
+        else { ctx.moveTo(cx + hh * 0.4, cy); ctx.arc(cx, cy, hh * 0.4, 0, 6.2832); }
+      }
+      ctx.stroke(); ctx.fill();
+    }
+    /* shimmer and blink, only while the hero is at rest */
+    if (p < 0.05) {
+      const nf = dt * 24 + (Math.random() < (dt * 24) % 1 ? 1 : 0); for (let q = 0; q < nf; q++) h.flick[(Math.random() * n) | 0] = 1;
+      if (now > nextBlink && dev >= 1) { blinkEnd = now + 120; nextBlink = now + 4000 + Math.random() * 3000; }
+    }
+  } else if (!cleared) cleared = true;
+  /* rows whose names were not part of the hand-over type on when they scroll into view */
+  let typing = false;
+  rowsData.forEach(r => {
+    if (r.state !== 1 || !r.cells) return; typing = true;
+    const rt = (now - r.t0) / 700; if (rt >= 1) { r.state = 2; r.li.style.opacity = 1; r.vis = 1; return; }
+    const c = r.cells; ctx.beginPath();
+    for (let k = 0; k < c.xs.length; k++) {
+      const vy = c.ys[k] - sy; if (vy < -cell || vy > H + cell) continue;
+      const th = clamp((c.xs[k] - c.left) / (c.width || 600)) * 0.55 + ((k * 2654435761 >>> 0) % 1000) / 1000 * 0.25;
+      let size = sqDev * clamp((rt * 1.45 - th) / 0.3) * (1 - smooth((rt - 0.8) / 0.2)); if (size < 0.4) continue;
+      ctx.rect(Math.round(c.xs[k] * dpr) + (sqDev - size) / 2, Math.round(vy * dpr) + (sqDev - size) / 2, size, size);
+    }
+    ctx.fill();
+  });
+  const idle = p >= 0.9999 && !typing && !springs && ptrK < 0.01 && Math.abs(pT - pS) < 0.0004;
+  if (idle) { running = false; return; }
+  raf = requestAnimationFrame(frame);
 }
-function wake() { if (!live || running || document.hidden || scatter >= 0.999) return; running = true; tPrev = performance.now(); raf = requestAnimationFrame(tick); }
+function wake() { if (!live || running || document.hidden) return; running = true; tPrev = performance.now(); raf = requestAnimationFrame(frame); }
 
-export function setScatter(v) { scatter = clamp(v); if (live) { if (scatter < 0.999) { canvas.style.visibility = ''; wake(); } } }
-export function blink() { blinkAt = performance.now(); blinkEnd = blinkAt + 120; }
-
+/* ------------------------------------------------------------------ boot */
 async function startLive() {
-  if (started) return; started = true; IMG = await IMG_P; if (!IMG) { root.classList.remove('pt'); return; } live = true;
-  root.classList.add('pt'); layout();
-  const now = performance.now(); tStart = now; nextBlink = now + 1200 + 4200;
-  ptr.cx = ptr.cy = -1e5;
-  addEventListener('pointermove', e => { ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; ptr.touch = e.pointerType === 'touch'; });
-  addEventListener('pointerdown', e => { ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; });
+  const im = await IMG_P; if (!im) throw new Error('no portrait image');
+  IMG = im;
+  await Promise.race([Promise.all([document.fonts.load('600 100px "Inter Tight"')]).then(() => document.fonts.ready), new Promise(r => setTimeout(r, 3500))]).catch(() => {});
+  listEl = document.querySelector('.idx-list'); headEl = document.querySelector('.idx-head'); heroOv = document.querySelector('.hero-ov');
+  if (!canvas.getContext('2d') || !listEl) throw new Error('no canvas');
+  root.classList.add('pt', 'live'); live = true;
+  layout(); tDev = performance.now(); nextBlink = tDev + 5400;
+  document.querySelectorAll('.idx-list > li').forEach(li => { li.style.opacity = 0; });
+  headEl.style.opacity = 0;
+  addEventListener('pointermove', e => { ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; ptr.touch = e.pointerType === 'touch'; wake(); });
+  addEventListener('pointerdown', e => { ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; ptr.touch = e.pointerType === 'touch'; wake(); });
   ['pointerup', 'pointercancel'].forEach(t => addEventListener(t, e => { if (e.pointerType === 'touch') ptr.on = false; }));
   document.addEventListener('pointerleave', () => { ptr.on = false; });
   addEventListener('blur', () => { ptr.on = false; });
+  addEventListener('scroll', wake, { passive: true });
   document.addEventListener('visibilitychange', () => { if (document.hidden) { running = false; cancelAnimationFrame(raf); } else wake(); });
-  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { layout(); gone = false; wake(); }, 150); });
+  const io = new IntersectionObserver(list => list.forEach(en => {
+    if (!en.isIntersecting) return; const r = rowsData.find(x => x.li === en.target); if (!r || r.state || r.pDriven || !r.cells) return;
+    r.cells = rowCells(r.li); r.state = 1; r.t0 = performance.now(); wake();
+  }), { threshold: 0.25 });
+  const watch = () => rowsData.forEach(r => io.observe(r.li));
+  watch();
+  let rt, lw = innerWidth, lh = innerHeight;
+  const relayout = () => { layout(); watch(); wake(); };
+  addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (innerWidth === lw && Math.abs(innerHeight - lh) < 140) return; lw = innerWidth; lh = innerHeight; relayout(); }, 200); });
+  addEventListener('sq:layout', () => { clearTimeout(rt); rt = setTimeout(relayout, 60); });
+  window.__field = { get p() { return pS; }, T: () => T, blink: () => { blinkEnd = performance.now() + 120; }, rows: () => rowsData };
   wake();
 }
+let IMG = null;
+
+/* reduced motion / no canvas: the portrait drawn once into the document */
 async function startStatic() {
-  if (started || staticDone) return; staticDone = true; started = true; IMG = await IMG_P; if (!IMG) return;
-  root.classList.add('pt'); layout(); drawStatic();
-  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { layout(); drawStatic(); }, 150); });
+  const im = await IMG_P; if (!im) return; IMG = im;
+  const draw = () => {
+    const sg = geometry(innerWidth, innerHeight, true), P = buildGrid(sg.cols, sg.rows, im, false);
+    canvas.width = sg.cols * sg.cellDev; canvas.height = sg.rows * sg.cellDev; canvas.style.width = sg.cols * sg.cell + 'px'; canvas.style.height = sg.rows * sg.cell + 'px';
+    const c = canvas.getContext('2d'); c.fillStyle = FG;
+    for (let r = 0; r < P.rows; r++) for (let q = 0; q < P.cols; q++) { const i = r * P.cols + q; if (P.A[i] >= 0.5 && on(P.L[i], r, q)) c.fillRect(q * sg.cellDev, r * sg.cellDev, sg.sqDev, sg.sqDev); }
+  };
+  root.classList.add('pt'); draw();
+  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(draw, 150); });
 }
 
-/* a PNG of the halftone for the no-JS <img>: window.__portraitPNG(cellPx) -> data URL */
+/* a PNG of the 1-bit portrait for the no-JS <img>: window.__portraitPNG(cellPx) -> data URL */
 window.__portraitPNG = async cell => {
-  const im = await IMG_P, cols = 165, rows = Math.round(cols * SRC_H / SRC_W), g = buildGrid(cols, rows, im, true), cv = document.createElement('canvas');
-  cv.width = cols * cell; cv.height = rows * cell; const c = cv.getContext('2d'); c.fillStyle = '#0A0A0A'; c.fillRect(0, 0, cv.width, cv.height);
-  draw(1, 0, 0, false, false, cv, c, g); const o = document.createElement('canvas'); o.width = cv.width; o.height = cv.height;
-  const oc = o.getContext('2d'); oc.fillStyle = '#0A0A0A'; oc.fillRect(0, 0, o.width, o.height); oc.drawImage(cv, 0, 0);
-  return o.toDataURL('image/png');
+  const im = await IMG_P, cols = 165, rows = Math.round(cols * SRC_H / SRC_W), P = buildGrid(cols, rows, im, true), cv = document.createElement('canvas');
+  cv.width = cols * cell; cv.height = rows * cell; const c = cv.getContext('2d'); c.fillStyle = '#0A0A0A'; c.fillRect(0, 0, cv.width, cv.height); c.fillStyle = FG;
+  for (let r = 0; r < rows; r++) for (let q = 0; q < cols; q++) { const i = r * cols + q; if (P.A[i] >= 0.5 && on(P.L[i], r, q)) c.fillRect(q * cell, r * cell, cell - 1, cell - 1); }
+  return cv.toDataURL('image/png');
 };
-window.__portrait = { blink, setScatter };
 
 if (canvas) {
-  const decide = () => {
-    if (root.classList.contains('gl')) startLive();
-    else if (root.classList.contains('nogl')) startStatic();
-  };
-  decide();
-  if (!started) new MutationObserver(() => { decide(); }).observe(root, { attributes: true, attributeFilter: ['class'] });
+  if (root.classList.contains('rm')) startStatic();
+  else startLive().catch(err => { console.warn('[field] falling back to the plain page:', err && err.message); window.__sqFallback && window.__sqFallback(); startStatic(); });
 }
