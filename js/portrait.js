@@ -192,7 +192,7 @@ function makeFx() {
     sizeOf: (i, z) => { if (!h.eye[i] || !bkMode) return z; const k = blinkK(i); return z * (1 - k) + h.etz[i] * k; } });
 }
 function layout() {
-  const vp = viewport(); g = geometry(vp.W, vp.H, vp.H); T = Math.round(vp.H * 1.1); wtop = Math.round(vp.H * 0.58);
+  const vp = viewport(); g = geometry(vp.W, vp.H, vp.H); T = Math.round(vp.H * 0.8); wtop = Math.round(vp.H * 0.58);
   setVar('--pin', T + 'px'); setVar('--wtop', wtop + 'px');
   setVar('--H', vp.H + 'px'); setVar('--tagTop', g.tagTop + 'px'); setVar('--eyeTop', g.eyeTop + 'px'); setVar('--cell', g.cell + 'px'); setVar('--sq', (g.sqDev / g.dpr) + 'px');
   canvas.width = Math.round(vp.W * g.dpr); canvas.height = Math.round(vp.H * g.dpr); canvas.style.width = vp.W + 'px'; canvas.style.height = vp.H + 'px';
@@ -216,7 +216,7 @@ function buildFly() {
     const c = clamp(Math.round((h.x0[i] - left) / cell), 0, nd - 1); if (pick[c] < 0 || hash2(i, 5) < hash2(pick[c], 5)) pick[c] = i; }
   const X0 = [], Y0 = [], Z = [], TX = [], S = [], L = [], JX = [], K = [], IDX = [];
   const add = (i, c, kind) => {   /* kind 0 dissolves on arrival, 1 stays as the dot, 2 grows from nothing */
-    const r1 = hash2(i + 11, c), r2 = hash2(i + 23, c + 3), tx = left + c * cell, cr = Math.abs(tx + cell / 2 - cx) / (nd * cell / 2), Lk = 0.4 + 0.5 * cr, dur = 0.42 + 0.12 * r1;
+    const r1 = hash2(i + 11, c), r2 = hash2(i + 23, c + 3), tx = left + c * cell, cr = Math.abs(tx + cell / 2 - cx) / (nd * cell / 2), Lk = 0.22 + 0.2 * cr, dur = 0.42 + 0.12 * r1;
     X0.push(kind === 2 ? tx : h.x0[i]); Y0.push(kind === 2 ? g.H * (0.25 + 0.5 * r1) : h.y0[i]); Z.push(kind === 2 ? 0 : h.z[i]); TX.push(tx);
     S.push(Math.max(0, Lk - dur) + 0.04 * r2); L.push(Lk); JX.push((r2 - 0.5) * cell * 12); K.push(kind); IDX.push(i); };
   for (let i = 0; i < n; i++) if (isD[i]) { const c = clamp(Math.round((h.x0[i] - left) / cell), 0, nd - 1); add(i, c, pick[c] === i ? 1 : 0); }
@@ -231,7 +231,7 @@ function drawFly(p) {
     const t = clamp((p - f.s[k]) / (f.l[k] - f.s[k])), e = t <= 0 ? 0 : t >= 1 ? 1 : flyEase(t), kind = f.k[k], base = cd * f.z[k];
     const size = kind === 2 ? sq * smooth(e / 0.5) : kind === 1 ? base + (sq - base) * smooth((e - 0.6) / 0.4) : base * (1 - smooth((e - 0.7) / 0.3));
     if (size < 0.4) continue;
-    const x = f.x0[k] + (f.tx[k] - f.x0[k]) * e + f.jx[k] * Math.sin(Math.PI * e), y = f.y0[k] + (f.ty - f.y0[k]) * e, off = (cd - size) / 2 * (1 - e);
+    const up = f.y0[k] > f.ty, ey = up ? 1 - (1 - e) * (1 - e) : e * e * (3 - 2 * e), x = f.x0[k] + (f.tx[k] - f.x0[k]) * e + f.jx[k] * (up ? 0.25 : 1) * Math.sin(Math.PI * e), y = f.y0[k] + (f.ty - f.y0[k]) * ey, off = (cd - size) / 2 * (1 - e);
     const px = Math.round(x * dpr) + off, py = Math.round(y * dpr) + off; if (py < -cd || py > hh) continue;
     (e < 0.7 ? A : e < 0.9 ? B : C).rect(px, py, size, size);
   }
@@ -299,12 +299,12 @@ function wake() { if (!live || running || document.hidden) return; running = tru
    --rule (the dotted rule between hero and Work grows from the centre over ~280 px of scroll). Nothing else follows the scroll. */
 function onScroll() {
   sRaf = 0; const y = scrollY, q = clamp(y / T);
-  const d = Math.round(smooth((q - 0.05) / 0.6) * 100) / 100; if (d !== hd) { hd = d; setVar('--hd', d); root.classList.toggle('hgone', d >= 1); }
-  const c = Math.round(clamp(q * 8) * 100) / 100; if (c !== hq) { hq = c; setVar('--hq', c); }
+  const d = Math.round(smooth((q - 0.04) / 0.34) * 100) / 100; if (d !== hd) { hd = d; setVar('--hd', d); root.classList.toggle('hgone', d >= 1); }
+  const c = Math.round(clamp(q * 10) * 100) / 100; if (c !== hq) { hq = c; setVar('--hq', c); }
   setCut(!!fly && q > 0);
   if (fly && q > 0 && q < 1) { drawFly(q); flyOn = true; } else if (flyOn) { clearFly(); flyOn = false; }
   const r = q >= 1 || !fly ? 1 : 0; if (r !== rule) { rule = r; setVar('--rule', r); root.classList.toggle('handed', r === 1); }
-  const on = q >= 0.92; if (on !== wOn) { wOn = on; root.classList.toggle('wi', on); if (!on) root.classList.remove('wi0'); }
+  const on = q >= 0.28; if (on !== wOn) { wOn = on; root.classList.toggle('wi', on); if (!on) root.classList.remove('wi0'); }
   if (ptr.on && fx && !isCut) { fx.move(ptr.x, ptr.y); wake(); }
 }
 
