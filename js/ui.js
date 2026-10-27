@@ -30,6 +30,21 @@
     });
   });
 
+  /* ---- Phone menu: a button that opens a full-screen list; Esc or a link closes it ---- */
+  var burger = document.getElementById('burger'), menu = document.getElementById('menu');
+  function setMenu(open) {
+    if (!burger || !menu) return;
+    burger.setAttribute('aria-expanded', String(open)); burger.setAttribute('aria-label', open ? 'Close menu' : 'Menu');
+    menu.hidden = !open; root.classList.toggle('menu-open', open);
+    if (open) { var a = menu.querySelector('a'); if (a) a.focus(); } else burger.focus();
+  }
+  if (burger && menu) {
+    burger.addEventListener('click', function () { setMenu(burger.getAttribute('aria-expanded') !== 'true'); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !menu.hidden) setMenu(false); });
+    $$('a', menu).forEach(function (a) { a.addEventListener('click', function () { menu.hidden = true; root.classList.remove('menu-open'); burger.setAttribute('aria-expanded', 'false'); burger.setAttribute('aria-label', 'Menu'); }); });
+    matchMedia('(min-width:761px)').addEventListener('change', function (m) { if (m.matches && !menu.hidden) setMenu(false); });
+  }
+
   /* ---- Fallback: static screenshots with fades ---- */
   function fallback() {
     if (root.classList.contains('live')) return;
