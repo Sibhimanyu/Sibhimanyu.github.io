@@ -86,7 +86,7 @@
   .note { font-size:.72rem; border:1px solid var(--line); border-radius:999px; padding:4px 11px; color:var(--dim); }
 
   /* Work: one row per project */
-  .work { padding:clamp(24px,3.4vw,48px) var(--pad) clamp(48px,7vw,96px); }
+  .work { padding:0 var(--pad) clamp(48px,7vw,96px); }
   .idx-head { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:20px 40px; margin-bottom:clamp(20px,3vw,40px); }
   .idx-head h2 { font-size:clamp(2.4rem,6vw,5.6rem); font-weight:600; letter-spacing:-.045em; line-height:1; }
   .chips { flex-wrap:wrap; gap:6px; }
@@ -96,22 +96,25 @@
   .chip span { margin-left:8px; opacity:.6; font-variant-numeric:tabular-nums; }
   .status { color:var(--dim); font-size:.78rem; margin-bottom:10px; min-height:1.6em; }
   /* the dotted rule: one element, CSS background dots the size of the portrait's squares, off-white at 45% */
-  .idx-list::before, .rule { content:""; display:block; height:var(--sq,3.6px); background:linear-gradient(90deg,var(--fg) var(--sq,3.6px),transparent 0) 0 0 / var(--cell,4px) 100% repeat-x; opacity:.45; }
-  .idx-list::before { margin-bottom:0; }
-  .bridge { display:flex; align-items:flex-end; height:21vh; padding:0 var(--pad); }
+  /* the dotted rule: ONE element, the top divider of Work. CSS background dots the size of the portrait's squares, off-white at 45%.
+     While the hero's squares are arriving, the fly canvas draws these same dots (portrait.js) and --rule is 0; once landed --rule is 1 and this takes over. */
+  .rule { display:block; width:100%; height:var(--sq,3.6px); margin-bottom:clamp(24px,3.4vw,48px); background:linear-gradient(90deg,var(--fg) var(--sq,3.6px),transparent 0) 0 0 / var(--cell,4px) 100% repeat-x; opacity:.45; clip-path:inset(0 calc((1 - var(--rule,1)) * 50%)); }
+  .idx-list { border-top:1px solid var(--line); }
+  #fly { position:fixed; left:0; top:0; z-index:2; pointer-events:none; display:none; }
+  .live #fly { display:block; }
+  .bridge { height:21vh; }
   .rule { width:100%; --rule:1; clip-path:inset(0 calc((1 - var(--rule)) * 50%)); }
   @media (max-width:1023px) { .bridge { height:14vh; } }
   @media (max-width:599px) { .bridge { height:10vh; } }
   .chip[aria-pressed="true"] { font-weight:700; }
   .idx-head h2:focus { outline:none; }
   /* Work arrives in reading order, once: heading, count, filters, divider and rows (80 ms apart, 150 ms each, 390 ms in all); html.wi0 skips it */
-  .wp .work :is(#h-work, #idx-status, .chips, .idx-list > li, .idx-list::before) { transition:opacity .15s ease-out; }
-  .wp:not(.wi) .work :is(#h-work, #idx-status, .chips, .idx-list > li, .idx-list::before) { opacity:0; }
+  .wp .work :is(#h-work, #idx-status, .chips, .idx-list > li) { transition:opacity .15s ease-out; }
+  .wp:not(.wi) .work :is(#h-work, #idx-status, .chips, .idx-list > li) { opacity:0; }
   .wp .work #idx-status { transition-delay:.08s; }
   .wp .work .chips { transition-delay:.16s; }
   .wp .work :is(.idx-list > li) { transition-delay:.24s; }
-  .wp .work .idx-list::before { transition-delay:.24s; }
-  .wi0 .work :is(#h-work, #idx-status, .chips, .idx-list > li, .idx-list::before) { transition:none !important; }
+  .wi0 .work :is(#h-work, #idx-status, .chips, .idx-list > li) { transition:none !important; }
   .idx-list li { --sk-ac:var(--ac); display:grid; grid-template-columns:28px 2.2rem minmax(0,2.1fr) minmax(0,1.3fr) minmax(0,.8fr); gap:8px 24px; align-items:center; padding:clamp(18px,2.4vw,30px) 0; border-bottom:1px solid var(--line); }
   .mk { width:28px; height:28px; object-fit:contain; border-radius:6px; opacity:.85; transition:opacity .25s; }
   .idx-list li:hover .mk, .idx-list li:focus-within .mk { opacity:1; }
@@ -205,6 +208,7 @@
 <body>
 <a class="skip" href="#work">Skip to the projects</a>
 <canvas id="thumb" aria-hidden="true"></canvas>
+<canvas id="fly" aria-hidden="true"></canvas>
 <header class="nav">
   <a class="brand" href="#top" aria-label="Sibhimanyu, back to top">s.</a>
   <nav aria-label="Sections"><ul>
@@ -231,8 +235,9 @@
     </div>
   </section>
 
-  <div class="bridge" aria-hidden="true"><i class="rule"></i></div>
+  <div class="bridge" aria-hidden="true"></div>
   <section class="work" id="work" aria-labelledby="h-work">
+    <i class="rule" aria-hidden="true"></i>
     <div class="idx-head">
       <h2 id="h-work" tabindex="-1">Work</h2>
       <div class="chips js-only" role="group" aria-label="Filter projects">

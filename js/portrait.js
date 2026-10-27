@@ -13,7 +13,7 @@ const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const FG = '#F2F0EB', NAME = 'Sibhimanyu';
 const SRC_W = 460, SRC_H = 560, CROP_Y = 40;               /* the crop of assets/portrait-src.webp (460x600) */
 const EYES = [[155, 173, 15, 5.5], [215, 177, 15, 5.5]];       /* in the crop: centre x, y, half width, half height */
-const canvas = document.getElementById('portrait');
+const canvas = document.getElementById('portrait'), flyCv = document.getElementById('fly');
 const IMG_P = new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = 'assets/portrait-src.webp'; });
 const mark = n => { try { performance.mark('hero-' + n); } catch (e) {} };
 let nameOn = true, nameT = 0;
@@ -37,8 +37,9 @@ function buildGrid(cols, rows, img, edge) {
   const cdf = v => { let lo = 0, hi = nv; while (lo < hi) { const m = (lo + hi) >> 1; if (vals[m] < v) lo = m + 1; else hi = m; } return lo / nv; };
   const t = new Float32Array(n);
   for (let i = 0; i < n; i++) { if (a[i] < .5) continue; const w = Math.max(ma[i], 1e-3), mu = ml[i] / w, sd = Math.sqrt(Math.max(mq[i] / w - mu * mu, 1e-4));
-    const loc = Math.min(1, Math.max(0, 0.5 + (l[i] - mu) / (sd * 2.6)));
-    t[i] = 0.35 * loc + 0.3 * cdf(l[i]) + 0.35 * l[i]; }
+    const loc = Math.min(1, Math.max(0, 0.5 + (l[i] - mu) / (sd * 2.1)));
+    const m = 0.35 * loc + 0.3 * cdf(l[i]) + 0.35 * l[i];
+    t[i] = Math.min(1, Math.max(0, 0.5 + (m - 0.5) * 1.4)); }   /* contrast: deeper darks, brighter lights */
   const L = new Float32Array(cols * rows), A = new Float32Array(cols * rows), SC = new Uint8Array(cols * rows);
   for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) { let sl = 0, sa = 0; for (let v = 0; v < S; v++) for (let u = 0; u < S; u++) { const q = (j * S + v) * cw + i * S + u; sl += t[q] * a[q]; sa += a[q]; }
     const q = j * cols + i; A[q] = sa / (S * S); L[q] = sa > 0 ? sl / sa : 0;
@@ -77,7 +78,7 @@ function measureName() {
 function geometry(W, H, Hc) {
   const mobile = W <= 760, dpr = Math.min(window.devicePixelRatio || 1, 2), pad = Math.max(20, Math.min(44, W * 0.031));
   const cell0 = mobile ? 2 : Math.max(3, Math.round(W / 420)), cellDev = Math.max(2, Math.round(cell0 * dpr)), cell = cellDev / dpr;
-  const w0 = mobile ? W * 0.92 : W * 0.47, cols = Math.round(w0 / cell), rows = Math.round(cols * SRC_H / SRC_W), w = cols * cell, h = rows * cell;
+  const w0 = mobile ? W * 1.06 : W * 0.47, cols = Math.round(w0 / cell), rows = Math.round(cols * SRC_H / SRC_W), w = cols * cell, h = rows * cell;
   const g = { W, H, Hc, dpr, mobile, cols, rows, cell, cellDev, sqDev: cellDev - Math.max(1, Math.round(0.6 * dpr)), w, h, pad };
   const wMax = measureName();
   /* the face centre is at 51% of the crop's width, the hair top 3% below its top */
@@ -124,7 +125,7 @@ function distance(sil, gw, gh) {   /* two-pass chamfer distance in cells to the 
 }
 const HALO_PX = 80;
 /* the portrait's squares (tone, sized) plus its halo, on a gw x gh page grid; also the cover mask that hides what sits behind it */
-function portraitSquares(P, ox, oy, gw, gh, cell, eyeSet) {
+function portraitSquares(P, ox, oy, gw, gh, cell, eyeSet, even) {
   const sil = new Uint8Array(gw * gh), cov = new Uint8Array(gw * gh), out = { xs: [], ys: [], zs: [], etz: [], eyeF: [], eyeRow: [], eyeN: [], cov };
   for (let r = 0; r < P.rows; r++) for (let c = 0; c < P.cols; c++) { const R = r + oy, C = c + ox; if (R < 0 || C < 0 || R >= gh || C >= gw) continue; const i = r * P.cols + c;
     if (P.S[i]) { sil[R * gw + C] = 1; cov[R * gw + C] = 1; } }
@@ -137,7 +138,7 @@ function portraitSquares(P, ox, oy, gw, gh, cell, eyeSet) {
   }
   const dist = distance(sil, gw, gh), reach = HALO_PX / cell;
   for (let R = 0; R < gh; R++) for (let C = 0; C < gw; C++) { const k = R * gw + C, d = dist[k]; if (!d || d > reach) continue;
-    const t = d / reach, p = 0.45 * (1 - t) ** 2, u = hash2(C, R); if (u >= p) continue;
+    const t = d / reach, p = even ? 0.3 * (1 - t) ** 1.6 : 0.45 * (1 - t) ** 2, u = even ? ((BAYER[(R & 3) * 4 + (C & 3)] + 0.5) / 16) * 0.8 + hash2(C, R) * 0.2 : hash2(C, R); if (u >= p) continue;
     const v = hash2(R * 3 + 1, C * 5 + 2), q = t < 0.3 && v < 0.35 ? 0.5 : v > 0.93 ? 0.5 : 0.25;
     out.xs.push(C * cell); out.ys.push(R * cell); out.zs.push(zOf(q)); out.etz.push(0); out.eyeF.push(0); out.eyeRow.push(0); out.eyeN.push(1); }
   /* the halo core counts as coverage too: two cells around the silhouette */
@@ -149,7 +150,7 @@ function buildHero() {
   const P = buildGrid(g.cols, g.rows, IMG, edge), cell = g.cell, ox = Math.round(g.x / cell), oy = Math.round(g.y / cell);
   const gw = Math.ceil(g.W / cell) + 2, gh = Math.ceil(g.Hc / cell) + 2;
   const eyeSet = new Map(); P.eyes.forEach((e, k) => e.cells.forEach(([r, c]) => eyeSet.set((r + oy) * 4096 + c + ox + 1024, [r - e.rmin, e.rmax - e.rmin + 1, k, e.skin, e.colB.get(c) === r])));
-  const f = portraitSquares(P, ox, oy, gw, gh, cell, eyeSet), xs = f.xs, ys = f.ys, zs = f.zs, etz = f.etz, eyeF = f.eyeF, eyeRow = f.eyeRow, eyeN = f.eyeN;
+  const f = portraitSquares(P, ox, oy, gw, gh, cell, eyeSet, g.mobile), xs = f.xs, ys = f.ys, zs = f.zs, etz = f.etz, eyeF = f.eyeF, eyeRow = f.eyeRow, eyeN = f.eyeN;
   const nP = xs.length;
   const nm = nameOn ? rasterText(NAME, `600 ${g.fs}px "Inter Tight", system-ui, sans-serif`, `${-g.fs * 0.035}px`, g.nx, g.base, g.fs, 'left', measureName() * g.fs / 100, cell) : [];
   for (let i = 0; i < nm.length; i += 2) {
@@ -179,6 +180,7 @@ function viewport() {
 }
 
 /* ------------------------------------------------------------------ the field */
+let fly = null, flyOn = false, isCut = false, cutBmp = null, s0 = 0, s1 = 1;
 let eyeList = null, fx = null, fastOn = false, blinkOn = false, blinkTimer = 0, bkMode = 0, bkV = 0, bridgeEl = null, hp = -1, rule = -1, sRaf = 0, dpr0 = 1;
 const stats = { calls: 0 };
 const setVar = (k, v) => root.style.setProperty(k, v);
@@ -194,6 +196,56 @@ function layout() {
   setVar('--H', vp.H + 'px'); setVar('--tagTop', g.tagTop + 'px'); setVar('--eyeTop', g.eyeTop + 'px'); setVar('--cell', g.cell + 'px'); setVar('--sq', (g.sqDev / g.dpr) + 'px');
   canvas.width = Math.round(vp.W * g.dpr); canvas.height = Math.round(vp.H * g.dpr); canvas.style.width = vp.W + 'px'; canvas.style.height = vp.H + 'px';
   hero = buildHero(); fastOn = false; makeFx(); lastVP = vp;
+  flyCv.width = Math.round(vp.W * g.dpr); flyCv.height = Math.round(vp.Hc * g.dpr); flyCv.style.width = vp.W + 'px'; flyCv.style.height = vp.Hc + 'px';
+  cutBmp = null; flyOn = false; buildFly();
+}
+
+/* ------------------------------------------------------------------ the bridge: a share of the squares gather into the dotted rule
+   Everything below is a pure function of p, the scroll position mapped onto the bridge range, so it scrubs and reverses exactly.
+   ~20% of the hero's squares (chosen by a seeded hash, never the eyes) leave the hero canvas at p > 0 and are drawn by the fixed fly canvas:
+   each falls (in page coordinates) to the dot of the Work rule below it, with a little sideways spread, centre-out. One square per dot
+   stays (the rule), the rest shrink away on arrival; a dot with no square above it grows out of nothing. At p = 1 the CSS rule takes over. */
+const flyEase = v => v < 0.5 ? 4 * v * v * v : 1 - Math.pow(-2 * v + 2, 3) / 2;
+function buildFly() {
+  fly = null; const rule = document.querySelector('.work .rule'); if (!rule || !hero) return;
+  const rc = rule.getBoundingClientRect(), cell = g.cell, left = rc.left, Ty = rc.top + scrollY, nd = Math.floor(rc.width / cell);
+  if (nd < 8) return;
+  const h = hero, n = h.n, cx = left + nd * cell / 2, isD = new Uint8Array(n), pick = new Int32Array(nd).fill(-1);
+  for (let i = 0; i < n; i++) { if (h.eye[i] || h.z[i] <= 0 || hash2(i, 77) >= 0.2) continue; isD[i] = 1;
+    const c = clamp(Math.round((h.x0[i] - left) / cell), 0, nd - 1); if (pick[c] < 0 || hash2(i, 5) < hash2(pick[c], 5)) pick[c] = i; }
+  const X0 = [], Y0 = [], Z = [], TX = [], S = [], L = [], JX = [], K = [], IDX = [];
+  const add = (i, c, kind) => {   /* kind 0 dissolves on arrival, 1 stays as the dot, 2 grows from nothing */
+    const r1 = hash2(i + 11, c), r2 = hash2(i + 23, c + 3), tx = left + c * cell, cr = Math.abs(tx + cell / 2 - cx) / (nd * cell / 2), Lk = 0.5 + 0.45 * cr, dur = 0.42 + 0.12 * r1;
+    X0.push(kind === 2 ? tx : h.x0[i]); Y0.push(kind === 2 ? g.H * (0.25 + 0.5 * r1) : h.y0[i]); Z.push(kind === 2 ? 0 : h.z[i]); TX.push(tx);
+    S.push(Math.max(0, Lk - dur) + 0.04 * r2); L.push(Lk); JX.push((r2 - 0.5) * cell * 12); K.push(kind); IDX.push(i); };
+  for (let i = 0; i < n; i++) if (isD[i]) { const c = clamp(Math.round((h.x0[i] - left) / cell), 0, nd - 1); add(i, c, pick[c] === i ? 1 : 0); }
+  for (let c = 0; c < nd; c++) if (pick[c] < 0) add(n + c, c, 2);
+  const H = g.H, s0v = 0.08 * H; s0 = s0v; s1 = Math.max(s0v + 0.45 * H, Ty - 0.55 * innerHeight);
+  fly = { n: X0.length, x0: Float32Array.from(X0), y0: Float32Array.from(Y0), z: Float32Array.from(Z), tx: Float32Array.from(TX), ty: Ty, s: Float32Array.from(S), l: Float32Array.from(L), jx: Float32Array.from(JX), k: Uint8Array.from(K), isD };
+}
+function drawFly(p) {
+  const f = fly, ctx = flyCv.getContext('2d'), dpr = g.dpr, cd = g.cellDev, sq = g.sqDev, sy = scrollY, hh = flyCv.height;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, flyCv.width, hh); ctx.fillStyle = FG;
+  const A = new Path2D(), B = new Path2D(), C = new Path2D();
+  for (let k = 0; k < f.n; k++) {
+    const t = clamp((p - f.s[k]) / (f.l[k] - f.s[k])), e = t <= 0 ? 0 : t >= 1 ? 1 : flyEase(t), kind = f.k[k], base = cd * f.z[k];
+    const size = kind === 2 ? sq * smooth(e / 0.5) : kind === 1 ? base + (sq - base) * smooth((e - 0.6) / 0.4) : base * (1 - smooth((e - 0.7) / 0.3));
+    if (size < 0.4) continue;
+    const x = f.x0[k] + (f.tx[k] - f.x0[k]) * e + f.jx[k] * Math.sin(Math.PI * e), y = f.y0[k] + (f.ty - f.y0[k]) * e, off = (cd - size) / 2 * (1 - e);
+    const px = Math.round(x * dpr) + off, py = Math.round((y - sy) * dpr) + off; if (py < -cd || py > hh) continue;
+    (e < 0.7 ? A : e < 0.9 ? B : C).rect(px, py, size, size);
+  }
+  ctx.globalAlpha = 1; ctx.fill(A); ctx.globalAlpha = 0.75; ctx.fill(B); ctx.globalAlpha = 0.45; ctx.fill(C); ctx.globalAlpha = 1;
+}
+function clearFly() { flyCv.getContext('2d').clearRect(0, 0, flyCv.width, flyCv.height); }
+/* the hero canvas without the squares that have left it */
+function setCut(cut) {
+  if (cut === isCut) return; isCut = cut;
+  if (cut) {
+    if (!cutBmp) { cutBmp = document.createElement('canvas'); cutBmp.width = canvas.width; cutBmp.height = canvas.height; const c = cutBmp.getContext('2d'), h = hero, cd = g.cellDev, dpr = g.dpr; c.fillStyle = FG; c.beginPath();
+      for (let i = 0; i < h.n; i++) { if (fly && fly.isD[i]) continue; const z = cd * h.z[i], q = (cd - z) / 2; c.rect(Math.round(h.x0[i] * dpr) + q, Math.round(h.y0[i] * dpr) + q, z, z); } c.fill(); }
+    const c = canvas.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, canvas.width, canvas.height); c.drawImage(cutBmp, 0, 0);
+  } else { fastOn = false; wake(); }
 }
 
 /* Blink: an eyelid, not a flash. The eye's squares shrink to nothing from the top row down (70 ms), hold (40 ms), then reopen bottom-up
@@ -217,14 +269,14 @@ function scheduleBlink(ms) {
   clearTimeout(blinkTimer);
   blinkTimer = setTimeout(() => {
     if (!live || !hero) return;
-    if (scrollY > g.H * 0.5 || document.hidden || (ptr.on && Math.hypot(ptr.x - hero.ecx, ptr.y + scrollY - hero.ecy) < 280)) { scheduleBlink(700); return; }
+    if (isCut || document.hidden || (ptr.on && Math.hypot(ptr.x - hero.ecx, ptr.y + scrollY - hero.ecy) < 280)) { scheduleBlink(700); return; }
     blinkT0 = performance.now(); blinkDbl = Math.random() < 1 / 6; wake(); scheduleBlink(3000 + Math.random() * 4000);
   }, ms);
 }
 
 /* a frame: the develop-in on load (squares grow in, name a little after the portrait), then only what the mouse or a blink touches */
 function frame(now) {
-  raf = 0; if (!live || !fx) { running = false; return; }
+  raf = 0; if (!live || !fx || isCut) { running = false; return; }
   const dev = clamp((now - tDev) / 1200), nd = clamp((now - nameT) / 1200);
   if (dev < 1 || nd < 1) {
     const ctx = canvas.getContext('2d'), h = hero, cd = g.cellDev, dpr = g.dpr, n = h.n;
@@ -248,8 +300,11 @@ function wake() { if (!live || running || document.hidden) return; running = tru
 function onScroll() {
   sRaf = 0; const y = scrollY, h = g ? g.H : innerHeight;
   const p = Math.round(clamp(y / h) * 200) / 200; if (p !== hp) { hp = p; setVar('--hp', p); }
-  if (bridgeEl) { const r = Math.round(clamp((innerHeight - bridgeEl.getBoundingClientRect().bottom - 40) / 280) * 100) / 100; if (r !== rule) { rule = r; setVar('--rule', r); } }
-  if (ptr.on && fx && y < h) { fx.move(ptr.x, ptr.y + y); wake(); }
+  const q = fly ? clamp((y - s0) / (s1 - s0)) : 0;
+  setCut(q > 0);
+  if (fly && q > 0 && q < 1) { drawFly(q); flyOn = true; } else if (flyOn) { clearFly(); flyOn = false; }
+  const r = q >= 1 || !fly ? 1 : 0; if (r !== rule) { rule = r; setVar('--rule', r); }
+  if (ptr.on && fx && !isCut) { fx.move(ptr.x, ptr.y + y); wake(); }
 }
 
 /* ------------------------------------------------------------------ boot */
@@ -263,13 +318,14 @@ async function startLive() {
   bridgeEl = document.querySelector('.bridge');
   if (!canvas.getContext('2d')) throw new Error('no canvas');
   root.classList.add('pt', 'st', 'live'); live = true;
-  layout(); tDev = nameT = performance.now(); scheduleBlink(5400); onScroll();
+  layout(); tDev = nameT = performance.now(); if (scrollY > 0) tDev = nameT -= 5000; scheduleBlink(5400); onScroll();
   let rt;
-  const relayout = () => { layout(); nameT = tDev = performance.now() - 5000; wake(); onScroll(); };
+  const relayout = () => { layout(); nameT = tDev = performance.now() - 5000; isCut = false; hp = rule = -1; onScroll(); wake(); };
   if (!nameOn) fontP.then(() => { if (document.fonts.check('600 100px "Inter Tight"')) { nameOn = true; nameW100 = 0; layout(); nameT = performance.now(); wake(); } });
   document.fonts.addEventListener('loadingdone', () => { clearTimeout(rt); rt = setTimeout(relayout, 80); });
+  addEventListener('load', () => { clearTimeout(rt); rt = setTimeout(relayout, 30); });
   /* the mouse effect: mouse only (touch does nothing), one position per frame */
-  addEventListener('pointermove', e => { if (e.pointerType === 'touch') return; ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; if (fx && scrollY < g.H) { fx.move(ptr.x, ptr.y + scrollY); wake(); } });
+  addEventListener('pointermove', e => { if (e.pointerType === 'touch') return; ptr.x = e.clientX; ptr.y = e.clientY; ptr.on = true; if (fx && !isCut) { fx.move(ptr.x, ptr.y + scrollY); wake(); } });
   const away = () => { ptr.on = false; if (fx) fx.leave(); wake(); };
   document.addEventListener('pointerleave', away); addEventListener('blur', away);
   addEventListener('scroll', () => { if (!sRaf) sRaf = requestAnimationFrame(onScroll); }, { passive: true });
