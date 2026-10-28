@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Squeak: your Conductor chats, in view</title>
-<meta name="description" content="Squeak brings Conductor chats to a Mac attention inbox, with replies in Conductor, iPhone, Telegram or Zoho Cliq. It can also watch Claude Code and Codex sessions, with replies supported in Apple&#39;s Terminal.">
+<meta name="description" content="Squeak brings Conductor chats to a Mac attention inbox, with replies in Conductor, iPhone, web browser, Telegram or Zoho Cliq. It can also watch Claude Code and Codex sessions, with replies supported in Apple&#39;s Terminal.">
 <meta name="author" content="Sibhimanyu">
 <meta name="theme-color" content="#F8F7F3">
 <link rel="canonical" href="https://sibhimanyu.github.io/squeak/">
@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Squeak">
 <meta property="og:title" content="Squeak: your Conductor chats, in view">
-<meta property="og:description" content="Your Conductor chats, ranked by what needs you. Reply from your Mac, iPhone, Telegram or Zoho Cliq.">
+<meta property="og:description" content="Your Conductor chats, ranked by what needs you. Reply from your Mac, iPhone, a web browser, Telegram or Zoho Cliq.">
 <meta property="og:url" content="https://sibhimanyu.github.io/squeak/">
 <meta property="og:image" content="https://sibhimanyu.github.io/squeak/assets/og.png">
 <meta property="og:image:width" content="1200">
@@ -21,7 +21,7 @@
 <meta property="og:image:alt" content="Squeak: Your agents. In view. A yellow rubber duck beside the headline.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Squeak: your Conductor chats, in view">
-<meta name="twitter:description" content="Your Conductor chats, ranked by what needs you. Reply from your Mac, iPhone, Telegram or Zoho Cliq.">
+<meta name="twitter:description" content="Your Conductor chats, ranked by what needs you. Reply from your Mac, iPhone, a web browser, Telegram or Zoho Cliq.">
 <meta name="twitter:image" content="https://sibhimanyu.github.io/squeak/assets/og.png">
 <link rel="preload" href="./assets/fonts/figtree-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="./assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
@@ -30,7 +30,6 @@
 <script src="./assets/vendor/gsap.min.js" defer></script>
 <script src="./assets/vendor/ScrollTrigger.min.js" defer></script>
 <script src="./assets/vendor/SplitText.min.js" defer></script>
-<script src="./assets/vendor/Flip.min.js" defer></script>
 <script src="./assets/vendor/lenis.min.js" defer></script>
 <script src="./webgl.js" defer></script>
 <script src="./ducks.js" defer></script>
@@ -40,16 +39,16 @@
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "Squeak",
-  "description": "Squeak brings Conductor chats to a Mac attention inbox, with replies in Conductor, iPhone, Telegram or Zoho Cliq. It can also watch Claude Code and Codex sessions, with replies supported in Apple's Terminal.",
+  "description": "Squeak brings Conductor chats to a Mac attention inbox, with replies in Conductor, iPhone, web browser, Telegram or Zoho Cliq. It can also watch Claude Code and Codex sessions, with replies supported in Apple's Terminal.",
   "url": "https://sibhimanyu.github.io/squeak/",
   "image": "https://sibhimanyu.github.io/squeak/assets/og.png",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "macOS 14.0 or later, iOS (iPhone companion app)",
-  "softwareVersion": "2.1.34",
-  "downloadUrl": "https://sibhimanyu.github.io/squeak/download/Squeak-2.1.34.dmg",
-  "releaseNotes": "https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.34",
-  "datePublished": "2026-10-24",
-  "fileSize": "5.9 MB",
+  "softwareVersion": "2.11.4",
+  "downloadUrl": "https://sibhimanyu.github.io/squeak/download/Squeak-2.11.4.dmg",
+  "releaseNotes": null,
+  "datePublished": "2026-10-28",
+  "fileSize": "51.3 MB",
   "offers": {
     "@type": "Offer",
     "price": "0",
@@ -105,23 +104,23 @@
         <a class="nav__brand" href="./" aria-label="Squeak home"><img src="./assets/logo-paper.svg" width="100" height="30" alt="Squeak"></a>
         <ul class="nav__links">
           <li><a href="#conductor">Conductor</a></li>
-          <li><a href="#moment">How it works</a></li>
-          <li><a href="#mac">Mac + iPhone</a></li>
+          <li><a href="#calls">Phone calls</a></li>
+          <li><a href="#away">Mobile + web</a></li>
           <li><a class="nav__cta" href="#install" data-magnet>Download<span class="nav__dot" aria-hidden="true"></span></a></li>
         </ul>
       </nav>
 
       <div class="hero__text" data-hero-text>
-        <p class="hero__kicker" data-hero-in>A companion for Conductor</p>
+        <p class="hero__kicker" data-hero-in>Your Conductor attention inbox</p>
         <h1 class="hero__title" data-hero-title><span class="hero__line">Your agents.</span> <span class="hero__line hero__line--mark"><span class="mark">In view.</span></span></h1>
         <div class="hero__copy">
-          <p class="hero__lede" data-hero-in>See which Conductor chat needs you, read the question, and reply in that same chat—from the Mac app, your iPhone, Telegram or Zoho Cliq.</p>
+          <p class="hero__lede" data-hero-in>See every Conductor chat in one attention-first inbox. Read the question, reply or steer the work, then keep up from your Mac, iPhone, Squeak for Web, Telegram or Zoho Cliq.</p>
           <div class="hero__cta" data-hero-in>
             <div class="actions">
-              <a class="btn btn--primary" href="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.34.dmg" download data-magnet>Download for Mac</a>
-              <a class="btn btn--ghost" href="#moment">See an example</a>
+              <a class="btn btn--primary" href="https://sibhimanyu.github.io/squeak/download/Squeak-2.11.4.dmg" download data-magnet>Download for Mac</a>
+              <a class="btn btn--ghost" href="#conductor">Explore Conductor features</a>
             </div>
-            <p class="hero__meta">Version 2.1.34 · macOS 14 or later · Apple silicon · Free</p>
+            <p class="hero__meta">Version 2.11.4 · macOS 14 or later · Apple silicon · Free</p>
           </div>
         </div>
       </div>
@@ -164,112 +163,11 @@
   </div>
 </section>
 
-<!-- 1. The moment: a pinned, scrubbed story. The copy is real text; the demo is a picture of it. -->
-<section class="moment" id="moment" aria-labelledby="moment-h">
-  <div class="wrap moment__head">
-    <p class="kicker">02 / The moment</p>
-    <h2 id="moment-h">One needs you. You know which.</h2>
-    <p class="moment__intro">A made-up Conductor chat, shown one step at a time. The question and choice are examples; scrolling never sends anything.</p>
-  </div>
-  <div class="moment__pin" data-moment>
-    <div class="wrap moment__inner">
-      <ol class="beats" aria-label="The example in four steps">
-        <li class="beat" data-beat="working">
-          <p class="beat__step"><span>01</span>Working</p>
-          <h3>Four sessions are working.</h3>
-          <p>Nothing is waiting on you, so the duck gets on with its own work too.</p>
-        </li>
-        <li class="beat" data-beat="needs">
-          <p class="beat__step"><span>02</span>Needs you</p>
-          <h3>One stops and asks.</h3>
-          <p>storefront · payment-retries needs an answer. Squeak moves it to the top and the duck&#39;s eyes go wide.</p>
-        </li>
-        <li class="beat" data-beat="choose">
-          <p class="beat__step"><span>03</span>A person chooses</p>
-          <h3>You read the question and choose.</h3>
-          <p>Claude asks how temporary failures should be retried. Option A is marked as recommended but is never chosen for you. In this example, a person picks A.</p>
-        </li>
-        <li class="beat" data-beat="sent">
-          <p class="beat__step"><span>04</span>Confirmed</p>
-          <h3>Confirmed in the chat, then back to work.</h3>
-          <p>Squeak checks that the reply landed before it says so. The agent carries on, and the duck goes back to work.</p>
-        </li>
-      </ol>
-
-      <div class="demo" data-demo data-mode="needs" aria-hidden="true">
-        <div class="demo__win">
-          <div class="demo__list">
-            <p class="window__title"><span>Sessions</span><em><span data-s="working">4 working</span><span data-s="needs">1 needs you</span><span data-s="done">3 working · 1 done</span></em></p>
-            <ul class="demo__rows" data-rows>
-              <li class="row" data-row="payment"><span class="dot"></span><span class="row__text"><b>storefront · payment-retries</b><span data-s="working">claude · working</span><span data-s="needs">claude · needs an answer</span><span data-s="done">claude · done</span></span></li>
-              <li class="row row--working" data-row="atlas"><span class="dot"></span><span class="row__text"><b>atlas · search-index</b><span>codex · working</span></span></li>
-              <li class="row row--working" data-row="compass"><span class="dot"></span><span class="row__text"><b>compass · onboarding-link</b><span>codex · editing 2 files</span></span></li>
-              <li class="row row--working" data-row="squeak"><span class="dot"></span><span class="row__text"><b>squeak · telegram-formatting</b><span>claude · running tests</span></span></li>
-            </ul>
-          </div>
-          <div class="demo__detail">
-            <p class="detail__name">Payment retry logic</p>
-            <p class="detail__meta">storefront · payment-retries</p>
-            <p class="detail__state"><span data-s="working">claude · working</span><span data-s="needs">claude · needs an answer</span><span data-s="done">claude · done</span></p>
-            <div class="demo__panes">
-              <div class="pane pane--working" data-pane="working">
-                <p class="detail__h">What it&#39;s doing</p>
-                <ul class="steps">
-                  <li>Read retry.ts</li>
-                  <li>Editing 3 files</li>
-                  <li>Run npm test</li>
-                </ul>
-              </div>
-              <div class="pane pane--needs" data-pane="needs">
-                <p class="detail__message">I found the retry path and added an idempotency check. One decision needs your input.</p>
-              </div>
-              <div class="pane pane--sent" data-pane="sent">
-                <p class="detail__receipt"><span class="tick"></span>Reply A confirmed in the Conductor chat</p>
-                <ul class="steps">
-                  <li>Applying the retry policy</li>
-                  <li>Run npm test -- retry</li>
-                </ul>
-              </div>
-            </div>
-            <div class="card" data-card>
-              <p class="detail__question">How should temporary failures be retried?</p>
-              <div class="option option--chosen" data-opt="a">
-                <span class="option__key">A</span>
-                <span class="option__text"><b>Retry automatically</b><span>Up to 3 attempts with exponential backoff.</span></span>
-                <span class="option__tag">recommended</span>
-              </div>
-              <div class="option" data-opt="b">
-                <span class="option__key">B</span>
-                <span class="option__text"><b>Let the customer retry</b><span>Show a clear error and keep checkout available.</span></span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <p class="demo__foot"><span class="chip" data-chip>A person chooses A</span><span>Example only. Nothing is sent.</span></p>
-        <img class="demo__duck" data-mood="working" src="./assets/duck-working.webp" width="240" height="240" alt="" loading="lazy">
-        <img class="demo__duck" data-mood="needs" src="./assets/duck-needs_you.webp" width="240" height="240" alt="" loading="lazy">
-        <img class="demo__duck" data-mood="done" src="./assets/duck-celebrating.webp" width="240" height="240" alt="" loading="lazy">
-      </div>
-
-      <div class="rail" aria-hidden="true">
-        <span class="rail__track"><span class="rail__fill"></span></span>
-        <ol class="rail__steps">
-          <li class="rail__step"><span>01</span><i>Working</i></li>
-          <li class="rail__step"><span>02</span><i>Needs you</i></li>
-          <li class="rail__step"><span>03</span><i>A person chooses</i></li>
-          <li class="rail__step"><span>04</span><i>Confirmed</i></li>
-        </ol>
-      </div>
-      <button class="replay" type="button" hidden>Replay example</button>
-    </div>
-  </div>
-</section>
-
-<!-- 2. The Mac app: a window that tilts flat as you arrive -->
+<!-- The Mac app: a window that tilts flat as you arrive -->
 <section class="section mac" id="mac" aria-labelledby="mac-h">
   <div class="wrap">
     <header class="section__head">
-      <p class="kicker">03 / Squeak for Mac</p>
+      <p class="kicker">02 / Squeak for Mac</p>
       <h2 id="mac-h">The whole picture. One window.</h2>
       <p class="section__lede">See sessions grouped by what they need from you: questions and approvals, finished work, active work, errors and idle sessions. Squeak also watches Claude Code and Codex sessions in supported local apps.</p>
     </header>
@@ -295,33 +193,14 @@
   </div>
 </section>
 
-<!-- 3. The duck: a strip you scroll through, each mood moving when it is centred -->
-<section class="duck" id="duck" aria-labelledby="duck-h">
-  <div class="duck__pin" data-duckscene>
-    <div class="wrap duck__head">
-      <p class="kicker">04 / The duck</p>
-      <h2 id="duck-h">Quiet until it matters.</h2>
-      <p class="section__lede">A menu-bar duck keeps an eye on your Conductor chats and supported agent sessions. Click it for the list and quick controls.</p>
-    </div>
-    <div class="duck__view">
-      <ul class="moods" aria-label="The duck&#39;s four moods" data-track>
-        <li class="mood mood--asleep" data-mood="asleep"><img src="./assets/duck-asleep.webp" width="240" height="240" alt="The duck asleep with closed eyes." loading="lazy"><div class="mood__text"><h3>Asleep</h3><p>Nothing running. The duck rests.</p></div></li>
-        <li class="mood mood--working" data-mood="working"><img src="./assets/duck-working.webp" width="240" height="240" alt="The duck with a focused look, mid-bob." loading="lazy"><div class="mood__text"><h3>Working</h3><p>A quick bob while any agent is mid-turn.</p></div></li>
-        <li class="mood mood--needs" data-mood="needs"><img src="./assets/duck-needs_you.webp" width="240" height="240" alt="The duck with wide eyes." loading="lazy"><div class="mood__text"><h3>Needs you</h3><p>Wide eyes and a red badge. Something is blocked until you act.</p></div></li>
-        <li class="mood mood--done" data-mood="done"><img src="./assets/duck-celebrating.webp" width="240" height="240" alt="The duck mid-hop, celebrating." loading="lazy"><div class="mood__text"><h3>Done</h3><p>Celebrates for a short while after a turn really ends.</p></div></li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<!-- 4. Away from the desk: cards that stack and settle -->
+<!-- Away from the desk: cards that stack and settle -->
 <section class="away" id="away" aria-labelledby="away-h">
   <div class="away__pin" data-away>
     <div class="wrap away__grid">
       <div class="away__head">
-        <p class="kicker">05 / Away from the desk</p>
+        <p class="kicker">03 / Away from the desk</p>
         <h2 id="away-h">Step away. Stay in the loop.</h2>
-        <p class="section__lede">Pair an iPhone to see your chats and reply while away. Telegram and Zoho Cliq can send cards and take replies too. An optional phone-system connection can call when a chat needs you.</p>
+        <p class="section__lede">Pair an iPhone or use Squeak for Web in any browser to see your chats and reply while away. Telegram and Zoho Cliq can send cards and take replies too. Replies travel through Squeak on your Mac, which needs to be awake and running.</p>
       </div>
       <div class="away__devices" data-stackwrap>
         <div class="stack" data-stack>
@@ -350,12 +229,27 @@
       <div class="away__more">
         <ul class="points">
           <li data-point><h3>Paired on your Mac</h3><p>A phone joins only after you approve it on the Mac. The iPhone app syncs through a Firebase project you create; free SideStore installs do not receive push notifications.</p></li>
-          <li data-point><h3>Optional voice calls</h3><p>With a compatible phone-system setup, Squeak can call about a waiting question or approval. Keypad answers work for offered choices; approvals still need a tap in the Mac or iPhone app. You can call in to dictate a chat message; that also requires local speech transcription.</p></li>
         </ul>
         <p class="away__req" data-point>Replies go through your Mac, so it needs to be on with Squeak running.</p>
-        <p class="away__link" data-point><a class="textlink" href="https://squeak-5c9gvo.web.app/">Set up the iPhone app</a> <span>Installs through SideStore.</span></p>
+      <p class="away__link" data-point><a class="textlink" href="https://squeak-5c9gvo.web.app/">Set up the iPhone app</a> <span>Installs through SideStore, or</span><a class="textlink" href="https://squeak-mac.web.app/">open Squeak for Web—no install needed.</a></p>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="calls" id="calls" aria-labelledby="calls-h">
+  <div class="wrap calls__grid">
+    <header class="calls__head">
+      <p class="kicker">Optional / Phone calls</p>
+      <h2 id="calls-h">A call when a chat is waiting. A way back in, too.</h2>
+      <p>Connect Squeak to a SIP phone system when you want an audible prompt away from your screen. Calling is optional and requires a configured PBX connection.</p>
+    </header>
+    <div class="calls__cards">
+      <article><span class="calls__label">Squeak calls you</span><h3>Hear the question. Answer by keypad.</h3><p>For a waiting question or approval, Squeak can call your configured extension, read the prompt aloud and accept a keypad choice. An approval itself still needs your confirmation in the Mac or iPhone app.</p></article>
+      <article><span class="calls__label">You call Squeak</span><h3>Dictate a message into a chat.</h3><p>Call Squeak’s extension, choose an available chat and dictate a message. Your Mac transcribes the recording locally, reads it back for confirmation, then sends it if the chat can still take a message.</p></article>
+    </div>
+    <p class="calls__setup">Setup options: a direct SIP extension on your network or VPN, or a Home Assistant voice gateway for a Mac and PBX on separate networks. Configure SIP credentials and extensions yourself. Answering a call requires a PIN; calling in to dictate also needs Whisper and ffmpeg on the Mac.</p>
+    <p class="calls__docs"><a class="textlink" href="https://github.com/Sibhimanyu/squeak/blob/main/docs/voice.md">Calling setup and requirements</a></p>
   </div>
 </section>
 
@@ -363,12 +257,12 @@
 <section class="trust" id="trust" aria-labelledby="trust-h">
   <div class="wrap">
     <header class="trust__head">
-      <p class="kicker">06 / Supported sessions and privacy</p>
+      <p class="kicker">05 / Supported sessions and privacy</p>
       <h2 id="trust-h" data-lines>Your Mac stays in charge.</h2>
       <p class="trust__lede">Squeak can reply to Conductor chats through its relay. For Claude Code or Codex in Apple&#39;s Terminal, it types only when the right agent tab is active and ready. Other integrations are for monitoring.</p>
     </header>
     <ol class="assurances">
-      <li><h3 data-lines>Only approved phones</h3><p>A phone joins after you approve it on the Mac.</p></li>
+      <li><h3 data-lines>Only approved devices</h3><p>A phone or browser joins after you approve it on the Mac.</p></li>
       <li><h3 data-lines>The right session</h3><p>Squeak checks which chat or tab is in front before it types.</p></li>
       <li><h3 data-lines>Delivery is checked</h3><p>A reply is confirmed in the chat, and never sent twice.</p></li>
     </ol>
@@ -376,7 +270,7 @@
       <summary><span>How reply checks work and which sessions support replies</span></summary>
       <div class="more__body">
         <ul class="more__list">
-          <li><h3>The Mac trusts a key, not a server</h3><p>Each phone reply is signed by the paired phone, expires after ten minutes, and can answer only the chat&#39;s current question.</p></li>
+          <li><h3>The Mac trusts a key, not a server</h3><p>Each paired device signs its replies. They expire after ten minutes and can answer only the chat&#39;s current question.</p></li>
           <li><h3>The agent must be in front</h3><p>Squeak identifies the target Conductor chat before sending. In Terminal, the supported Claude Code or Codex process must own the tab and show its empty prompt, so text does not land in a shell or over your draft.</p></li>
           <li><h3>Confirmed, never retyped</h3><p>A reply that may have gone is checked against the chat history. If Squeak cannot confirm delivery, it says so instead of retrying blindly.</p></li>
         </ul>
@@ -404,14 +298,14 @@
 <section class="install" id="install" aria-labelledby="install-h">
   <div class="wrap install__grid">
     <div class="install__copy">
-      <p class="kicker">07 / Install</p>
+      <p class="kicker">06 / Install</p>
       <h2 id="install-h" data-lines>Keep Conductor close.</h2>
-      <p class="section__lede">Squeak 2.1.34 for Mac, as a disk image. It is free and ad-hoc signed rather than notarized, so macOS asks once before the first launch. After that, Squeak updates itself.</p>
+      <p class="section__lede">Squeak 2.11.4 for Mac, as a disk image. It is free and ad-hoc signed rather than notarized, so macOS asks once before the first launch. After that, Squeak updates itself.</p>
       <div class="actions">
-        <a class="btn btn--primary" href="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.34.dmg" download data-magnet>Download for Mac</a>
+        <a class="btn btn--primary" href="https://sibhimanyu.github.io/squeak/download/Squeak-2.11.4.dmg" download data-magnet>Download for Mac</a>
         <a class="btn btn--ghost" href="https://github.com/Sibhimanyu/squeak/releases/latest">All releases</a>
       </div>
-      <p class="install__meta">Squeak-2.1.34.dmg · macOS 14 or later · Free</p>
+      <p class="install__meta">Squeak-2.11.4.dmg · macOS 14 or later · Free</p>
     </div>
     <div class="pond" data-pond data-count="8" data-count-small="6" data-size="138" data-size-small="96" role="img" aria-label="Decoration: a small pile of Squeak&#39;s rubber duck mascot pours into a box and settles. Moving a pointer over it nudges the ducks.">
       <div class="pond__field" data-field>
@@ -429,7 +323,7 @@
       </div>
     </div>
     <ol class="install__steps" aria-label="Install in three steps">
-      <li><span class="step__n" aria-hidden="true">1</span><h3>Open the disk image</h3><p>Open Squeak-2.1.34.dmg from your Downloads and drag Squeak onto Applications.</p></li>
+      <li><span class="step__n" aria-hidden="true">1</span><h3>Open the disk image</h3><p>Open Squeak-2.11.4.dmg from your Downloads and drag Squeak onto Applications.</p></li>
       <li><span class="step__n" aria-hidden="true">2</span><h3>Open it the first time</h3><p>Right-click Squeak in Applications, choose Open, then Open again. If macOS still refuses, press Open Anyway in System Settings › Privacy &amp; Security.</p></li>
       <li><span class="step__n" aria-hidden="true">3</span><h3>Find it in the menu bar</h3><p>Squeak connects to Conductor and lists your chats. Replies from any device go through the Squeak service on your Mac, which must be awake and running.</p></li>
     </ol>

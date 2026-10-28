@@ -3,39 +3,12 @@
     "subject": "Squeak",
     "type": "product",
     "goal": "Download for Mac",
-    "stack": "static HTML + local GSAP 3.15.0 / ScrollTrigger, no Lenis",
-    "created": "2026-10-21",
-    "status": "built and revised after parent review; measured in Chromium",
+    "stack": "static HTML + local GSAP / ScrollTrigger",
+    "status": "restructured around product capabilities; responsive layout measured in Chromium",
     "measured": {
-      "desktop1440x900": {
-        "pageHeightPx": 7880,
-        "viewports": 8.76,
-        "pin": {
-          "id": "moment",
-          "startPx": 960,
-          "endPx": 2535
-        }
-      },
-      "desktop1280x720": {
-        "pageHeightPx": 7132,
-        "viewports": 9.9,
-        "pin": true
-      },
-      "desktop1024x768": {
-        "pageHeightPx": 6904,
-        "viewports": 9.0,
-        "pin": true
-      },
-      "tablet820x1180": {
-        "pageHeightPx": 8263,
-        "pin": false
-      },
-      "mobile390x844": {
-        "pageHeightPx": 9143,
-        "viewports": 10.8,
-        "pin": false,
-        "momentPx": 2263
-      }
+      "desktop1440x900": { "pageHeightPx": 8156, "viewports": 9.06, "pins": 0 },
+      "tablet834x1112": { "pageHeightPx": 9359, "viewports": 8.42, "pins": 0 },
+      "mobile390x844": { "pageHeightPx": 10397, "viewports": 12.32, "pins": 0 }
     }
   },
   "theme": {
@@ -44,134 +17,19 @@
     "muted": "#62656D",
     "accent": "#FFDA1A",
     "stage": "#18191B",
-    "font": {
-      "display": "Figtree 600/700",
-      "body": "Inter 400/500",
-      "mono": "JetBrains Mono 400"
-    }
-  },
-  "motion": {
-    "intensity": "balanced",
-    "smoothScroll": false,
-    "reducedMotion": "degrade: no pin, no entrances, no duck movement; all states are static content",
-    "mobilePinning": false,
-    "pinQuery": "(min-width: 900px) and (min-height: 620px) and (prefers-reduced-motion: no-preference)",
-    "pinFallback": "motion.js measures every state inside the pinned layout; if copy or window would not fit its column, the stacked layout is kept instead of clipping. Re-measured after fonts load and on resize."
+    "font": { "display": "Figtree 600/700", "body": "Inter 400/500", "mono": "JetBrains Mono 400" }
   },
   "beats": [
-    {
-      "id": "hero",
-      "section": "Your agents. In view.",
-      "pattern": "reveal-on-enter",
-      "pin": false,
-      "heightPx": 960,
-      "cost": 1.07,
-      "note": "Entry is CSS-only (duck and session panel rise once); headline and CTA are never animated.",
-      "asset": "duck-brand.svg, HTML session panel"
-    },
-    {
-      "id": "moment",
-      "section": "One needs you. You know which.",
-      "pattern": "pin-scrub",
-      "pin": true,
-      "pinTarget": ".moment__pin",
-      "scrub": 0.6,
-      "start": "top top",
-      "end": "+=175%",
-      "heightPx": 2475,
-      "cost": 2.75,
-      "timeline": [
-        {
-          "at": 0.0,
-          "state": "Working",
-          "duck": "working"
-        },
-        {
-          "at": 0.2,
-          "state": "Needs you",
-          "duck": "needs_you",
-          "crossfade": 0.07
-        },
-        {
-          "at": 0.45,
-          "state": "A person chooses A",
-          "duck": "needs_you",
-          "crossfade": 0.07
-        },
-        {
-          "at": 0.58,
-          "state": "choice label lands (example only)"
-        },
-        {
-          "at": 0.75,
-          "state": "Confirmed, working again",
-          "duck": "working",
-          "crossfade": 0.07
-        },
-        {
-          "at": 0.82,
-          "state": "receipt, then work steps stagger in until 0.98"
-        }
-      ],
-      "animates": "opacity and transform only; rail fill scaleX 0..1 over the whole pin",
-      "mobileFallback": "four stacked states, session list shown only inside the first state's header-less compact window; all four story texts retained",
-      "replay": "button appears after 3% progress; scrolls to the pin start on request only",
-      "scrollTriggerId": "moment",
-      "transitions": "old state leaves in the first half of each crossover, new one arrives in the second; copy leaves before and returns after the cut, so nothing overlaps"
-    },
-    {
-      "id": "mac",
-      "section": "The whole picture. One window.",
-      "pattern": "reveal-on-enter",
-      "pin": false,
-      "heightPx": 1454,
-      "cost": 1.62,
-      "note": "smaller capture (max 1080px), numbered markers pop in once, plus a 'View full screenshot' link",
-      "asset": "mac-decision.webp"
-    },
-    {
-      "id": "duck",
-      "section": "Quiet until it matters.",
-      "pattern": "reveal-on-enter",
-      "pin": false,
-      "heightPx": 707,
-      "cost": 0.79,
-      "note": "each mood moves once on arrival (bob, startle, hop, settle); nothing loops",
-      "asset": "duck-working/needs_you/celebrating/asleep.webp"
-    },
-    {
-      "id": "away",
-      "section": "Step away. Stay in the loop.",
-      "pattern": "reveal-on-enter",
-      "pin": false,
-      "heightPx": 854,
-      "cost": 0.95,
-      "asset": "iphone-activity.webp, HTML Telegram card"
-    },
-    {
-      "id": "trust",
-      "section": "Your Mac stays in charge.",
-      "pattern": "reveal-on-enter",
-      "pin": false,
-      "heightPx": 666,
-      "cost": 0.74,
-      "note": "Three assurances reveal; the long explanations and 5-row compatibility table sit in a native details/summary."
-    },
-    {
-      "id": "install",
-      "section": "Keep your agents in view.",
-      "pattern": "reveal-on-enter",
-      "pin": false,
-      "heightPx": 647,
-      "cost": 0.72,
-      "note": "Static close: no scroll behaviour beyond normal flow."
-    }
+    { "id": "hero", "section": "Your agents. In view.", "pattern": "hero stage", "pin": false, "note": "Names Conductor and the cross-device attention inbox; download CTA remains above the fold." },
+    { "id": "conductor", "section": "Your Conductor chats, with you wherever you work.", "pattern": "branded product overview", "pin": false, "note": "Conductor logo and thanks, then session visibility, direct replies, new chats and steering." },
+    { "id": "mac", "section": "The whole picture. One window.", "pattern": "Mac app screenshot with callouts", "pin": false, "asset": "mac-decision.webp" },
+    { "id": "away", "section": "Step away. Stay in the loop.", "pattern": "iPhone and Telegram examples", "pin": false, "note": "Explains iPhone pairing, Squeak for Web, Telegram, Cliq and Mac relay requirement." },
+    { "id": "calls", "section": "A call when a chat is waiting. A way back in, too.", "pattern": "two distinct call directions and SIP setup", "pin": false, "note": "Optional PBX feature: keypad response to a waiting choice, or call in and dictate a message." },
+    { "id": "trust", "section": "Your Mac stays in charge.", "pattern": "safety and compatibility", "pin": false },
+    { "id": "install", "section": "Keep Conductor close.", "pattern": "download and install", "pin": false }
   ],
   "budget": {
-    "totalViewportsDesktop": 8.76,
-    "totalScrollDistanceDesktopPx": 6980,
-    "wheelNotchesTopToBottom": "about 70 at 100px per notch; the nav 'Download' link and hero CTA make the primary action reachable in 0 notches, and End escapes the pin",
-    "pinScrollPx": 1575,
-    "note": "Heights sum to the page height (960+2475+1454+707+854+666+647+116)."
+    "pins": 0,
+    "note": "The page now follows a short product story: Conductor workflow, Mac inbox, remote channels, optional calling, supported sessions, and installation."
   }
 }

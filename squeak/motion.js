@@ -1,5 +1,5 @@
 /* Squeak page motion. Classic deferred script using window.gsap, ScrollTrigger,
-   SplitText and Flip. Everything here is enhancement: with no script or with
+   SplitText. Everything here is enhancement: with no script or with
    reduced motion every section is already present as readable content, and a
    scene is only switched on (an html class) after it is measured to fit.
    Each scene has a desktop and a phone variant (gsap.matchMedia), built in page
@@ -13,7 +13,6 @@
   if (!gsap || !ScrollTrigger) return;
   gsap.registerPlugin(ScrollTrigger);
   if (window.SplitText) gsap.registerPlugin(window.SplitText);
-  if (window.Flip) gsap.registerPlugin(window.Flip);
   ScrollTrigger.config({ ignoreMobileResize: true });
 
   var root = document.documentElement;
@@ -62,7 +61,7 @@
   });
 
   // Hero scroll handoff: the stage opens from its inset frame to full bleed (clip-path)
-  // while the headline rises and fades, so the Ink moment below reads as one surface.
+  // while the headline rises and fades, leading into the Conductor overview.
   // Wide, tall screens only; elsewhere the framed stage simply scrolls away.
   gsap.matchMedia().add(HERO_QUERY, function () {
     var hero = document.querySelector(".hero");
@@ -193,151 +192,7 @@
     scenes.push(m);
   }
 
-  function replayTo(y) {
-    if (lenis) lenis.scrollTo(y);
-    else window.scrollTo({ top: y, behavior: "smooth" });
-  }
-
-  // ---- 01 The moment ----------------------------------------------------
-  function buildMoment() {
-    scene(SCENE, function (desk) {
-      var pin = $("[data-moment]");
-      var demo = $("[data-demo]");
-      if (!pin || !demo || !window.Flip) return;
-      var beats = $$(".beat", pin);
-      var railSteps = $$(".rail__step", pin);
-      var fill = $(".rail__fill", pin);
-      var replay = $(".replay", pin);
-      var ul = $("[data-rows]", demo);
-      var row = {};
-      $$("[data-row]", demo).forEach(function (el) { row[el.getAttribute("data-row")] = el; });
-      var rowEls = $$("[data-row]", demo);
-      var panes = { working: $('[data-pane="working"]', demo), needs: $('[data-pane="needs"]', demo), sent: $('[data-pane="sent"]', demo) };
-      var card = $("[data-card]", demo);
-      var opts = $$("[data-opt]", card);
-      var optA = opts[0];
-      var chip = $("[data-chip]", demo);
-      var doneDuck = $('.demo__duck[data-mood="done"]', demo);
-      var needsDuck = $('.demo__duck[data-mood="needs"]', demo);
-      var dot = $(".dot", row.payment);
-      if (beats.length !== 4 || !fill || !card) return;
-
-      root.classList.add("js-moment");
-      var pr = pin.getBoundingClientRect();
-      var rr = $(".rail", pin).getBoundingClientRect();
-      var dr = demo.getBoundingClientRect();
-      var br = $(".beats", pin).getBoundingClientRect();
-      var fitsOk = dr.bottom <= rr.top + 2 && br.bottom <= rr.top + 2 && dr.top >= pr.top - 2 && $(".moment__inner", pin).scrollHeight <= pin.clientHeight + 4;
-      if (!fitsOk) { root.classList.remove("js-moment"); return; }
-
-      var CUTS = [0.2, 0.42, 0.72];
-      var FADE = 0.06;
-      var PICK = 0.62;
-      var KEYS = [
-        { at: 0, mode: "working", order: ["atlas", "payment", "compass", "squeak"] },
-        { at: 0.2, mode: "needs", order: ["payment", "atlas", "compass", "squeak"] },
-        { at: 0.74, mode: "working", order: ["payment", "atlas", "compass", "squeak"] },
-        { at: 0.93, mode: "done", order: ["atlas", "compass", "squeak", "payment"] },
-      ];
-      var cur = -1;
-      function keyOf(p) { return p >= KEYS[3].at ? 3 : p >= KEYS[2].at ? 2 : p >= KEYS[1].at ? 1 : 0; }
-      // The row's state is a function of scroll position; Flip moves the rows between states.
-      function apply(k, animate) {
-        if (k === cur) return;
-        var prev = cur;
-        cur = k;
-        var K = KEYS[k];
-        window.Flip.killFlipsOf(rowEls);
-        var state = animate ? window.Flip.getState(rowEls) : null;
-        K.order.forEach(function (n) { ul.appendChild(row[n]); });
-        demo.setAttribute("data-mode", K.mode);
-        if (!state) return;
-        window.Flip.from(state, { duration: 0.8, ease: EMPH, overwrite: true });
-        gsap.fromTo(dot, { scale: 0.3 }, { scale: 1, duration: 0.6, ease: EMPH, overwrite: true });
-        if (k === 3 && doneDuck) gsap.fromTo(doneDuck, { y: 0 }, { y: -34, duration: 0.26, ease: "power2.out", yoyo: true, repeat: 1, overwrite: true });
-        if (k === 1 && prev === 0 && needsDuck) gsap.fromTo(needsDuck, { rotation: -9 }, { rotation: 0, duration: 0.9, ease: "elastic.out(1, 0.35)", overwrite: true });
-      }
-      apply(0, false);
-
-      var tl = gsap.timeline({
-        defaults: { ease: "none" },
-        scrollTrigger: {
-          id: "moment",
-          trigger: pin,
-          start: "top top",
-          end: desk ? "+=120%" : "+=160%",
-          pin: true,
-          scrub: desk ? 0.6 : 0.4,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate: function (self) {
-            var p = self.progress;
-            apply(keyOf(p), true);
-            demo.classList.toggle("is-picked", p >= PICK);
-            var active = p < CUTS[0] + FADE / 2 ? 0 : p < CUTS[1] + FADE / 2 ? 1 : p < CUTS[2] + FADE / 2 ? 2 : 3;
-            railSteps.forEach(function (el, i) { el.classList.toggle("is-on", i === active); });
-            if (replay) replay.hidden = p < 0.02;
-          },
-        },
-      });
-
-      // Copy: one beat at a time, the old one leaves before the next arrives.
-      beats.forEach(function (beat, i) {
-        var start = i === 0 ? 0 : CUTS[i - 1];
-        var end = i === 3 ? 1 : CUTS[i];
-        if (i > 0) tl.fromTo(beat, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: FADE, ease: "power2.out" }, start);
-        if (i < 3) tl.to(beat, { opacity: 0, y: -16, duration: 0.03, ease: "power1.in" }, end - 0.03);
-      });
-
-      // The picture keeps drifting, so something is always moving.
-      gsap.set(demo, { transformPerspective: 1600 });
-      tl.fromTo(demo, { y: 18, rotationY: desk ? -5 : 0 }, { y: -18, rotationY: desk ? 3 : 0, duration: 1 }, 0);
-      tl.fromTo(fill, { scaleX: 0 }, { scaleX: 1, duration: 1 }, 0);
-
-      // 01: what it is doing
-      var steps = $$(".steps li", panes.working);
-      tl.fromTo(steps, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.05, stagger: 0.04, ease: "power2.out" }, 0.02);
-      tl.to(panes.working, { opacity: 0, duration: 0.03 }, 0.18);
-      // 02: it stops and asks
-      tl.fromTo(panes.needs, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.05, ease: "power2.out" }, 0.22);
-      tl.to(panes.needs, { opacity: 0, duration: 0.03 }, 0.4);
-      // 03: the decision card arrives on the emphasis curve; the options follow; A is chosen
-      tl.fromTo(card, { y: 120, scale: 0.92, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.1, ease: EMPH }, 0.44);
-      tl.to(optA, { scale: 1.035, duration: 0.025, ease: "power2.out", transformOrigin: "50% 50%" }, PICK);
-      tl.to(optA, { scale: 1, duration: 0.05, ease: EMPH }, PICK + 0.025);
-      tl.to(opts[1], { opacity: 0.4, duration: 0.03 }, PICK);
-      tl.fromTo(chip, { opacity: 0, y: 8, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.05, ease: EMPH }, PICK);
-      // On a phone the card takes the whole panel, so the session title steps aside for it.
-      if (!desk) {
-        var head = $$(".detail__name, .detail__meta, .detail__state", demo);
-        tl.to(head, { opacity: 0, duration: 0.03 }, 0.41);
-        tl.to(head, { opacity: 1, duration: 0.03 }, CUTS[2] + 0.04);
-        gsap.set(head, { opacity: 1 });
-      }
-      // 04: confirmed, then back to work
-      tl.to(card, { y: 50, opacity: 0, duration: 0.04, ease: "power2.in" }, CUTS[2]);
-      tl.fromTo(panes.sent, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.06, ease: "power2.out" }, 0.77);
-      var sentSteps = $$(".steps li", panes.sent);
-      tl.fromTo(sentSteps, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.04, stagger: 0.04, ease: "power2.out" }, 0.84);
-
-      var st = tl.scrollTrigger;
-      function onReplay() { replayTo(st.start); }
-      if (replay) replay.addEventListener("click", onReplay);
-
-      return function () {
-        if (replay) { replay.removeEventListener("click", onReplay); replay.hidden = true; }
-        window.Flip.killFlipsOf(rowEls);
-        KEYS[1].order.forEach(function (n) { ul.appendChild(row[n]); });
-        demo.setAttribute("data-mode", "needs");
-        demo.classList.remove("is-picked");
-        railSteps.forEach(function (el) { el.classList.remove("is-on"); });
-        gsap.set($$(".detail__name, .detail__meta, .detail__state", demo).concat([demo, card, chip, fill, dot]).concat(beats, opts, steps, sentSteps, [panes.working, panes.needs, panes.sent, optA, doneDuck, needsDuck]), { clearProps: "all" });
-        root.classList.remove("js-moment");
-      };
-    });
-  }
-
-  // ---- 02 Squeak for Mac: the window tilts flat as you arrive ---------------
+  // ---- Mac app: the window tilts flat as you arrive ---------------
   function buildMac() {
     scene(SCENE, function (desk) {
       var stage = $("[data-mac]");
@@ -368,94 +223,7 @@
     });
   }
 
-  // ---- 03 The duck: a strip you scroll through ------------------------------
-  function buildDuck() {
-    scene(SCENE, function () {
-      var pin = $("[data-duckscene]");
-      var track = $("[data-track]", pin);
-      if (!pin || !track) return;
-      var panels = $$(".mood", track);
-      var n = panels.length;
-      root.classList.add("js-duck");
-      var pr = pin.getBoundingClientRect();
-      var head = $(".duck__head", pin).getBoundingClientRect();
-      var view = $(".duck__view", pin).getBoundingClientRect();
-      if (head.bottom > view.top + 40 || view.height < 300 || panels[0].getBoundingClientRect().height > view.height + 2) {
-        root.classList.remove("js-duck");
-        return;
-      }
-
-      function step() {
-        var r0 = panels[0].getBoundingClientRect();
-        var r1 = panels[1].getBoundingClientRect();
-        return r1.left - r0.left;
-      }
-
-      // Each mood's own motion, played while its panel is centred. Never recoloured or redrawn.
-      var loops = panels.map(function (li) {
-        var img = $("img", li);
-        var kind = li.getAttribute("data-mood");
-        var t;
-        if (kind === "asleep") {
-          t = gsap.timeline({ paused: true, repeat: -1, yoyo: true });
-          t.to(img, { y: -9, rotation: -1.5, duration: 2.6, ease: "sine.inOut" });
-        } else if (kind === "working") {
-          t = gsap.timeline({ paused: true, repeat: -1, yoyo: true });
-          t.to(img, { y: -12, duration: 0.17, ease: "sine.inOut" });
-        } else if (kind === "needs") {
-          t = gsap.timeline({ paused: true, repeat: -1, repeatDelay: 0.7 });
-          t.to(img, { scale: 1.07, duration: 0.14, ease: "power2.out" })
-            .to(img, { rotation: -7, duration: 0.09, ease: "sine.inOut", yoyo: true, repeat: 5 }, 0)
-            .to(img, { scale: 1, rotation: 0, duration: 0.25, ease: "power2.inOut" });
-        } else {
-          t = gsap.timeline({ paused: true, repeat: -1, repeatDelay: 0.55 });
-          t.to(img, { y: -64, duration: 0.34, ease: "power2.out" }).to(img, { y: 0, duration: 0.5, ease: "bounce.out" });
-        }
-        return t;
-      });
-      var setScale = panels.map(function (li) { return gsap.quickSetter(li, "scale"); });
-      var setOpacity = panels.map(function (li) { return gsap.quickSetter(li, "opacity"); });
-      var active = -1;
-      function activate(i) {
-        if (i === active) return;
-        if (active >= 0) loops[active].pause(0);
-        active = i;
-        loops[i].play();
-      }
-      function emphasise(f) {
-        for (var i = 0; i < n; i++) {
-          var d = Math.min(1, Math.abs(f - i));
-          setScale[i](1 - 0.24 * d);
-          setOpacity[i](1 - 0.66 * d);
-        }
-        activate(Math.max(0, Math.min(n - 1, Math.round(f))));
-      }
-      emphasise(0);
-
-      gsap.to(track, {
-        x: function () { return -step() * (n - 1); },
-        ease: "none",
-        scrollTrigger: {
-          id: "duck",
-          trigger: pin,
-          start: "top top",
-          end: function () { return "+=" + Math.round(step() * (n - 1) * 0.55); },
-          pin: true,
-          scrub: 0.5,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate: function (self) { emphasise(self.progress * (n - 1)); },
-        },
-      });
-      return function () {
-        loops.forEach(function (t) { t.kill(); });
-        gsap.set([track].concat(panels, panels.map(function (li) { return $("img", li); })), { clearProps: "all" });
-        root.classList.remove("js-duck");
-      };
-    });
-  }
-
-  // ---- 04 Away from the desk: cards that stack and settle -------------------
+  // ---- Remote access: cards that stack and settle -------------------
   function buildAway() {
     scene(SCENE, function (desk, mob) {
       var section = $("[data-away]");
@@ -507,7 +275,7 @@
     });
   }
 
-  // ---- 05 Trust, 06 Install: lines that rise out of a mask ------------------
+  // ---- Trust and install: lines that rise out of a mask ------------------
   function splitLines(el, vars) {
     if (!window.SplitText) return;
     window.SplitText.create(el, {
@@ -548,9 +316,7 @@
   }
 
   function buildAll() {
-    buildMoment();
     buildMac();
-    buildDuck();
     buildAway();
     buildLines();
   }
