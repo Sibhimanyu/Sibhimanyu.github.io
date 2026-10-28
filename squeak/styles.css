@@ -177,6 +177,23 @@ h3 { font: 600 20px/1.25 var(--display); letter-spacing: -.01em; }
    Static first: a resolved picture of the example (A chosen), then the four
    beats as text. motion.js adds .js-moment and turns it into one pinned scene. */
 .moment { background: var(--ink); color: var(--paper); }
+.conductor { padding-block: var(--section); background: var(--ink); color: var(--paper); }
+.conductor .kicker { color: var(--duck); }
+.conductor__head { display: grid; gap: 36px; align-items: end; }
+.conductor__head h2 { max-width: 12em; }
+.conductor__lede { margin-top: 22px; max-width: 39em; color: var(--dark-muted); font-size: clamp(18px, 1.5vw, 20px); line-height: 1.55; }
+.conductor__brand { display: inline-flex; justify-self: start; align-items: center; min-height: 64px; padding: 12px 20px; border: 1px solid rgba(255,255,255,.25); border-radius: 14px; background: #151618; }
+.conductor__brand img { width: clamp(130px, 16vw, 190px); height: auto; }
+.conductor__brand:focus-visible, .conductor :focus-visible { outline-color: var(--duck); }
+.conductor__points { display: grid; gap: 0; margin-top: clamp(36px, 5vw, 64px); }
+.conductor__points li { border-top: 1px solid rgba(255,255,255,.2); padding: 20px 0 24px; }
+.conductor__points li:last-child { border-bottom: 1px solid rgba(255,255,255,.2); }
+.conductor__points li > span { display: block; margin-bottom: 18px; color: var(--duck); font: 400 12px/1 var(--mono); letter-spacing: .12em; }
+.conductor__points h3 { font: 700 clamp(24px, 3vw, 38px)/1.1 var(--display); letter-spacing: -.025em; }
+.conductor__points p { margin-top: 10px; color: var(--dark-muted); max-width: 34em; }
+.conductor__thanks { margin-top: 26px; color: var(--dark-muted); font-size: 14px; }
+.conductor__thanks a { color: var(--paper); text-underline-offset: 4px; }
+.conductor__thanks a:hover { text-decoration-color: var(--duck); }
 .moment__head { padding-top: var(--section); padding-bottom: clamp(32px, 5vw, 64px); }
 .moment .kicker { color: var(--duck); }
 .moment__head h2 { max-width: 11em; }
@@ -381,6 +398,9 @@ h3 { font: 600 20px/1.25 var(--display); letter-spacing: -.01em; }
   .moods { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (min-width: 768px) {
+  .conductor__head { grid-template-columns: minmax(0, 1fr) auto; gap: 64px; }
+  .conductor__points { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+  .conductor__points li { border-bottom: 0 !important; }
   .callouts { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
   .demo__win { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
   .beats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Squeak: your agents, in view</title>
-<meta name="description" content="Squeak watches every Claude Code and Codex session on your Mac, shows which one needs you, and lets you answer from the Mac, an iPhone or Telegram. A menu-bar duck, a Mac app and an iPhone app.">
+<title>Squeak: your Conductor chats, in view</title>
+<meta name="description" content="Squeak brings Conductor chats to a Mac attention inbox, with replies in Conductor, iPhone, Telegram or Zoho Cliq. It can also watch Claude Code and Codex sessions, with replies supported in Apple&#39;s Terminal.">
 <meta name="author" content="Sibhimanyu">
 <meta name="theme-color" content="#F8F7F3">
 <link rel="canonical" href="https://sibhimanyu.github.io/squeak/">
@@ -12,16 +12,16 @@
 <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png" sizes="180x180">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Squeak">
-<meta property="og:title" content="Squeak: your agents, in view">
-<meta property="og:description" content="Every Claude Code and Codex session on your Mac, ranked by what needs you. Answer from your Mac, your iPhone or Telegram.">
+<meta property="og:title" content="Squeak: your Conductor chats, in view">
+<meta property="og:description" content="Your Conductor chats, ranked by what needs you. Reply from your Mac, iPhone, Telegram or Zoho Cliq.">
 <meta property="og:url" content="https://sibhimanyu.github.io/squeak/">
 <meta property="og:image" content="https://sibhimanyu.github.io/squeak/assets/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Squeak: Your agents. In view. A yellow rubber duck beside the headline.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Squeak: your agents, in view">
-<meta name="twitter:description" content="Every Claude Code and Codex session on your Mac, ranked by what needs you. Answer from your Mac, your iPhone or Telegram.">
+<meta name="twitter:title" content="Squeak: your Conductor chats, in view">
+<meta name="twitter:description" content="Your Conductor chats, ranked by what needs you. Reply from your Mac, iPhone, Telegram or Zoho Cliq.">
 <meta name="twitter:image" content="https://sibhimanyu.github.io/squeak/assets/og.png">
 <link rel="preload" href="./assets/fonts/figtree-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="./assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
@@ -40,16 +40,16 @@
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "Squeak",
-  "description": "Squeak watches every Claude Code and Codex session on your Mac, shows which one needs you, and lets you answer from the Mac, an iPhone or Telegram. A menu-bar duck, a Mac app and an iPhone app.",
+  "description": "Squeak brings Conductor chats to a Mac attention inbox, with replies in Conductor, iPhone, Telegram or Zoho Cliq. It can also watch Claude Code and Codex sessions, with replies supported in Apple's Terminal.",
   "url": "https://sibhimanyu.github.io/squeak/",
   "image": "https://sibhimanyu.github.io/squeak/assets/og.png",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "macOS 14.0 or later, iOS (iPhone companion app)",
-  "softwareVersion": "2.1.33",
-  "downloadUrl": "https://sibhimanyu.github.io/squeak/download/Squeak-2.1.33.dmg",
-  "releaseNotes": "https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.33",
+  "softwareVersion": "2.1.34",
+  "downloadUrl": "https://sibhimanyu.github.io/squeak/download/Squeak-2.1.34.dmg",
+  "releaseNotes": "https://github.com/Sibhimanyu/squeak/releases/tag/v2.1.34",
   "datePublished": "2026-10-24",
-  "fileSize": "5.7 MB",
+  "fileSize": "5.9 MB",
   "offers": {
     "@type": "Offer",
     "price": "0",
@@ -104,6 +104,7 @@
       <nav class="nav" aria-label="Main">
         <a class="nav__brand" href="./" aria-label="Squeak home"><img src="./assets/logo-paper.svg" width="100" height="30" alt="Squeak"></a>
         <ul class="nav__links">
+          <li><a href="#conductor">Conductor</a></li>
           <li><a href="#moment">How it works</a></li>
           <li><a href="#mac">Mac + iPhone</a></li>
           <li><a class="nav__cta" href="#install" data-magnet>Download<span class="nav__dot" aria-hidden="true"></span></a></li>
@@ -111,16 +112,16 @@
       </nav>
 
       <div class="hero__text" data-hero-text>
-        <p class="hero__kicker" data-hero-in>Your local agent desk</p>
+        <p class="hero__kicker" data-hero-in>A companion for Conductor</p>
         <h1 class="hero__title" data-hero-title><span class="hero__line">Your agents.</span> <span class="hero__line hero__line--mark"><span class="mark">In view.</span></span></h1>
         <div class="hero__copy">
-          <p class="hero__lede" data-hero-in>Squeak watches every Claude Code and Codex session on your Mac, shows which one needs you, and lets you answer from the Mac, your iPhone or Telegram.</p>
+          <p class="hero__lede" data-hero-in>See which Conductor chat needs you, read the question, and reply in that same chat—from the Mac app, your iPhone, Telegram or Zoho Cliq.</p>
           <div class="hero__cta" data-hero-in>
             <div class="actions">
-              <a class="btn btn--primary" href="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.33.dmg" download data-magnet>Download for Mac</a>
+              <a class="btn btn--primary" href="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.34.dmg" download data-magnet>Download for Mac</a>
               <a class="btn btn--ghost" href="#moment">See an example</a>
             </div>
-            <p class="hero__meta">Version 2.1.33 · macOS 14 or later · Apple silicon · Free</p>
+            <p class="hero__meta">Version 2.1.34 · macOS 14 or later · Apple silicon · Free</p>
           </div>
         </div>
       </div>
@@ -142,12 +143,33 @@
 
 <main id="content">
 
+<section class="conductor" id="conductor" aria-labelledby="conductor-h">
+  <div class="wrap">
+    <header class="conductor__head">
+      <div>
+        <p class="kicker">01 / Made for Conductor</p>
+        <h2 id="conductor-h">Your Conductor chats, with you wherever you work.</h2>
+        <p class="conductor__lede">Squeak is an independent companion to Conductor. It reads your chats into one attention-first inbox, puts questions and approvals up front, and sends your reply back to the right conversation.</p>
+      </div>
+      <a class="conductor__brand" href="https://www.conductor.build/" aria-label="Built for Conductor — https://www.conductor.build/">
+        <img src="./assets/conductor-wordmark-light.webp" width="2400" height="369" alt="Conductor" loading="lazy">
+      </a>
+    </header>
+    <ol class="conductor__points">
+      <li><span>01</span><h3>See the whole queue</h3><p>Find chats that need you, are working, finished or hit an error, with the latest activity and message.</p></li>
+      <li><span>02</span><h3>Reply in the same chat</h3><p>Answer a choice or write your own message. Squeak checks that the reply reached Conductor before showing it as sent.</p></li>
+      <li><span>03</span><h3>Start and steer work</h3><p>Create a Conductor chat, queue a message for later, or steer a message into a running turn. Model and thinking controls stay in sync with Conductor.</p></li>
+    </ol>
+    <p class="conductor__thanks">With personal thanks to <a href="https://x.com/charlieholtz">Charlie Holtz</a> for building Conductor. Squeak is made independently by Sibhimanyu.</p>
+  </div>
+</section>
+
 <!-- 1. The moment: a pinned, scrubbed story. The copy is real text; the demo is a picture of it. -->
 <section class="moment" id="moment" aria-labelledby="moment-h">
   <div class="wrap moment__head">
-    <p class="kicker">01 / The moment</p>
+    <p class="kicker">02 / The moment</p>
     <h2 id="moment-h">One needs you. You know which.</h2>
-    <p class="moment__intro">An illustrative example, one step at a time. The sessions, the question and the choice are made up, and scrolling never sends anything.</p>
+    <p class="moment__intro">A made-up Conductor chat, shown one step at a time. The question and choice are examples; scrolling never sends anything.</p>
   </div>
   <div class="moment__pin" data-moment>
     <div class="wrap moment__inner">
@@ -247,9 +269,9 @@
 <section class="section mac" id="mac" aria-labelledby="mac-h">
   <div class="wrap">
     <header class="section__head">
-      <p class="kicker">02 / Squeak for Mac</p>
+      <p class="kicker">03 / Squeak for Mac</p>
       <h2 id="mac-h">The whole picture. One window.</h2>
-      <p class="section__lede">Every session on your Mac, grouped by what it needs from you.</p>
+      <p class="section__lede">See sessions grouped by what they need from you: questions and approvals, finished work, active work, errors and idle sessions. Squeak also watches Claude Code and Codex sessions in supported local apps.</p>
     </header>
     <div class="mac__stage" data-mac>
       <div class="mac__plane" data-plane>
@@ -266,9 +288,9 @@
     </div>
     <p class="shot__link"><a class="textlink" href="./assets/mac-decision.webp">View full screenshot</a></p>
     <ol class="callouts" aria-label="What to notice in the window">
-      <li data-callout><span class="callouts__n" aria-hidden="true">1</span><h3>What needs you comes first</h3><p>Grouped by need, not by which app they run in.</p></li>
-      <li data-callout><span class="callouts__n" aria-hidden="true">2</span><h3>The agent&#39;s own words</h3><p>Its last message in full, one button per option. The recommended one is marked, never pre-selected.</p></li>
-      <li data-callout><span class="callouts__n" aria-hidden="true">3</span><h3>A reply that lands</h3><p>Typed into that chat&#39;s own window, then checked before Squeak says it went.</p></li>
+      <li data-callout><span class="callouts__n" aria-hidden="true">1</span><h3>What needs you comes first</h3><p>Sessions are grouped by state, across Conductor and supported local agent sessions.</p></li>
+      <li data-callout><span class="callouts__n" aria-hidden="true">2</span><h3>The agent&#39;s own words</h3><p>The latest message and parsed choices. A recommendation is marked, never pre-selected.</p></li>
+      <li data-callout><span class="callouts__n" aria-hidden="true">3</span><h3>A reply that lands</h3><p>Squeak sends to the correct Conductor chat, then checks delivery before reporting success.</p></li>
     </ol>
   </div>
 </section>
@@ -277,9 +299,9 @@
 <section class="duck" id="duck" aria-labelledby="duck-h">
   <div class="duck__pin" data-duckscene>
     <div class="wrap duck__head">
-      <p class="kicker">03 / The duck</p>
+      <p class="kicker">04 / The duck</p>
       <h2 id="duck-h">Quiet until it matters.</h2>
-      <p class="section__lede">A rubber duck sits in a corner of your screen and in the menu bar. Click it for the list.</p>
+      <p class="section__lede">A menu-bar duck keeps an eye on your Conductor chats and supported agent sessions. Click it for the list and quick controls.</p>
     </div>
     <div class="duck__view">
       <ul class="moods" aria-label="The duck&#39;s four moods" data-track>
@@ -297,9 +319,9 @@
   <div class="away__pin" data-away>
     <div class="wrap away__grid">
       <div class="away__head">
-        <p class="kicker">04 / Away from the desk</p>
+        <p class="kicker">05 / Away from the desk</p>
         <h2 id="away-h">Step away. Stay in the loop.</h2>
-        <p class="section__lede">Squeak for iPhone shows the same list and lets you reply. Telegram gets a short card with a button per option.</p>
+        <p class="section__lede">Pair an iPhone to see your chats and reply while away. Telegram and Zoho Cliq can send cards and take replies too. An optional phone-system connection can call when a chat needs you.</p>
       </div>
       <div class="away__devices" data-stackwrap>
         <div class="stack" data-stack>
@@ -327,8 +349,8 @@
       </div>
       <div class="away__more">
         <ul class="points">
-          <li data-point><h3>Paired on your Mac</h3><p>A phone joins only after you approve it on the Mac.</p></li>
-          <li data-point><h3>Quiet by default</h3><p>Blocked agents push. A finish pushes only for a Conductor chat.</p></li>
+          <li data-point><h3>Paired on your Mac</h3><p>A phone joins only after you approve it on the Mac. The iPhone app syncs through a Firebase project you create; free SideStore installs do not receive push notifications.</p></li>
+          <li data-point><h3>Optional voice calls</h3><p>With a compatible phone-system setup, Squeak can call about a waiting question or approval. Keypad answers work for offered choices; approvals still need a tap in the Mac or iPhone app. You can call in to dictate a chat message; that also requires local speech transcription.</p></li>
         </ul>
         <p class="away__req" data-point>Replies go through your Mac, so it needs to be on with Squeak running.</p>
         <p class="away__link" data-point><a class="textlink" href="https://squeak-5c9gvo.web.app/">Set up the iPhone app</a> <span>Installs through SideStore.</span></p>
@@ -341,9 +363,9 @@
 <section class="trust" id="trust" aria-labelledby="trust-h">
   <div class="wrap">
     <header class="trust__head">
-      <p class="kicker">05 / Trust and compatibility</p>
+      <p class="kicker">06 / Supported sessions and privacy</p>
       <h2 id="trust-h" data-lines>Your Mac stays in charge.</h2>
-      <p class="trust__lede">Answering an agent means pressing keys in another app&#39;s window, so Squeak proves each step before it types.</p>
+      <p class="trust__lede">Squeak can reply to Conductor chats through its relay. For Claude Code or Codex in Apple&#39;s Terminal, it types only when the right agent tab is active and ready. Other integrations are for monitoring.</p>
     </header>
     <ol class="assurances">
       <li><h3 data-lines>Only approved phones</h3><p>A phone joins after you approve it on the Mac.</p></li>
@@ -351,12 +373,12 @@
       <li><h3 data-lines>Delivery is checked</h3><p>A reply is confirmed in the chat, and never sent twice.</p></li>
     </ol>
     <details class="more">
-      <summary><span>How each check works, and what Squeak can answer</span></summary>
+      <summary><span>How reply checks work and which sessions support replies</span></summary>
       <div class="more__body">
         <ul class="more__list">
           <li><h3>The Mac trusts a key, not a server</h3><p>Each phone reply is signed by the paired phone, expires after ten minutes, and can answer only the chat&#39;s current question.</p></li>
-          <li><h3>The agent must be in front</h3><p>Squeak reads which chat is on screen from Conductor&#39;s own route, never from a tab label. In Terminal, the agent must own the tab and show its own empty prompt, so text never lands in a shell or over your draft.</p></li>
-          <li><h3>Confirmed, never retyped</h3><p>A reply that may have gone is checked against the chat&#39;s history. If Squeak cannot confirm it, it says so.</p></li>
+          <li><h3>The agent must be in front</h3><p>Squeak identifies the target Conductor chat before sending. In Terminal, the supported Claude Code or Codex process must own the tab and show its empty prompt, so text does not land in a shell or over your draft.</p></li>
+          <li><h3>Confirmed, never retyped</h3><p>A reply that may have gone is checked against the chat history. If Squeak cannot confirm delivery, it says so instead of retrying blindly.</p></li>
         </ul>
         <div class="table-wrap">
           <table class="compat">
@@ -382,14 +404,14 @@
 <section class="install" id="install" aria-labelledby="install-h">
   <div class="wrap install__grid">
     <div class="install__copy">
-      <p class="kicker">06 / Install</p>
-      <h2 id="install-h" data-lines>Keep your agents in view.</h2>
-      <p class="section__lede">Squeak 2.1.33 for Mac, as a disk image. It is free and ad-hoc signed rather than notarized, so macOS asks once before the first launch. After that, Squeak updates itself.</p>
+      <p class="kicker">07 / Install</p>
+      <h2 id="install-h" data-lines>Keep Conductor close.</h2>
+      <p class="section__lede">Squeak 2.1.34 for Mac, as a disk image. It is free and ad-hoc signed rather than notarized, so macOS asks once before the first launch. After that, Squeak updates itself.</p>
       <div class="actions">
-        <a class="btn btn--primary" href="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.33.dmg" download data-magnet>Download for Mac</a>
+        <a class="btn btn--primary" href="https://sibhimanyu.github.io/squeak/download/Squeak-2.1.34.dmg" download data-magnet>Download for Mac</a>
         <a class="btn btn--ghost" href="https://github.com/Sibhimanyu/squeak/releases/latest">All releases</a>
       </div>
-      <p class="install__meta">Squeak-2.1.33.dmg · macOS 14 or later · Free</p>
+      <p class="install__meta">Squeak-2.1.34.dmg · macOS 14 or later · Free</p>
     </div>
     <div class="pond" data-pond data-count="8" data-count-small="6" data-size="138" data-size-small="96" role="img" aria-label="Decoration: a small pile of Squeak&#39;s rubber duck mascot pours into a box and settles. Moving a pointer over it nudges the ducks.">
       <div class="pond__field" data-field>
@@ -407,9 +429,9 @@
       </div>
     </div>
     <ol class="install__steps" aria-label="Install in three steps">
-      <li><span class="step__n" aria-hidden="true">1</span><h3>Open the disk image</h3><p>Open Squeak-2.1.33.dmg from your Downloads and drag Squeak onto Applications.</p></li>
+      <li><span class="step__n" aria-hidden="true">1</span><h3>Open the disk image</h3><p>Open Squeak-2.1.34.dmg from your Downloads and drag Squeak onto Applications.</p></li>
       <li><span class="step__n" aria-hidden="true">2</span><h3>Open it the first time</h3><p>Right-click Squeak in Applications, choose Open, then Open again. If macOS still refuses, press Open Anyway in System Settings › Privacy &amp; Security.</p></li>
-      <li><span class="step__n" aria-hidden="true">3</span><h3>Find it in the menu bar</h3><p>Squeak lists your Conductor chats on its own. Answering them also needs the Squeak service running on the Mac.</p></li>
+      <li><span class="step__n" aria-hidden="true">3</span><h3>Find it in the menu bar</h3><p>Squeak connects to Conductor and lists your chats. Replies from any device go through the Squeak service on your Mac, which must be awake and running.</p></li>
     </ol>
   </div>
 </section>
@@ -422,6 +444,7 @@
       <li><a href="https://sibhimanyu.github.io/">More projects</a></li>
       <li><a href="https://github.com/Sibhimanyu/squeak/releases/latest">Releases</a></li>
       <li><a href="https://squeak-5c9gvo.web.app/">iPhone app</a></li>
+      <li><a href="https://squeak-mac.web.app/">Squeak for Web</a></li>
     </ul>
     <p>Sessions shown on this page are examples.</p>
   </div>
