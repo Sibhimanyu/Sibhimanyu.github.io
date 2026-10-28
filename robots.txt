@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sibhimanyu.github.io/sitemap.xml
+Sitemap: https://sibhimanyu.github.io/rasanai/sitemap.xml
+Sitemap: https://sibhimanyu.github.io/flotilla/sitemap.xml
+Sitemap: https://sibhimanyu.github.io/heresay/sitemap.xml
+Sitemap: https://sibhimanyu.github.io/greenroom/sitemap.xml
