@@ -210,9 +210,9 @@ h3 { font: 600 20px/1.25 var(--display); letter-spacing: -.01em; }
 .shot--b { position: absolute; inset: 0; transform: translate(5%, -7%) rotate(1.5deg) scale(.94); }
 .shot--a { z-index: 1; }
 .pin { position: absolute; translate: -50% -50%; width: 30px; height: 30px; border-radius: 50%; background: var(--duck); color: var(--ink); border: 2px solid var(--ink); display: grid; place-items: center; font: 700 14px/1 var(--display); z-index: 2; }
-.pin--1 { left: 41%; top: 24%; }
-.pin--2 { left: 94.5%; top: 44%; }
-.pin--3 { left: 64%; top: 97%; }
+.pin--1 { left: 41%; top: 21.5%; }
+.pin--2 { left: 94.5%; top: 42.5%; }
+.pin--3 { left: 64%; top: 93%; }
 .shot__link { max-width: 1080px; margin: 8px auto 0; text-align: right; }
 .shot__link a { display: inline-flex; align-items: center; min-height: 44px; }
 .callouts { max-width: 1080px; margin: clamp(12px, 2vw, 24px) auto 0; display: grid; gap: 24px; }
