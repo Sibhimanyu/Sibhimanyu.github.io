@@ -28,7 +28,9 @@
 <link rel="preload" href="./assets/fonts/figtree-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="./assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="./styles.css">
-<script>if(!matchMedia("(prefers-reduced-motion: reduce)").matches){var c=document.documentElement.classList;c.add("ducks-pending","hero-pending")}</script>
+<script>if(!matchMedia("(prefers-reduced-motion: reduce)").matches){var c=document.documentElement.classList;c.add("ducks-pending","hero-pending")}
+// PageSense hides the page until its script loads: SqueakShown(cb) runs cb once it is shown.
+window.SqueakShown=function(cb){var d=document,id="zps-page-screen",done=0,mo,go=function(){if(done)return;done=1;if(mo)mo.disconnect();cb()};if(!d.getElementById(id))return go();if(window.MutationObserver){mo=new MutationObserver(function(){if(!d.getElementById(id))go()});mo.observe(d.documentElement,{childList:true,subtree:true})}setTimeout(go,10500)};</script>
 <script src="./assets/vendor/gsap.min.js" defer></script>
 <script src="./assets/vendor/ScrollTrigger.min.js" defer></script>
 <script src="./assets/vendor/SplitText.min.js" defer></script>

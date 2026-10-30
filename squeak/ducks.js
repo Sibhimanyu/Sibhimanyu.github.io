@@ -572,17 +572,22 @@
   var pending = sprites.filter(function (img) {
     return !(img.complete && img.naturalWidth > 0);
   });
-  if (!pending.length) init();
-  else {
-    var left = pending.length;
-    var done = function () {
-      if (--left === 0) init();
-    };
-    pending.forEach(function (img) {
-      img.addEventListener("load", done, { once: true });
-      img.addEventListener("error", fail, { once: true });
-    });
+  // PageSense hides the page until its script loads; pour only once it is shown.
+  function begin() {
+    if (!pending.length) init();
+    else {
+      var left = pending.length;
+      var done = function () {
+        if (--left === 0) init();
+      };
+      pending.forEach(function (img) {
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", fail, { once: true });
+      });
+    }
   }
+  if (typeof window.SqueakShown === "function") window.SqueakShown(begin);
+  else begin();
   }
 
   Array.prototype.forEach.call(document.querySelectorAll("[data-stage]"), function (el) {

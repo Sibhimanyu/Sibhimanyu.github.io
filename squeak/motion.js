@@ -121,8 +121,13 @@
         },
       });
     }
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(go);
-    else go();
+    // PageSense hides the page until its script loads; play the intro once it is shown.
+    function begin() {
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(go);
+      else go();
+    }
+    if (typeof window.SqueakShown === "function") window.SqueakShown(begin);
+    else begin();
 
     // Scroll velocity jostles the ducks a little.
     var hero = document.querySelector(".hero");
