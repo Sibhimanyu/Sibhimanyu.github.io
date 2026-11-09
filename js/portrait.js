@@ -5,7 +5,7 @@
    CSS custom properties (--hp hero progress, --rule the bridge's dotted rule). Reduced motion / no canvas: drawn once, static, no listeners. */
 
 import { createHover } from './hover.js?v=574a5883';
-export const BUILD = '78e3f46f';   /* set by scripts/stamp.mjs; must equal window.__BUILD in index.html */
+export const BUILD = 'a8c9e3b2';   /* set by scripts/stamp.mjs; must equal window.__BUILD in index.html */
 const root = document.documentElement;
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const smooth = v => { v = clamp(v); return v * v * (3 - 2 * v); };
