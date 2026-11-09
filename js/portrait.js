@@ -5,7 +5,7 @@
    CSS custom properties (--hp hero progress, --rule the bridge's dotted rule). Reduced motion / no canvas: drawn once, static, no listeners. */
 
 import { createHover } from './hover.js?v=574a5883';
-export const BUILD = 'ca1db517';   /* set by scripts/stamp.mjs; must equal window.__BUILD in index.html */
+export const BUILD = '78e3f46f';   /* set by scripts/stamp.mjs; must equal window.__BUILD in index.html */
 const root = document.documentElement;
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const smooth = v => { v = clamp(v); return v * v * (3 - 2 * v); };
@@ -194,7 +194,7 @@ function makeFx() {
     sizeOf: (i, z) => { if (!h.eye[i] || !bkMode) return z; const k = blinkK(i); return z * (1 - k) + h.etz[i] * k; } });
 }
 function layout() {
-  const vp = viewport(); g = geometry(vp.W, vp.H, vp.H); T = Math.round(vp.H); wtop = Math.max(96, Math.round(vp.H * 0.3));
+  const vp = viewport(); g = geometry(vp.W, vp.H, vp.H); T = Math.round(vp.H * (g.mobile ? 2 : 1));wtop = Math.max(96, Math.round(vp.H * 0.3));   /* T is doubled on a phone: one flick covers a screen almost at once */
   setVar('--pin', T + 'px'); setVar('--wtop', wtop + 'px');
   setVar('--H', vp.H + 'px'); setVar('--tagTop', g.tagTop + 'px'); setVar('--eyeTop', g.eyeTop + 'px'); setVar('--cell', g.cell + 'px'); setVar('--sq', (g.sqDev / g.dpr) + 'px');
   canvas.width = Math.round(vp.W * g.dpr); canvas.height = Math.round(vp.H * g.dpr); canvas.style.width = vp.W + 'px'; canvas.style.height = vp.H + 'px';
