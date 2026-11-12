@@ -16,19 +16,19 @@
       "tintColor": "#FCD02C",
       "category": "developer",
       "version": "1.24.0",
-      "versionDate": "2026-11-12T08:38:11Z",
+      "versionDate": "2026-11-12T08:38:55Z",
       "versionDescription": "Ducklings: see background helpers on each thread and how many are running; the thread stays ready while they work. Presets explain what they do. Conductor and RasanAI appear only when added on your Mac.",
-      "downloadURL": "https://github.com/Sibhimanyu/squeak/releases/download/ios-v1.24.0/Squeak-1.24.0-202611120822.ipa",
-      "size": 7573534,
+      "downloadURL": "https://github.com/Sibhimanyu/squeak/releases/download/ios-v1.24.0/Squeak-1.24.0-202611120838.ipa",
+      "size": 7573536,
       "versions": [
         {
           "version": "1.24.0",
-          "buildVersion": "202611120822",
-          "date": "2026-11-12T08:38:11Z",
+          "buildVersion": "202611120838",
+          "date": "2026-11-12T08:38:55Z",
           "localizedDescription": "Ducklings: see background helpers on each thread and how many are running; the thread stays ready while they work. Presets explain what they do. Conductor and RasanAI appear only when added on your Mac.",
-          "downloadURL": "https://github.com/Sibhimanyu/squeak/releases/download/ios-v1.24.0/Squeak-1.24.0-202611120822.ipa",
-          "size": 7573534,
-          "sha256": "779331043a98545e0e138896df7f0fa84dc9227d83cb503b68bf0a8b26fd9490",
+          "downloadURL": "https://github.com/Sibhimanyu/squeak/releases/download/ios-v1.24.0/Squeak-1.24.0-202611120838.ipa",
+          "size": 7573536,
+          "sha256": "65d6380615d16366b3013fff324ee8fe4afa2d9eba775f8a98e5b6dde49ce841",
           "minOSVersion": "18.0"
         }
       ],
