@@ -61,7 +61,7 @@
   });
 
   // Hero scroll handoff: the stage opens from its inset frame to full bleed (clip-path)
-  // while the headline rises and fades, leading into the Conductor overview.
+  // while the headline rises and fades, leading into the first section.
   // Wide, tall screens only; elsewhere the framed stage simply scrolls away.
   gsap.matchMedia().add(HERO_QUERY, function () {
     var hero = document.querySelector(".hero");
@@ -197,22 +197,21 @@
     scenes.push(m);
   }
 
-  // ---- Mac app: the window tilts flat as you arrive ---------------
+  // ---- Threads: the Mac window (an HTML replica) tilts flat as you arrive ---------
   function buildMac() {
     scene(SCENE, function (desk) {
       var stage = $("[data-mac]");
       var plane = $("[data-plane]");
-      var a = $("[data-shot-a]");
-      var b = $("[data-shot-b]");
-      if (!stage || !plane || !a) return;
-      var pins = $$(".pin", a);
+      var plate = $("[data-plate]");
+      if (!stage || !plane) return;
+      var pins = $$(".pin", plane);
       var tl = gsap.timeline({
         defaults: { ease: "none" },
         scrollTrigger: { trigger: stage, start: "top 94%", end: desk ? "top 20%" : "top 14%", scrub: 0.7, invalidateOnRefresh: true },
       });
       tl.fromTo(plane, { rotationX: desk ? 44 : 30, rotationY: desk ? -17 : -9, scale: desk ? 0.8 : 0.88, y: desk ? 90 : 40, transformOrigin: "50% 100%" }, { rotationX: 0, rotationY: 0, scale: 1, y: 0, duration: 0.7, ease: "power2.out" }, 0);
-      if (b) tl.fromTo(b, { x: 0, y: 0, xPercent: 0, yPercent: 0, rotation: 0, scale: 1, opacity: 0.2 }, { xPercent: desk ? 5 : 3, yPercent: desk ? -7 : -5, rotation: 1.5, scale: desk ? 0.94 : 0.95, opacity: 1, duration: 0.6, ease: "power2.out" }, 0.35);
-      tl.fromTo(pins, { scale: 0.3, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.12, stagger: 0.1, ease: "back.out(2.2)" }, 0.68);
+      if (plate) tl.fromTo(plate, { opacity: 0, xPercent: -3, yPercent: 4, rotation: -2 }, { opacity: 1, xPercent: 0, yPercent: 0, rotation: 0, duration: 0.6, ease: "power2.out" }, 0.3);
+      if (pins.length) tl.fromTo(pins, { scale: 0.3, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.12, stagger: 0.1, ease: "back.out(2.2)" }, 0.68);
 
       var items = $$("[data-callout]");
       var cl = gsap.timeline({
@@ -223,12 +222,78 @@
       cl.from($$(".callouts__n", items[0].parentNode), { scale: 0.2, duration: 0.3, stagger: 0.18, ease: "back.out(2)" }, 0.1);
       cl.from($$("h3, p", items[0].parentNode), { opacity: 0, y: 14, duration: 0.35, stagger: 0.09, ease: "power2.out" }, 0.2);
       return function () {
-        gsap.set([plane, b, pins, items, ".callouts__n", ".callouts h3", ".callouts p"], { clearProps: "all" });
+        gsap.set([plane, plate, pins, items, ".callouts__n", ".callouts h3", ".callouts p"], { clearProps: "all" });
       };
     });
   }
 
-  // ---- Remote access: cards that stack and settle -------------------
+  // ---- Needs you: four beats pinned in one place, scrubbed ---------------------------
+  // The beats are an ordinary stacked list (copy, then its small window). When the
+  // scene fits the screen, they share one cell and crossfade as you scroll.
+  function buildMoment() {
+    scene(SCENE, function (desk) {
+      var pin = $("[data-moment]");
+      var beats = $$("[data-beat]");
+      var replay = $("[data-replay]");
+      var steps = $$("[data-steps] li");
+      if (!pin || beats.length < 2) return;
+      var inner = $(".moment__inner", pin);
+      root.classList.add("js-moment");
+      var fitsOk = inner.offsetHeight <= pin.clientHeight - 16;
+      if (!fitsOk) { root.classList.remove("js-moment"); return; }
+
+      var n = beats.length;
+      var copies = beats.map(function (b) { return $(".beat__copy", b); });
+      var wins = beats.map(function (b) { return $(".win", b); });
+      var toasts = $$(".toast", pin);
+      gsap.set(copies.slice(1).concat(wins.slice(1)), { autoAlpha: 0 });
+      var tl = gsap.timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: {
+          id: "moment",
+          trigger: pin,
+          start: "top top",
+          end: desk ? "+=260%" : "+=280%",
+          pin: true,
+          scrub: 0.5,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        },
+        onUpdate: function () {
+          var idx = Math.min(n - 1, Math.floor(tl.time() + 0.3));
+          steps.forEach(function (el, i) { el.classList.toggle("is-on", i <= idx); });
+        },
+      });
+      steps.forEach(function (el, i) { el.classList.toggle("is-on", i === 0); });
+      for (var i = 1; i < n; i++) {
+        tl.to([copies[i - 1], wins[i - 1]], { autoAlpha: 0, y: -18, duration: 0.22, ease: "power1.in" }, i - 0.42);
+        tl.fromTo([copies[i], wins[i]], { autoAlpha: 0, y: 22 }, { autoAlpha: 1, y: 0, duration: 0.28, ease: "power2.out" }, i - 0.16);
+      }
+      toasts.forEach(function (t) {
+        var k = beats.indexOf(t.closest("[data-beat]"));
+        if (k < 1) return;
+        gsap.set(t, { autoAlpha: 0 });
+        tl.fromTo(t, { autoAlpha: 0, y: -18, scale: 0.92 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.18, ease: EMPH }, k + 0.04);
+      });
+      tl.to({}, { duration: 0.45 }, n - 1 + 0.12);
+
+      function again() {
+        var st = ScrollTrigger.getById("moment");
+        if (!st) return;
+        if (lenis) lenis.scrollTo(st.start, { duration: 1.1 });
+        else window.scrollTo({ top: st.start, behavior: "smooth" });
+      }
+      if (replay) replay.addEventListener("click", again);
+      return function () {
+        if (replay) replay.removeEventListener("click", again);
+        gsap.set([copies, wins, toasts], { clearProps: "all" });
+        steps.forEach(function (el) { el.classList.remove("is-on"); });
+        root.classList.remove("js-moment");
+      };
+    });
+  }
+
+  // ---- Away from your desk: cards that stack and settle -------------------
   function buildAway() {
     scene(SCENE, function (desk, mob) {
       var section = $("[data-away]");
@@ -237,7 +302,7 @@
       var tg = $("[data-tg]");
       if (!section || !wrap || !phone || !tg) return;
       var plates = $$(".stack__plate", section);
-      var points = $$("[data-point]", section);
+      var points = $$("[data-point]");
       var cls = desk ? "js-away-d" : "js-away-m";
       root.classList.add("js-away", cls);
       var pinEl = desk ? section : wrap;
@@ -260,18 +325,14 @@
       tl.to(phone, { yPercent: -2.5, duration: 0.42 }, 0.58);
       tl.to(tg, { yPercent: 3, duration: 0.42 }, 0.58);
       tl.to(plates[0], { rotation: -10, duration: 0.42 }, 0.58);
-      if (desk) tl.fromTo(points, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.14, stagger: 0.12, ease: "power2.out" }, 0.28);
 
-      var extra = [];
-      if (!desk) {
-        // Below the pinned stack, the points arrive as you reach them.
-        extra = ScrollTrigger.batch(points, {
-          start: "top 92%",
-          once: true,
-          onEnter: function (els) { gsap.fromTo(els, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out", stagger: 0.1 }); },
-        });
-        gsap.set(points, { opacity: 0 });
-      }
+      // The points sit below the pinned stack and arrive as you reach them.
+      var extra = ScrollTrigger.batch(points, {
+        start: "top 92%",
+        once: true,
+        onEnter: function (els) { gsap.fromTo(els, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out", stagger: 0.1 }); },
+      });
+      gsap.set(points, { opacity: 0 });
       return function () {
         extra.forEach(function (t) { t.kill(); });
         gsap.set([phone, tg].concat(plates, points), { clearProps: "all" });
@@ -322,6 +383,7 @@
 
   function buildAll() {
     buildMac();
+    buildMoment();
     buildAway();
     buildLines();
   }
