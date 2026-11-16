@@ -477,7 +477,7 @@ h3 { font: 600 20px/1.25 var(--display); letter-spacing: -.01em; }
 .footer__row { display: grid; gap: 14px; }
 .footer a { color: var(--paper); text-underline-offset: 4px; }
 .footer ul { display: flex; flex-wrap: wrap; gap: 4px 24px; }
-.footer li a, .footer__row > p:first-child a { display: inline-flex; align-items: center; min-height: 44px; }
+.footer li a, .footer__row > p:first-child a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; }
 .footer__thanks { padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, .14); font-size: 13.5px; }
 .footer__thanks a { display: inline-flex; align-items: center; min-height: 44px; }
 .footer :focus-visible { outline-color: var(--duck); }
@@ -616,3 +616,6 @@ h3 { font: 600 20px/1.25 var(--display); letter-spacing: -.01em; }
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-stopped { overflow: clip; }
+
+/* Story link stays in the header on phones (the other section links hide below 560px) */
+.nav__links li.nav__story { display: block; }

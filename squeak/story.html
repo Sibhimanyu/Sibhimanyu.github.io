@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script id="pagesenseCode">!function(){var e="1.0",t=document,a=window,n="zps-page-screen",r=t.head||t.getElementsByTagName("head")[0],i=t.getElementById("pagesenseCode");if(!t.getElementById(n)){var o=t.createElement("style");o.type="text/css",o.id=n;var s="body { background: transparent !important; opacity: 0 !important; visibility: hidden !important; } html { opacity: 0 !important; visibility: hidden !important; }";o.styleSheet?o.styleSheet.cssText=s:o.appendChild(t.createTextNode(s)),r.firstChild?r.insertBefore(o,r.firstChild):r.appendChild(o),a._ps_conf={};var c={addScript:function(e){try{var n=t.createElement("script");if(n.type="text/javascript",n.async=!0,e.src?n.src=e.src:e.text&&(void 0!==n.text?n.text=e.text:n.appendChild(t.createTextNode(e.text))),i&&i.getAttribute){var o=i.getAttribute("nonce");o&&n.setAttribute("nonce",o)}n.onload=n.onreadystatechange=function(){this.readyState&&"loaded"!==this.readyState&&"complete"!==this.readyState||(n.onload=n.onreadystatechange=null,a._ps_conf&&a._ps_conf.pauseRenderForManualActivation?clearTimeout(d):c.revealPage())},n.onerror=function(){c.revealPage()},r.appendChild(n)}catch(e){throw c.revealPage(),e}},revealPage:function(){var e=t.getElementById(n);e&&e.parentNode&&e.parentNode.removeChild(e)}},d=setTimeout((function(){c.revealPage()}),1e4),p=c.revealPage;c.revealPage=function(){clearTimeout(d),p()};try{a._ps_conf&&a._ps_conf.pauseRenderForManualActivation&&(a.pagesense=a.pagesense||[],a.pagesense.push=function(e){e&&"activate"==e[0]&&c&&c.revealPage()}),a._ps_conf?a._ps_conf.version=e:a._ps_conf={version:e},c.addScript({src:"https://cdn-in.pagesense.io/js/sibhimanyugt0/38997b320d8347ba84581a5d611f4389.js"})}catch(e){c.revealPage()}}}();
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Squeak&#39;s story: from a pager to a flock</title>
+<meta name="description" content="How Squeak started as a fork of a small Telegram bridge, became a pager with a duck, grew a radar, an iPhone app and its own engine, and is now a place to share agent work with your flock.">
+<meta name="theme-color" content="#18191B">
+<link rel="canonical" href="https://sibhimanyu.github.io/squeak/story.html">
+<link rel="icon" href="./assets/favicon.png" type="image/png" sizes="64x64">
+<link rel="apple-touch-icon" href="./assets/apple-touch-icon.png" sizes="180x180">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Squeak">
+<meta property="og:title" content="Squeak&#39;s story: from a pager to a flock">
+<meta property="og:description" content="From a forked Telegram bridge to a pager with a duck, and now a flock. A scroll through how Squeak got here.">
+<meta property="og:url" content="https://sibhimanyu.github.io/squeak/story.html">
+<meta property="og:image" content="https://sibhimanyu.github.io/squeak/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Squeak: Your agents. In view. A yellow rubber duck beside the headline.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Squeak&#39;s story: from a pager to a flock">
+<meta name="twitter:description" content="From a forked Telegram bridge to a pager with a duck, and now a flock. A scroll through how Squeak got here.">
+<meta name="twitter:image" content="https://sibhimanyu.github.io/squeak/assets/og.png">
+<link rel="preload" href="./assets/fonts/figtree-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="./story.css">
+<script>
+// PageSense hides the page until its script loads: SqueakShown(cb) runs cb once it is shown.
+window.SqueakShown=function(cb){var d=document,id="zps-page-screen",done=0,mo,go=function(){if(done)return;done=1;if(mo)mo.disconnect();cb()};if(!d.getElementById(id))return go();if(window.MutationObserver){mo=new MutationObserver(function(){if(!d.getElementById(id))go()});mo.observe(d.documentElement,{childList:true,subtree:true})}setTimeout(go,10500)};</script>
+<script src="./assets/vendor/gsap.min.js" defer></script>
+<script src="./assets/vendor/ScrollTrigger.min.js" defer></script>
+<script src="./assets/vendor/SplitText.min.js" defer></script>
+<script src="./assets/vendor/lenis.min.js" defer></script>
+<script src="./story.js" defer></script>
+</head>
+<body class="story-page">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-tri" viewBox="0 0 16 16"><path d="M8 1.9 15 14H1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 6.3v3.4M8 11.6v.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-q" viewBox="0 0 16 16"><path d="M8 1.8a6.2 6.2 0 1 0 0 12.4c.9 0 1.7-.2 2.4-.5l3.1.9-.9-2.9A6.2 6.2 0 0 0 8 1.8z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M6.4 6.3c.2-1.7 3.3-1.8 3.3.2 0 1.2-1.7 1.3-1.7 2.5M8 11v.1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-load" viewBox="0 0 16 16"><g fill="currentColor"><circle cx="3" cy="3" r="1.4"/><circle cx="8" cy="3" r="1.4" opacity=".55"/><circle cx="13" cy="3" r="1.4" opacity=".3"/><circle cx="3" cy="8" r="1.4" opacity=".55"/><circle cx="8" cy="8" r="1.4"/><circle cx="13" cy="8" r="1.4" opacity=".55"/><circle cx="3" cy="13" r="1.4" opacity=".3"/><circle cx="8" cy="13" r="1.4" opacity=".55"/><circle cx="13" cy="13" r="1.4"/></g></symbol>
+  <symbol id="i-branch" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="4" cy="3.5" r="1.7"/><circle cx="4" cy="12.5" r="1.7"/><circle cx="12" cy="5.5" r="1.7"/><path d="M4 5.2v5.6M12 7.2c0 3-8 1.6-8 3.6"/></g></symbol>
+  <symbol id="i-check" viewBox="0 0 16 16"><path d="m3 8.5 3.2 3.2L13 4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+<a class="skip" href="#story">Skip to the story</a>
+
+<header class="shero" id="top">
+  <div class="shero__frame">
+    <div class="wrap shero__ui">
+      <nav class="nav" aria-label="Main">
+        <a class="nav__brand" href="./index.html" aria-label="Squeak home"><img src="./assets/logo-paper.svg" width="100" height="30" alt="Squeak"></a>
+        <ul class="nav__links">
+          <li><a href="./index.html#threads">Threads</a></li>
+          <li><a href="./index.html#needs">Needs you</a></li>
+          <li><a href="./index.html#ponds">Ponds</a></li>
+          <li><a href="./index.html#away">Away</a></li>
+          <li class="nav__story"><a href="./story.html" aria-current="page">Story</a></li>
+          <li><a class="nav__cta" href="./index.html#install">Download<span class="nav__dot" aria-hidden="true"></span></a></li>
+        </ul>
+      </nav>
+      <div class="shero__text">
+        <p class="hero__kicker">The story so far</p>
+        <h1 class="shero__title"><span class="hero__line">From a pager</span> <span class="hero__line"><span class="mark">to a flock.</span></span></h1>
+        <p class="shero__lede">Squeak began as a fork of someone else&#39;s small Telegram bridge. Eight months and 1,922 commits later it runs your agents, tells you when one needs you, and lets you share the work.</p>
+      </div>
+      <div class="shero__foot">
+        <a class="shero__cue" href="#story"><span class="cue__arrow" aria-hidden="true"></span><span class="cue__d">Scroll to follow the duck</span><span class="cue__m">Scroll</span></a>
+        <svg class="shero__line" viewBox="0 0 600 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40 C 80 10, 140 60, 220 34 S 380 8, 440 36 S 560 52, 600 24" fill="none" stroke="#FFDA1A" stroke-width="6" stroke-linecap="round"/></svg>
+        <img class="shero__duck" src="./assets/duck-brand.svg" width="1000" height="862" alt="">
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="content">
+<section class="story" id="story" aria-labelledby="story-h">
+  <h2 class="sr-only" id="story-h">Chapters of the Squeak story, in order</h2>
+  <div class="story__pin" data-pin>
+    <div class="hud" data-hud aria-hidden="true"><span class="hud__date" data-hud-date>Mar 28</span><span class="hud__count"><b data-hud-count>0</b> commits</span></div>
+    <div class="story__view" data-view>
+      <div class="story__track" data-track>
+        <svg class="story__path" data-path-svg aria-hidden="true" focusable="false"><path class="p-base" data-p-base d="M0 0"/><path class="p-draw" data-p-draw d="M0 0"/></svg>
+        <div class="vline" aria-hidden="true"><i class="vline__draw" data-vline></i></div>
+        <ol class="chapters" data-chapters>
+    <li class="chapter" id="chapter-0" data-chapter data-end="135" data-short="Mar 28">
+      <div class="chapter__top">
+        <p class="chapter__date"><span class="chapter__dot" aria-hidden="true"></span>Mar 28 2026</p>
+        <h3 class="chapter__title">The egg</h3>
+        <p class="chapter__body">Squeak began as a fork of conductor_mobile, an open-source (Apache-2.0) Telegram bridge for Conductor, written by xudong963. The first 135 commits are theirs, not ours. This is where it starts, with thanks.</p>
+        <p class="chapter__link"><a href="https://github.com/xudong963/conductor_mobile" rel="noopener">xudong963/conductor_mobile on GitHub</a></p>
+        <p class="chapter__meta">135 commits, all upstream&#39;s</p>
+      </div>
+      <div class="chapter__bottom">
+        <div class="scene" role="img" aria-label="A plain Telegram chat with an unhatched egg beside it."><div class="sc sc0">
+          <div class="egg" data-s style="--i:0"></div>
+          <div class="bub bub--in" data-s style="--i:1">/status</div>
+          <div class="bub bub--out" data-s style="--i:2">2 workspaces, 1 chat working.</div>
+          <span class="sc__cap" data-s style="--i:3">An egg</span></div></div>
+      </div>
+    </li>
+    <li class="chapter" id="chapter-1" data-chapter data-end="146" data-short="Sep 20">
+      <div class="chapter__top">
+        <p class="chapter__date"><span class="chapter__dot" aria-hidden="true"></span>Sep 20 2026</p>
+        <h3 class="chapter__title">A pager with a duck</h3>
+        <p class="chapter__body">A small daemon watched your agent chats. When one needed you, it sent a Telegram card: which chat, what the agent said, what changed. A duck showed the mood, so you knew at a glance.</p>
+        <p class="chapter__meta">11 commits</p>
+      </div>
+      <div class="chapter__bottom">
+        <div class="scene" role="img" aria-label="A Telegram card: a chat needs you, with a duck."><div class="sc sc1">
+          <div class="tgc" data-s style="--i:0">
+            <img class="tgc__duck" src="./assets/duck-needs_you.webp" width="240" height="240" alt="">
+            <p class="tgc__app">Squeak <span class="tgc__needs"><svg class="mk" aria-hidden="true"><use href="#i-tri"/></svg>Needs you</span></p>
+            <p class="tgc__chat">payments: add retry</p>
+            <p class="tgc__said" data-s style="--i:2">Should the retry cap be 3 or 5?</p>
+            <p class="tgc__chg" data-s style="--i:3"><svg class="ic" aria-hidden="true"><use href="#i-branch"/></svg>3 files changed, +42 −8</p>
+            <span class="tgc__btn" data-s style="--i:4">Reply</span>
+          </div></div></div>
+      </div>
+    </li>
+    <li class="chapter" id="chapter-2" data-chapter data-end="191" data-short="Sep 21">
+      <div class="chapter__top">
+        <p class="chapter__date"><span class="chapter__dot" aria-hidden="true"></span>Sep 21 – 24 2026</p>
+        <h3 class="chapter__title">The radar</h3>
+        <p class="chapter__body">Not one app&#39;s chats, but every Claude Code and Codex session on the Mac, newest first, with what is waiting on you pulled to the top. Hooks told it when an agent was stuck on an approval.</p>
+        <p class="chapter__meta">45 commits</p>
+      </div>
+      <div class="chapter__bottom">
+        <div class="scene" role="img" aria-label="A list of agent sessions; one is waiting for you."><div class="sc sc2">
+          <div class="sp" data-s style="--i:0"><p class="sp__head">Sessions</p>
+          <ul class="sp__list">
+            <li class="row row--needs" data-s style="--i:1"><span class="td" style="--h:330" aria-hidden="true"></span><span class="row__text"><b>checkout flow</b><span>Waiting for approval</span></span><span class="row__side"><svg class="mk mk--needs" aria-hidden="true"><use href="#i-tri"/></svg><span class="row__age">now</span></span></li>
+            <li class="row" data-s style="--i:2"><span class="td" style="--h:170" aria-hidden="true"></span><span class="row__text"><b>search index</b><span>Running tests</span></span><span class="row__side"><svg class="mk mk--working" aria-hidden="true"><use href="#i-load"/></svg><span class="row__age">2m</span></span></li>
+            <li class="row" data-s style="--i:3"><span class="td" style="--h:265" aria-hidden="true"></span><span class="row__text"><b>docs cleanup</b><span>Editing 4 files</span></span><span class="row__side"><svg class="mk mk--working" aria-hidden="true"><use href="#i-load"/></svg><span class="row__age">6m</span></span></li>
+            <li class="row" data-s style="--i:4"><span class="td" style="--h:140" aria-hidden="true"></span><span class="row__text"><b>release notes</b><span>Finished</span></span><span class="row__side"><span class="udot" aria-hidden="true"></span><span class="row__age">14m</span></span></li>
+          </ul></div></div></div>
+      </div>
+    </li>
+    <li class="chapter" id="chapter-3" data-chapter data-end="231" data-short="Sep 25">
+      <div class="chapter__top">
+        <p class="chapter__date"><span class="chapter__dot" aria-hidden="true"></span>Sep 25 2026</p>
+        <h3 class="chapter__title">It leaves the desk</h3>
+        <p class="chapter__body">An iPhone app, and a private channel to it. The Mac trusts a paired phone&#39;s key, not a server: every command is signed and runs out in minutes. You could answer Conductor chats from your phone. Zoho Cliq cards followed two days later.</p>
+        <p class="chapter__meta">40 commits</p>
+      </div>
+      <div class="chapter__bottom">
+        <div class="scene" role="img" aria-label="An iPhone showing a card that needs an answer, with a signed, expiring note."><div class="sc sc3">
+          <div class="ph" data-s style="--i:0">
+            <span class="ph__notch" aria-hidden="true"></span>
+            <p class="ph__title"><svg class="mk" aria-hidden="true"><use href="#i-tri"/></svg>Needs you</p>
+            <p class="ph__q" data-s style="--i:2">Use the cached result?</p>
+            <span class="ph__opt" data-s style="--i:3">A  Yes, use it</span>
+            <span class="ph__opt" data-s style="--i:4">B  No, run again</span>
+          </div>
+          <div class="key" data-s style="--i:5"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 7V5a3 3 0 0 1 6 0v2M3.5 7h9v6.5h-9z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><b>Signed by your phone</b><span>Expires in 10 min</span></div></div></div>
+      </div>
+    </li>
+    <li class="chapter" id="chapter-4" data-chapter data-end="431" data-short="Oct 17">
+      <div class="chapter__top">
+        <p class="chapter__date"><span class="chapter__dot" aria-hidden="true"></span>Oct 17 – 22 2026</p>
+        <h3 class="chapter__title">A Mac app of its own</h3>
+        <p class="chapter__body">The Electron duck window was retired on Oct 18. In its place a native SwiftUI app that lives in the menu bar and shows your sessions the moment you open it.</p>
+        <p class="chapter__meta">200 commits</p>
+      </div>
+      <div class="chapter__bottom">
+        <div class="scene" role="img" aria-label="The Squeak menu bar panel on a Mac, with a duck and a short list of sessions."><div class="sc sc4">
+          <div class="mbar" data-s style="--i:0"><span class="mbar__apple" aria-hidden="true"></span><img src="./assets/duck-working.webp" width="240" height="240" alt=""><span class="mbar__t">Squeak</span></div>
+          <div class="mpanel" data-s style="--i:1">
+            <p class="mpanel__head"><b>Squeak</b><span><svg class="mk" aria-hidden="true"><use href="#i-tri"/></svg>1 needs you</span></p>
+            <p class="mpanel__row" data-s style="--i:2"><span class="td td--s" style="--h:330" aria-hidden="true"></span>checkout flow<svg class="mk mk--needs" aria-hidden="true"><use href="#i-tri"/></svg></p>
+            <p class="mpanel__row" data-s style="--i:3"><span class="td td--s" style="--h:170" aria-hidden="true"></span>search index<svg class="mk mk--working" aria-hidden="true"><use href="#i-load"/></svg></p>
+            <p class="mpanel__row" data-s style="--i:4"><span class="td td--s" style="--h:265" aria-hidden="true"></span>docs cleanup<svg class="mk mk--working" aria-hidden="true"><use href="#i-load"/></svg></p>
+          </div>
+          <div class="oldwin" data-s style="--i:5"><span>Electron window</span><b>Retired Oct 18</b></div></div></div>
+      </div>
+    </li>
+    <li class="chapter" id="chapter-5" data-chapter data-end="935" data-short="Oct 23">
+      <div class="chapter__top">
+        <p class="chapter__date"><span class="chapter__dot" aria-hidden="true"></span>Oct 23 – 31 2026</p>
+        <h3 class="chapter__title">Everywhere you are</h3>
+        <p class="chapter__body">Squeak could ring you: a phone call that reads the question and takes a keypad answer. It kept the Mac awake with the lid closed, with heat and battery limits, and the phone could turn the volume down or the screen off. The site had its first redesign too.</p>
+        <p class="chapter__meta">504 commits</p>
+      </div>
+      <div class="chapter__bottom">
+        <div class="scene" role="img" aria-label="A phone call with a keypad answer, and a closed laptop under a moon with a battery limit."><div class="sc sc5">
+          <div class="call" data-s style="--i:0">
+            <p class="call__who"><span class="call__ring" aria-hidden="true"></span>Squeak is calling</p>
+            <p class="call__q">Checkout flow needs you. Press 1 for A, 2 for B.</p>
+            <div class="call__keys" aria-hidden="true"><span>1</span><span class="is-press">2</span><span>3</span></div>
+          </div>
+          <div class="lid" data-s style="--i:2">
+            <svg class="lid__moon" viewBox="0 0 40 40" aria-hidden="true"><path d="M26 6a15 15 0 1 0 8 26A12 12 0 0 1 26 6z" fill="#FFC812"/></svg>
+            <span class="lid__mac" aria-hidden="true"></span>
+            <p class="lid__t">Lid closed, still awake</p>
+            <p class="lid__b"><span class="lid__bar" aria-hidden="true"><i></i></span>Stops at 10%</p>
+          </div></div></div>
+      </div>
+    </li>
+    <li class="chapter chapter--retired" id="chapter-6" data-chapter data-end="1014" data-short="Oct 17">
+      <div class="chapter__top">
+        <p class="chapter__date"><span class="chapter__dot" aria-hidden="true"></span>Oct 17 – Nov 7 2026<span class="tag">Retired</span></p>
+        <h3 class="chapter__title">A detour we retired</h3>
+        <p class="chapter__body">For a few weeks Squeak answered Conductor chats through a relay we built by reverse engineering Conductor. It worked, but it was someone else&#39;s app. We retired it in November, sealed it away, and built Squeak&#39;s own engine from scratch instead.</p>
+        <p class="chapter__meta">Retired in November</p>
+      </div>
+      <div class="chapter__bottom">
+        <div class="scene" role="img" aria-label="A faded card marked Retired, crossed out."><div class="sc sc6">
+          <div class="ghost" data-s style="--i:0">
+            <p class="ghost__t">Answer from your phone</p>
+            <p class="ghost__s">through the relay</p>
+            <span class="ghost__line" data-s style="--i:2" aria-hidden="true"></span>
+          </div>
+          <span class="stamp" data-s style="--i:3">Retired</span></div></div>
+      </div>
+    </li>
+    <li class="chapter" id="chapter-7" data-chapter data-end="1223" data-short="Nov 8">
+      <div class="chapter__top">
+        <p class="chapter__date"><span class="chapter__dot" aria-hidden="true"></span>Nov 8 – 9 2026</p>
+        <h3 class="chapter__title">Its own engine</h3>
+        <p class="chapter__body">Squeak now runs Claude and Codex threads itself, in a session host that keeps going while the app updates. It brought approval cards, Ducklings (subagents), checkpoints, git and pull request actions, a terminal and ⌘K. The engine is Squeak&#39;s own, written clean-room.</p>
+        <p class="chapter__meta">209 commits</p>
+      </div>
+      <div class="chapter__bottom">
+        <div class="scene" role="img" aria-label="A Mac window with a thread, an approval card and two Ducklings."><div class="sc sc7">
+          <div class="mw" data-s style="--i:0">
+            <div class="mw__bar"><i></i><i></i><i></i><span>checkout · retry cap</span><kbd>⌘K</kbd></div>
+            <div class="mw__body">
+              <div class="mw__approve" data-s style="--i:2"><p><svg class="mk mk--needs" aria-hidden="true"><use href="#i-tri"/></svg>Allow npm test?</p><span class="mw__btn mw__btn--go">Allow</span><span class="mw__btn">Deny</span></div>
+              <p class="mw__duck" data-s style="--i:3"><span class="td td--s" style="--h:170" aria-hidden="true"></span>Duckling: tests<svg class="mk mk--working" aria-hidden="true"><use href="#i-load"/></svg></p>
+              <p class="mw__duck" data-s style="--i:4"><span class="td td--s" style="--h:265" aria-hidden="true"></span>Duckling: docs<svg class="mk mk--working" aria-hidden="true"><use href="#i-load"/></svg></p>
+            </div>
+          </div></div></div>
+      </div>
+    </li>
+    <li class="chapter" id="chapter-8" data-chapter data-end="1869" data-short="Nov 10">
+      <div class="chapter__top">
+        <p class="chapter__date"><span class="chapter__dot" aria-hidden="true"></span>Nov 10 – 14 2026</p>
+        <h3 class="chapter__title">A flock</h3>
+        <p class="chapter__body">Squeak accounts (Zoho, Google or email), Squeak for Web, and Ponds: a project you share with your Flock. Guests join from an invite link. Conductor became an optional extension, one of several.</p>
+        <p class="chapter__meta">646 commits</p>
+      </div>
+      <div class="chapter__bottom">
+        <div class="scene" role="img" aria-label="A pond page where members join one by one."><div class="sc sc8">
+          <div class="pp" data-s style="--i:0">
+            <p class="pp__title"><svg class="ic" aria-hidden="true"><use href="#i-branch"/></svg>Checkout pond</p>
+            <ul class="pp__members">
+              <li data-s style="--i:1"><span class="av" style="--h:45">Y</span>You</li>
+              <li data-s style="--i:2"><span class="av" style="--h:200">A</span>Asha<em>joined</em></li>
+              <li data-s style="--i:3"><span class="av" style="--h:330">B</span>Ben<em>joined</em></li>
+              <li data-s style="--i:4"><span class="av" style="--h:150">G</span>Guest<em>joined</em></li>
+            </ul>
+            <p class="pp__invite" data-s style="--i:5">Invite link</p>
+          </div></div></div>
+      </div>
+    </li>
+    <li class="chapter chapter--now" id="chapter-9" data-chapter data-end="1922" data-short="Today">
+      <div class="chapter__top">
+        <p class="chapter__date"><span class="chapter__dot" aria-hidden="true"></span>Nov 15 2026</p>
+        <h3 class="chapter__title">What it is now</h3>
+        <p class="chapter__body">Squeak 2.27.2 runs your Claude and Codex threads on your Mac and tells you the moment one needs you. Answer from your Mac, iPhone, a web browser, Telegram, Zoho Cliq or a phone call. Share a project as a pond and invite your flock.</p>
+        <p class="chapter__meta">1,922 commits so far</p>
+      </div>
+      <div class="chapter__bottom">
+        <div class="scene" role="img" aria-label="A small flock of ducks."><div class="sc sc9">
+          <img class="flk flk--1" data-s style="--i:0" src="./assets/duck-brand.svg" width="1000" height="862" alt="">
+          <img class="flk flk--2" data-s style="--i:1" src="./assets/duck-brand.svg" width="1000" height="862" alt="">
+          <img class="flk flk--3" data-s style="--i:2" src="./assets/duck-brand.svg" width="1000" height="862" alt="">
+          <img class="flk flk--4" data-s style="--i:3" src="./assets/duck-brand.svg" width="1000" height="862" alt="">
+          <img class="flk flk--5" data-s style="--i:4" src="./assets/duck-brand.svg" width="1000" height="862" alt=""></div></div>
+        <div class="coming">
+          <p class="coming__k">Still to come</p>
+          <ul class="coming__list">
+            <li><span class="badge">Coming</span>Eggs</li>
+            <li><span class="badge">Coming</span>Ripples</li>
+            <li><span class="badge">Coming</span>Shared Nests</li>
+            <li><span class="badge">Coming</span>Handoff</li>
+            <li><span class="badge">Coming</span>Claims and locks</li>
+            <li><span class="badge">Coming</span>A pond-first home</li>
+          </ul>
+        </div>
+      </div>
+    </li>
+        </ol>
+      </div>
+      <div class="riders" data-riders aria-hidden="true">
+        <img class="rider rider--lead" data-rider src="./assets/duck-brand.svg" width="1000" height="862" alt="">
+        <img class="rider rider--f" data-follower src="./assets/duck-brand.svg" width="1000" height="862" alt="">
+        <img class="rider rider--f" data-follower src="./assets/duck-brand.svg" width="1000" height="862" alt="">
+        <img class="rider rider--f" data-follower src="./assets/duck-brand.svg" width="1000" height="862" alt="">
+        <img class="rider rider--f" data-follower src="./assets/duck-brand.svg" width="1000" height="862" alt="">
+        <img class="rider rider--f" data-follower src="./assets/duck-brand.svg" width="1000" height="862" alt="">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="send" id="download" aria-labelledby="send-h">
+  <div class="wrap send__row">
+    <div>
+      <p class="kicker">Your turn</p>
+      <h2 id="send-h">Meet the duck.</h2>
+      <p class="section__lede">Free for Mac. The iPhone app and the web come along.</p>
+    </div>
+    <div>
+      <div class="actions">
+        <a class="btn btn--primary" href="https://github.com/Sibhimanyu/squeak/releases/download/v2.27.2/Squeak-2.27.2.dmg" download>Download Squeak</a>
+        <a class="btn btn--ghost" href="./index.html">Back to the main page</a>
+      </div>
+      <p class="install__meta">2.27.2 · macOS 14 or later · Free</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__row">
+    <p>Squeak, by <a href="https://sibhimanyu.github.io/">Sibhimanyu</a></p>
+    <ul>
+      <li><a href="./index.html">Main page</a></li>
+      <li><a href="./story.html">Story</a></li>
+      <li><a href="https://github.com/Sibhimanyu/squeak/releases/latest">Releases</a></li>
+    </ul>
+    <p>Commit counts are from the project&#39;s git history on 15 November 2026.</p>
+  </div>
+</footer>
+</body>
+</html>
